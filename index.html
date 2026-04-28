@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CollaPDF</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Archivo+Black&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+
+<!-- Loader overlay -->
+<div class="loader" id="loader">
+  <div class="loader-text">GENERANDO PDF...</div>
+  <div class="loader-bar"><div class="loader-progress"></div></div>
+</div>
+
+<!-- Header -->
+<div class="header">
+  <div class="logo">Colla<span>PDF</span><span class="logo-sub">v1.0</span></div>
+  <div class="header-sep"></div>
+  <div id="statsBar" class="stats-bar">
+    <div>grupos: <span id="statGroups">0</span></div>
+    <div>imágenes: <span id="statImages">0</span></div>
+    <div>páginas: <span id="statPages">—</span></div>
+  </div>
+  <div class="header-right">
+    <button class="btn btn-ghost" onclick="app.addGroup()">＋ Grupo</button>
+    <button class="btn btn-accent" id="exportBtn" onclick="app.exportPDF()">↓ Exportar PDF</button>
+  </div>
+</div>
+
+<!-- Mobile tabs -->
+<div class="mob-tabs" id="mobTabs">
+  <button class="mob-tab active" data-tab="sidebar" onclick="app.switchTab('sidebar')">⊞ Grupos</button>
+  <button class="mob-tab" data-tab="preview" onclick="app.switchTab('preview')">◻ Preview</button>
+</div>
+
+<div class="app-body">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <!-- Settings -->
+    <div style="padding: 10px 12px 0;">
+      <div class="settings-toggle" id="settingsToggle" onclick="app.toggleSettings()">
+        <span class="arrow">▶</span>
+        <span>CONFIGURAR TAMAÑOS</span>
+      </div>
+    </div>
+    <div class="preset-settings" id="presetSettings">
+      <div style="font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px;">Altura de fila en PDF (pt)</div>
+      <div class="preset-row">
+        <label>S — Pequeño</label>
+        <input class="preset-input" type="number" id="presetS" value="70" min="30" max="300" onchange="app.updatePreset('S', this.value)">
+        <span class="preset-unit">pt</span>
+      </div>
+      <div class="preset-row">
+        <label>M — Mediano</label>
+        <input class="preset-input" type="number" id="presetM" value="130" min="30" max="300" onchange="app.updatePreset('M', this.value)">
+        <span class="preset-unit">pt</span>
+      </div>
+      <div class="preset-row">
+        <label>L — Grande</label>
+        <input class="preset-input" type="number" id="presetL" value="200" min="30" max="300" onchange="app.updatePreset('L', this.value)">
+        <span class="preset-unit">pt</span>
+      </div>
+      <div style="margin-top:6px; border-top:1px solid var(--border); padding-top:8px;">
+        <div style="font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">Máx. imágenes por fila</div>
+        <div class="preset-row">
+          <label>S</label>
+          <input class="preset-input" type="number" id="maxS" value="8" min="1" max="20" onchange="app.updateMaxRow('S', this.value)">
+          <span class="preset-unit">imgs</span>
+        </div>
+        <div class="preset-row">
+          <label>M</label>
+          <input class="preset-input" type="number" id="maxM" value="5" min="1" max="20" onchange="app.updateMaxRow('M', this.value)">
+          <span class="preset-unit">imgs</span>
+        </div>
+        <div class="preset-row">
+          <label>L</label>
+          <input class="preset-input" type="number" id="maxL" value="3" min="1" max="20" onchange="app.updateMaxRow('L', this.value)">
+          <span class="preset-unit">imgs</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-label">GRUPOS</div>
+    <div class="groups-list" id="groupsList"></div>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview-area" id="previewArea">
+    <div class="preview-empty" id="previewEmpty">
+      <div class="icon">⬛</div>
+      <p>AGREGÁ IMÁGENES<br>A LOS GRUPOS<br>PARA PREVISUALIZAR</p>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" multiple accept="image/*">
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
