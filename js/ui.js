@@ -1,24 +1,7 @@
 import { CAPTION_H, CAPTION_PAD, PDF, MAX_PER_ROW } from './config.js';
 import { getGroups } from './state.js';
 import { buildPagesForGroup } from './layout.js';
-
-/**
- * Truncar nombre de archivo para caption (sin extensión)
- */
-function truncateName(name, maxChars) {
-  if (!name) return '';
-  const noExt = name.replace(/\.[^.]+$/, '');
-  if (noExt.length <= maxChars) return noExt;
-  if (maxChars <= 3) return name.substring(0, maxChars);
-  return noExt.substring(0, maxChars - 3) + '...';
-}
-
-/**
- * Escape HTML special chars
- */
-function esc(str) {
-  return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+import { truncateName, esc } from './utils.js';
 
 /**
  * Renderizar el preview de todos los grupos
@@ -49,16 +32,7 @@ export function renderPreview() {
 
     // Título del grupo
     const groupLabel = document.createElement('div');
-    groupLabel.style.cssText = `
-      font-family: 'Space Mono', monospace;
-      font-size: 10px;
-      color: var(--accent);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin: 8px 0 4px;
-      text-align: center;
-      width: 100%;
-    `;
+    groupLabel.className = 'preview-group-title';
     groupLabel.textContent = group.name;
     area.appendChild(groupLabel);
 
@@ -91,7 +65,7 @@ export function renderPreview() {
         caption.style.cssText = `
           position: absolute;
           left: ${xPos.toFixed(1)}px;
-          top: ${((y + item.h + CAPTION_PAD * scale) * scale).toFixed(1)}px;
+          top: ${((y + item.h + CAPTION_PAD) * scale).toFixed(1)}px;
           width: ${(item.w * scale).toFixed(1)}px;
           height: ${capH.toFixed(1)}px;
           display: flex;
@@ -129,7 +103,7 @@ export function renderSidebar() {
   const groups = getGroups();
 
   list.innerHTML = groups.map(g => `
-    <div class="group-card" id="card_${g.id}">
+    <div class="group-card" id="card_${g.id}" draggable="true" data-id="${g.id}">
       <div class="group-header">
         <span class="group-drag-handle">⠿</span>
         <input class="group-name-input"
@@ -176,7 +150,7 @@ export function renderSidebar() {
     const hint = document.createElement('button');
     hint.className = 'preview-hint';
     hint.innerHTML = '◻ VER PREVIEW →';
-    hint.onclick = () => switchTab('preview');
+    hint.onclick = () => app.switchTab('preview');
     list.parentElement.appendChild(hint);
   }
 }

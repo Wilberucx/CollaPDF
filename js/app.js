@@ -6,6 +6,7 @@ import * as state from './state.js';
 import * as ui from './ui.js';
 import { exportPDF } from './pdf.js';
 import { renderPreview } from './ui.js';
+import { buildPagesForGroup } from './layout.js';
 
 // ── Exponer API pública globalmente para los onclick del HTML ──
 window.app = {
@@ -159,11 +160,111 @@ function updateStats() {
   document.getElementById('statGroups').textContent = groups.length;
   const total = groups.reduce((s, g) => s + g.images.length, 0);
   document.getElementById('statImages').textContent = total;
+
+  let totalPages = 0;
+  let hasImages = false;
+  for (const group of groups) {
+    if (group.images.length > 0) {
+      hasImages = true;
+      totalPages += buildPagesForGroup(group).length;
+    }
+  }
+  document.getElementById('statPages').textContent = hasImages ? totalPages : '—';
+}
+
+// ── DRAG & DROP FOR GROUP REORDERING ──
+let draggedGroupId = null;
+
+function setupDragAndDrop() {
+  const list = document.getElementById('groupsList');
+  if (!list) return;
+
+  list.addEventListener('dragstart', (e) => {
+    // Only drag from handle
+    const handle = e.target.closest('.group-drag-handle');
+    if (!handle) {
+      e.preventDefault();
+      return;
+    }
+    const card = e.target.closest('.group-card');
+    if (!card) {
+      e.preventDefault();
+      return;
+    }
+
+    draggedGroupId = card.dataset.id;
+    card.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', draggedGroupId);
+  });
+
+  list.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    const card = e.target.closest('.group-card');
+    if (!card || card.dataset.id === draggedGroupId) return;
+
+    const rect = card.getBoundingClientRect();
+    const relativeY = e.clientY - rect.top;
+
+    // Clear other indicators
+    list.querySelectorAll('.group-card').forEach(c => {
+      if (c !== card) {
+        c.classList.remove('drag-over-before', 'drag-over-after');
+      }
+    });
+
+    if (relativeY < rect.height / 2) {
+      card.classList.add('drag-over-before');
+      card.classList.remove('drag-over-after');
+    } else {
+      card.classList.add('drag-over-after');
+      card.classList.remove('drag-over-before');
+    }
+  });
+
+  list.addEventListener('dragleave', (e) => {
+    const card = e.target.closest('.group-card');
+    if (card) {
+      card.classList.remove('drag-over-before', 'drag-over-after');
+    }
+  });
+
+  list.addEventListener('dragend', (e) => {
+    list.querySelectorAll('.group-card').forEach(c => {
+      c.classList.remove('dragging', 'drag-over-before', 'drag-over-after');
+    });
+    draggedGroupId = null;
+  });
+
+  list.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const card = e.target.closest('.group-card');
+    if (!card || card.dataset.id === draggedGroupId) return;
+
+    const position = card.classList.contains('drag-over-before') ? 'before' : 'after';
+    const targetGroupId = card.dataset.id;
+
+    state.reorderGroups(draggedGroupId, targetGroupId, position);
+
+    // Clean classes
+    list.querySelectorAll('.group-card').forEach(c => {
+      c.classList.remove('dragging', 'drag-over-before', 'drag-over-after');
+    });
+
+    // Re-render
+    ui.renderSidebar();
+    renderPreview();
+    updateStats();
+  });
 }
 
 // ── INIT ──
-state.addGroup();
+if (state.getGroups().length === 0) {
+  state.addGroup();
+}
+setupDragAndDrop();
 ui.renderSidebar();
+renderPreview();
 updateStats();
 
 // ── RESPONSIVE ──

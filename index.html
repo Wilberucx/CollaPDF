@@ -52,34 +52,34 @@
       <div style="font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px;">Altura de fila en PDF (pt)</div>
       <div class="preset-row">
         <label>S — Pequeño</label>
-        <input class="preset-input" type="number" id="presetS" value="70" min="30" max="300" onchange="app.updatePreset('S', this.value)">
+        <input class="preset-input" type="number" id="presetS" value="70" min="30" max="300" oninput="app.updatePreset('S', this.value)">
         <span class="preset-unit">pt</span>
       </div>
       <div class="preset-row">
         <label>M — Mediano</label>
-        <input class="preset-input" type="number" id="presetM" value="130" min="30" max="300" onchange="app.updatePreset('M', this.value)">
+        <input class="preset-input" type="number" id="presetM" value="130" min="30" max="300" oninput="app.updatePreset('M', this.value)">
         <span class="preset-unit">pt</span>
       </div>
       <div class="preset-row">
         <label>L — Grande</label>
-        <input class="preset-input" type="number" id="presetL" value="200" min="30" max="300" onchange="app.updatePreset('L', this.value)">
+        <input class="preset-input" type="number" id="presetL" value="200" min="30" max="300" oninput="app.updatePreset('L', this.value)">
         <span class="preset-unit">pt</span>
       </div>
       <div style="margin-top:6px; border-top:1px solid var(--border); padding-top:8px;">
         <div style="font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">Máx. imágenes por fila</div>
         <div class="preset-row">
           <label>S</label>
-          <input class="preset-input" type="number" id="maxS" value="8" min="1" max="20" onchange="app.updateMaxRow('S', this.value)">
+          <input class="preset-input" type="number" id="maxS" value="8" min="1" max="20" oninput="app.updateMaxRow('S', this.value)">
           <span class="preset-unit">imgs</span>
         </div>
         <div class="preset-row">
           <label>M</label>
-          <input class="preset-input" type="number" id="maxM" value="5" min="1" max="20" onchange="app.updateMaxRow('M', this.value)">
+          <input class="preset-input" type="number" id="maxM" value="5" min="1" max="20" oninput="app.updateMaxRow('M', this.value)">
           <span class="preset-unit">imgs</span>
         </div>
         <div class="preset-row">
           <label>L</label>
-          <input class="preset-input" type="number" id="maxL" value="3" min="1" max="20" onchange="app.updateMaxRow('L', this.value)">
+          <input class="preset-input" type="number" id="maxL" value="3" min="1" max="20" oninput="app.updateMaxRow('L', this.value)">
           <span class="preset-unit">imgs</span>
         </div>
       </div>

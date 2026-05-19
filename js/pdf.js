@@ -1,17 +1,7 @@
 import { CAPTION_H, CAPTION_PAD, PDF } from './config.js';
 import { getGroups } from './state.js';
 import { buildPagesForGroup } from './layout.js';
-
-/**
- * Truncar nombre de archivo para caption (sin extensión)
- */
-function truncateName(name, maxChars) {
-  if (!name) return '';
-  const noExt = name.replace(/\.[^.]+$/, '');
-  if (noExt.length <= maxChars) return noExt;
-  if (maxChars <= 3) return name.substring(0, maxChars);
-  return noExt.substring(0, maxChars - 3) + '...';
-}
+import { truncateName, showToast } from './utils.js';
 
 /**
  * Exportar un PDF por grupo
@@ -21,12 +11,19 @@ export async function exportPDF() {
   const groupsWithImages = groups.filter(g => g.images.length > 0);
 
   if (!groupsWithImages.length) {
-    alert('Agregá imágenes antes de exportar.');
+    showToast('Agregá imágenes antes de exportar.', 'error');
     return;
   }
 
+  const exportBtn = document.getElementById('exportBtn');
+  const originalText = exportBtn ? exportBtn.textContent : '↓ Exportar PDF';
+  if (exportBtn) {
+    exportBtn.disabled = true;
+    exportBtn.textContent = 'PROCESANDO...';
+  }
+
   const loader = document.getElementById('loader');
-  loader.classList.add('active');
+  if (loader) loader.classList.add('active');
 
   await new Promise(r => setTimeout(r, 80));
 
@@ -73,10 +70,15 @@ export async function exportPDF() {
         await new Promise(r => setTimeout(r, 200));
       }
     }
+    showToast('PDF generado con éxito.', 'success');
   } catch (err) {
     console.error(err);
-    alert('Error al generar PDF: ' + err.message);
+    showToast('Error al generar PDF: ' + err.message, 'error');
   } finally {
-    loader.classList.remove('active');
+    if (loader) loader.classList.remove('active');
+    if (exportBtn) {
+      exportBtn.disabled = false;
+      exportBtn.textContent = originalText;
+    }
   }
 }
