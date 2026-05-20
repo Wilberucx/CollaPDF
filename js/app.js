@@ -126,10 +126,10 @@ function removeImage(groupId, imgId) {
 
 // ── SETTINGS ──
 function toggleSettings() {
-  const el = document.getElementById('presetSettings');
-  const toggle = document.getElementById('settingsToggle');
+  const el = document.getElementById('sidebarRight');
+  const btn = document.getElementById('settingsBtn');
   const open = el.classList.toggle('open');
-  toggle.classList.toggle('open', open);
+  btn.classList.toggle('active', open);
 }
 
 function updatePreset(key, val) {
@@ -147,10 +147,14 @@ function switchTab(tab) {
   document.querySelectorAll('.mob-tab').forEach(t =>
     t.classList.toggle('active', t.dataset.tab === tab)
   );
-  const sidebar = document.querySelector('.sidebar');
+  const left = document.querySelector('.sidebar-left');
+  const right = document.querySelector('.sidebar-right');
   const preview = document.querySelector('.preview-area');
-  sidebar.classList.toggle('mob-hidden', tab !== 'sidebar');
+  
+  left.classList.toggle('active', tab === 'sidebar');
   preview.classList.toggle('mob-hidden', tab !== 'preview');
+  right.classList.toggle('active', tab === 'settings');
+  
   if (tab === 'preview') renderPreview();
 }
 

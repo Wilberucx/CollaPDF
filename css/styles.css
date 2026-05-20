@@ -37,6 +37,9 @@ body {
   gap: 12px;
   flex-shrink: 0;
   position: relative;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 10;
 }
 .logo {
   font-family: 'Archivo Black', sans-serif;
@@ -98,9 +101,41 @@ body {
   border-radius: 4px;
   transition: all 0.12s;
   line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
+
+#settingsBtn {
+  font-size: 20px;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s;
+}
+
+#settingsBtn:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--border2);
+}
+
+#settingsBtn.active {
+  background: var(--surface2);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 .btn-icon:hover { color: var(--text); background: var(--surface2); }
 .btn-icon.danger:hover { color: var(--danger); }
+.btn-icon.active { color: var(--accent); background: var(--surface2); }
 
 /* ── LAYOUT ── */
 .app-body {
@@ -115,11 +150,27 @@ body {
   width: 280px;
   min-width: 280px;
   background: var(--surface);
-  border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.sidebar-left {
+  border-right: 1px solid var(--border);
+}
+.sidebar-right {
+  border-left: 1px solid var(--border);
+  width: 0;
+  min-width: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+.sidebar-right.open {
+  width: 280px;
+  min-width: 280px;
+  opacity: 1;
+  visibility: visible;
 }
 .sidebar::-webkit-scrollbar { width: 4px; }
 .sidebar::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
@@ -140,16 +191,24 @@ body {
   padding: 10px 12px 4px;
 }
 
+.sidebar-add-wrap {
+  padding: 0 8px 8px;
+}
+
+.sidebar-add-btn {
+  width: 100%;
+  justify-content: center;
+  margin: 0;
+}
+
 /* ── PRESET SETTINGS ── */
 .preset-settings {
-  display: none;
+  display: flex;
   padding: 12px;
-  background: var(--surface2);
-  border-bottom: 1px solid var(--border);
+  background: transparent;
   gap: 8px;
   flex-direction: column;
 }
-.preset-settings.open { display: flex; }
 .preset-row {
   display: flex;
   align-items: center;
@@ -530,10 +589,13 @@ body {
     flex-shrink: 0;
     background: var(--surface);
     border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 10;
   }
   .mob-tab {
     flex: 1;
-    padding: 11px 8px;
+    padding: 12px 8px;
     font-family: 'Space Mono', monospace;
     font-size: 10px;
     letter-spacing: 1.5px;
@@ -543,20 +605,37 @@ body {
     color: var(--muted);
     cursor: pointer;
     border-bottom: 2px solid transparent;
-    transition: all 0.15s;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
   }
-  .mob-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .mob-tab.active { 
+    color: var(--accent); 
+    border-bottom-color: var(--accent);
+    background: rgba(240, 160, 48, 0.05);
+  }
 
   .app-body { flex-direction: column; }
 
-  .sidebar {
+  .sidebar-left,
+  .sidebar-right {
     width: 100% !important;
     min-width: 0 !important;
-    border-right: none;
+    border: none !important;
     flex: 1;
     min-height: 0;
+    transition: none;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: none;
   }
-  .sidebar.mob-hidden { display: none; }
+  .sidebar-left.active,
+  .sidebar-right.active {
+    display: flex;
+  }
   .preview-area.mob-hidden { display: none; }
 
   .preview-area { flex: 1; min-height: 0; padding: 16px 12px; }
@@ -581,21 +660,8 @@ body {
   border-top: 1px solid var(--border);
 }
 
-/* Settings toggle */
-.settings-toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Space Mono', monospace;
-  font-size: 10px;
-  color: var(--muted);
-  cursor: pointer;
-  user-select: none;
-  padding: 4px 2px;
-}
-.settings-toggle:hover { color: var(--text); }
-.settings-toggle .arrow { transition: transform 0.2s; }
-.settings-toggle.open .arrow { transform: rotate(90deg); }
+/* Settings toggle - Removed as we use header button now */
+.settings-toggle { display: none; }
 
 /* Preview hint (mobile) */
 .preview-hint {
