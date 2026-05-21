@@ -24,6 +24,7 @@ window.app = {
   toggleSettings,
   updatePreset,
   updateMaxRow,
+  setLayoutMode,
   getGroups: state.getGroups
 };
 
@@ -140,6 +141,21 @@ function updatePreset(key, val) {
 function updateMaxRow(key, val) {
   config.updateMaxRow(key, val);
   renderPreview();
+}
+
+function setLayoutMode(mode) {
+  config.setLayoutMode(mode);
+  renderPreview();
+  updateLayoutToggleUI();
+}
+
+function updateLayoutToggleUI() {
+  const justifiedBtn = document.getElementById('layoutJustified');
+  const gridBtn = document.getElementById('layoutGrid');
+  if (justifiedBtn && gridBtn) {
+    justifiedBtn.classList.toggle('active', config.LAYOUT_MODE === 'justified');
+    gridBtn.classList.toggle('active', config.LAYOUT_MODE === 'grid');
+  }
 }
 
 // ── MOBILE ──
@@ -270,6 +286,7 @@ setupDragAndDrop();
 ui.renderSidebar();
 renderPreview();
 updateStats();
+updateLayoutToggleUI();
 
 // ── RESPONSIVE ──
 window.addEventListener('resize', () => {

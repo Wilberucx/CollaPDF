@@ -11,6 +11,7 @@ export const USABLE_W = PDF.w - MARGIN * 2;
 
 export let PRESETS = { S: 70, M: 130, L: 200 };
 export let MAX_PER_ROW = { S: 8, M: 5, L: 3 };
+export let LAYOUT_MODE = 'justified';
 
 export function updatePreset(key, val) {
   const v = parseInt(val);
@@ -23,5 +24,11 @@ export function updateMaxRow(key, val) {
   const v = parseInt(val);
   if (!isNaN(v) && v >= 1 && v <= 20) {
     MAX_PER_ROW[key] = v;
+  }
+}
+
+export function setLayoutMode(mode) {
+  if (mode === 'justified' || mode === 'grid') {
+    LAYOUT_MODE = mode;
   }
 }

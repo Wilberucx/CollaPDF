@@ -1,4 +1,4 @@
-import { GAP, CAPTION_H, CAPTION_PAD, MARGIN, PDF, USABLE_W, PRESETS, MAX_PER_ROW } from './config.js';
+import { GAP, CAPTION_H, CAPTION_PAD, MARGIN, PDF, USABLE_W, PRESETS, MAX_PER_ROW, LAYOUT_MODE } from './config.js';
 
 /**
  * Algoritmo Justified Layout
@@ -89,6 +89,75 @@ export function justifiedLayout(images, containerWidth, targetRowHeight, maxPerR
 }
 
 /**
+ * Algoritmo Grid Layout
+ * - Distribuye imágenes en columnas fijas según preset
+ * - Cada imagen se escala para caber en su celda manteniendo aspect ratio
+ * - Las imágenes se centran en su celda si no la llenan
+ * - La última fila con menos imágenes distribuye equitativamente
+ */
+export function gridLayout(images, containerWidth, targetRowHeight, maxPerRow) {
+  if (!images.length) return [];
+
+  const cols = maxPerRow || 3;
+  const cellW = (containerWidth - GAP * (cols - 1)) / cols;
+
+  const rows = [];
+  let rowImages = [];
+
+  const sealRow = (items) => {
+    if (!items.length) return;
+
+    const actualCols = items.length;
+    const totalGaps = GAP * Math.max(0, actualCols - 1);
+    const availW = containerWidth - totalGaps;
+    const distributedCellW = availW / actualCols;
+
+    const rowH = Math.max(...items.map(({ img }) => {
+      const iw = img.w || 1;
+      const ih = img.h || 1;
+      const ar = iw / ih;
+      let imgH = distributedCellW / ar;
+      if (imgH > targetRowHeight * 1.5) imgH = targetRowHeight * 1.5;
+      const scale = imgH / ih;
+      return imgH + CAPTION_PAD * scale + CAPTION_H * scale;
+    }));
+
+    const rowItems = items.map(({ img }) => {
+      const iw = img.w || 1;
+      const ih = img.h || 1;
+      const ar = iw / ih;
+
+      let imgH = distributedCellW / ar;
+      if (imgH > targetRowHeight * 1.5) {
+        imgH = targetRowHeight * 1.5;
+      }
+      let imgW = imgH * ar;
+
+      const scale = imgH / ih;
+      const capH = CAPTION_H * scale;
+      const totalH = imgH + CAPTION_PAD * scale + capH;
+      const xOffset = (distributedCellW - imgW) / 2;
+
+      return { img, w: imgW, h: imgH, capH, totalH, xOffset, cellW: distributedCellW };
+    });
+
+    rows.push({ items: rowItems, h: rowH });
+  };
+
+  for (const img of images) {
+    if (!img.w || !img.h) continue;
+    rowImages.push({ img });
+    if (rowImages.length >= cols) {
+      sealRow(rowImages);
+      rowImages = [];
+    }
+  }
+
+  sealRow(rowImages);
+  return rows;
+}
+
+/**
  * Genera páginas para un grupo específico
  */
 export function buildPagesForGroup(group) {
@@ -106,7 +175,9 @@ export function buildPagesForGroup(group) {
 
   const rowH = PRESETS[group.preset];
   const maxPerRow = MAX_PER_ROW[group.preset];
-  const rows = justifiedLayout(group.images, USABLE_W, rowH, maxPerRow);
+
+  const layoutFn = LAYOUT_MODE === 'grid' ? gridLayout : justifiedLayout;
+  const rows = layoutFn(group.images, USABLE_W, rowH, maxPerRow);
 
   for (let ri = 0; ri < rows.length; ri++) {
     const row = rows[ri];
@@ -116,14 +187,14 @@ export function buildPagesForGroup(group) {
     for (const item of row.items) {
       let xPos = x;
       if (item.xOffset !== undefined) {
-        xPos = MARGIN + item.xOffset;
+        xPos = x + item.xOffset;
         if (xPos + item.w > PDF.w - MARGIN) {
           xPos = PDF.w - MARGIN - item.w;
         }
         if (xPos < MARGIN) xPos = MARGIN;
       }
       page.push({ item, x: xPos, y });
-      x += item.w + GAP;
+      x += (item.cellW || item.w) + GAP;
     }
     y += row.h + GAP;
   }
