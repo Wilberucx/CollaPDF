@@ -18,6 +18,28 @@ Open `index.html` directly in your browser. No build step required.
 
 ## CLI / Binarios
 
+### Quick Install
+
+```bash
+# Linux / macOS
+curl -fsSL https://raw.githubusercontent.com/Wilberucx/CollaPDF/main/scripts/install.sh | sh
+
+# Windows (PowerShell)
+irm https://raw.githubusercontent.com/Wilberucx/CollaPDF/main/scripts/install.ps1 | iex
+```
+
+Install a specific version:
+
+```bash
+# Linux / macOS
+curl -fsSL https://raw.githubusercontent.com/Wilberucx/CollaPDF/main/scripts/install.sh | sh -s -- --version v1.1.0
+
+# Windows
+irm https://raw.githubusercontent.com/Wilberucx/CollaPDF/main/scripts/install.ps1 | iex -Args @{ Version = "v1.1.0" }
+```
+
+### Manual Download
+
 Download pre-compiled binaries from the [GitHub Releases](https://github.com/Wilberucx/CollaPDF/releases) page.
 
 ### Usage
