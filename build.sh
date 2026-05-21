@@ -6,6 +6,9 @@ cd "$(dirname "${BASH_SOURCE[0]}")"
 VERSION="1.4"
 DIST="dist"
 
+# Clean previous builds
+rm -rf "$DIST"
+
 TARGETS=(
   "x86_64-unknown-linux-gnu:linux-amd64"
   "aarch64-unknown-linux-gnu:linux-arm64"
