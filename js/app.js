@@ -15,6 +15,7 @@ window.app = {
   setPreset,
   renameGroup,
   removeImage,
+  reorderImages,
   openFilePicker,
   onDragOver,
   onDragLeave,
@@ -125,6 +126,13 @@ function removeImage(groupId, imgId) {
   updateStats();
 }
 
+function reorderImages(groupId, fromIndex, toIndex) {
+  state.reorderImages(groupId, fromIndex, toIndex);
+  ui.renderSidebar();
+  renderPreview();
+  updateStats();
+}
+
 // ── SETTINGS ──
 function toggleSettings() {
   const el = document.getElementById('sidebarRight');
@@ -195,14 +203,20 @@ function updateStats() {
 // ── DRAG & DROP FOR GROUP REORDERING ──
 let draggedGroupId = null;
 
+// ── DRAG & DROP FOR IMAGE REORDERING ──
+let draggedThumb = null;
+
 function setupDragAndDrop() {
   const list = document.getElementById('groupsList');
   if (!list) return;
 
+  // ── Group drag & drop ──
   list.addEventListener('dragstart', (e) => {
-    // Only drag from handle
     const handle = e.target.closest('.group-drag-handle');
     if (!handle) {
+      // Check if it's a thumb drag
+      const thumbWrap = e.target.closest('.thumb-wrap');
+      if (thumbWrap) return; // Let thumb handler deal with it
       e.preventDefault();
       return;
     }
@@ -219,6 +233,27 @@ function setupDragAndDrop() {
   });
 
   list.addEventListener('dragover', (e) => {
+    // Check if we're dragging a thumb
+    if (draggedThumb) {
+      e.preventDefault();
+      const thumbWrap = e.target.closest('.thumb-wrap');
+      if (!thumbWrap || thumbWrap === draggedThumb) return;
+
+      // Only allow drop within same group
+      const draggedGroupId2 = draggedThumb.dataset.groupId;
+      const targetGroupId = thumbWrap.dataset.groupId;
+      if (draggedGroupId2 !== targetGroupId) return;
+
+      // Clear other indicators
+      list.querySelectorAll('.thumb-wrap').forEach(t => {
+        if (t !== thumbWrap) t.classList.remove('drag-over');
+      });
+
+      thumbWrap.classList.add('drag-over');
+      return;
+    }
+
+    // Group drag & drop
     e.preventDefault();
     const card = e.target.closest('.group-card');
     if (!card || card.dataset.id === draggedGroupId) return;
@@ -226,7 +261,6 @@ function setupDragAndDrop() {
     const rect = card.getBoundingClientRect();
     const relativeY = e.clientY - rect.top;
 
-    // Clear other indicators
     list.querySelectorAll('.group-card').forEach(c => {
       if (c !== card) {
         c.classList.remove('drag-over-before', 'drag-over-after');
@@ -247,16 +281,52 @@ function setupDragAndDrop() {
     if (card) {
       card.classList.remove('drag-over-before', 'drag-over-after');
     }
+    const thumbWrap = e.target.closest('.thumb-wrap');
+    if (thumbWrap) {
+      thumbWrap.classList.remove('drag-over');
+    }
   });
 
   list.addEventListener('dragend', (e) => {
     list.querySelectorAll('.group-card').forEach(c => {
       c.classList.remove('dragging', 'drag-over-before', 'drag-over-after');
     });
+    list.querySelectorAll('.thumb-wrap').forEach(t => {
+      t.classList.remove('dragging', 'drag-over');
+    });
     draggedGroupId = null;
+    draggedThumb = null;
   });
 
   list.addEventListener('drop', (e) => {
+    // Check if dropping a thumb
+    if (draggedThumb) {
+      e.preventDefault();
+      e.stopPropagation();
+      const thumbWrap = e.target.closest('.thumb-wrap');
+      if (!thumbWrap || thumbWrap === draggedThumb) return;
+
+      const draggedGroupId2 = draggedThumb.dataset.groupId;
+      const targetGroupId = thumbWrap.dataset.groupId;
+      if (draggedGroupId2 !== targetGroupId) return;
+
+      const fromIndex = parseInt(draggedThumb.dataset.imgIndex, 10);
+      const toIndex = parseInt(thumbWrap.dataset.imgIndex, 10);
+
+      state.reorderImages(draggedGroupId2, fromIndex, toIndex);
+
+      list.querySelectorAll('.thumb-wrap').forEach(t => {
+        t.classList.remove('dragging', 'drag-over');
+      });
+
+      ui.renderSidebar();
+      renderPreview();
+      updateStats();
+      draggedThumb = null;
+      return;
+    }
+
+    // Group drop
     e.preventDefault();
     const card = e.target.closest('.group-card');
     if (!card || card.dataset.id === draggedGroupId) return;
@@ -266,15 +336,24 @@ function setupDragAndDrop() {
 
     state.reorderGroups(draggedGroupId, targetGroupId, position);
 
-    // Clean classes
     list.querySelectorAll('.group-card').forEach(c => {
       c.classList.remove('dragging', 'drag-over-before', 'drag-over-after');
     });
 
-    // Re-render
     ui.renderSidebar();
     renderPreview();
     updateStats();
+  });
+
+  // ── Thumb dragstart (delegated) ──
+  list.addEventListener('dragstart', (e) => {
+    const thumbWrap = e.target.closest('.thumb-wrap');
+    if (!thumbWrap) return;
+
+    draggedThumb = thumbWrap;
+    thumbWrap.classList.add('dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', 'thumb');
   });
 }
 

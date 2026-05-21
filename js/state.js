@@ -85,6 +85,17 @@ export function addImagesToGroup(groupId, images) {
   }
 }
 
+export function reorderImages(groupId, fromIndex, toIndex) {
+  const g = groups.find(g => g.id === groupId);
+  if (!g || fromIndex === toIndex) return;
+  if (fromIndex < 0 || fromIndex >= g.images.length) return;
+  if (toIndex < 0 || toIndex >= g.images.length) return;
+
+  const [img] = g.images.splice(fromIndex, 1);
+  g.images.splice(toIndex, 0, img);
+  saveState();
+}
+
 /**
  * Reorder groups inside the state array.
  * @param {string} draggedId 

@@ -124,8 +124,9 @@ export function renderSidebar() {
       </div>
 
       <div class="group-thumbs">
-        ${g.images.map(img => `
-          <div class="thumb-wrap">
+        ${g.images.map((img, i) => `
+          <div class="thumb-wrap" draggable="true" data-group-id="${g.id}" data-img-index="${i}">
+            <span class="thumb-drag-handle">⠿</span>
             <img src="${img.dataUrl}" title="${esc(img.name)}" loading="lazy">
             <button class="thumb-remove" onclick="app.removeImage('${g.id}', '${img.id}')">✕</button>
           </div>
