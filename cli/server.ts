@@ -16,7 +16,7 @@ async function handler(req: Request): Promise<Response> {
   return new Response("Not Found", { status: 404 });
 }
 
-console.log(`CollaPDF v1.0`);
+console.log(`CollaPDF v1.4`);
 console.log(`Servidor activo → http://localhost:${PORT}`);
 console.log(`Abrí esa URL en tu navegador (Chrome, Firefox, etc.)`);
 

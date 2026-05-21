@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-VERSION="1.0"
+VERSION="1.4"
 DIST="dist"
 TAG="v${VERSION}"
 
@@ -24,7 +24,7 @@ else
 fi
 
 # Release notes
-NOTES="## CollaPDF v1.0
+NOTES="## CollaPDF v1.4
 
 Image collage creator for PDF with automatic captions.
 
@@ -66,7 +66,7 @@ sha256sum -c SHA256SUMS
 # Crear release como draft
 echo "→ Creando release draft..."
 gh release create "$TAG" "$DIST"/* \
-  --title "CollaPDF v1.0" \
+  --title "CollaPDF v1.4" \
   --notes "$NOTES" \
   --draft
 

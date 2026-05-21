@@ -3,7 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
-VERSION="1.0"
+VERSION="1.4"
 DIST="dist"
 
 TARGETS=(

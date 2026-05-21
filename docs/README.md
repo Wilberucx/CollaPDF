@@ -55,11 +55,11 @@ Descargá binarios pre-compilados desde [GitHub Releases](https://github.com/Wil
 
 | Binario | Plataforma |
 |---------|------------|
-| `collapdf-v1.0-linux-amd64` | Linux x86_64 |
-| `collapdf-v1.0-linux-arm64` | Linux ARM64 (Termux, Raspberry Pi) |
-| `collapdf-v1.0-darwin-amd64` | macOS Intel |
-| `collapdf-v1.0-darwin-arm64` | macOS Apple Silicon (M1/M2/M3) |
-| `collapdf-v1.0-windows-x86_64.exe` | Windows x86_64 |
+| `collapdf-v1.4-linux-amd64` | Linux x86_64 |
+| `collapdf-v1.4-linux-arm64` | Linux ARM64 (Termux, Raspberry Pi) |
+| `collapdf-v1.4-darwin-amd64` | macOS Intel |
+| `collapdf-v1.4-darwin-arm64` | macOS Apple Silicon (M1/M2/M3) |
+| `collapdf-v1.4-windows-x86_64.exe` | Windows x86_64 |
 
 ## Desarrollo
 
