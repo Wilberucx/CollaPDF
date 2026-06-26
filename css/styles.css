@@ -1323,6 +1323,40 @@ body {
   }
 
 
+  /* Preview steppers bigger on mobile */
+  .preview-options {
+    gap: 16px;
+    padding: 6px 0 10px;
+  }
+  .preview-opt {
+    gap: 5px;
+    font-size: 0.786rem;
+  }
+  .preview-opt-label {
+    font-size: 0.714rem;
+  }
+  .doc-stepper-btn {
+    width: 28px;
+    height: 28px;
+  }
+  .doc-stepper-btn svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+  .doc-stepper-value {
+    min-width: 36px;
+    font-size: 0.857rem;
+    line-height: 28px;
+  }
+  .doc-opt-reset {
+    width: 24px;
+    height: 24px;
+  }
+  .doc-opt-reset svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+
   /* Add document button (mobile) */
   .add-doc-btn {
     display: inline-flex !important;
