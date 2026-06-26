@@ -148,8 +148,19 @@ export function renderSidebar() {
               </button>
             </div>
           `).join('')}
+          ${d.images.length > 0 ? `
+            <div class="drop-zone thumb"
+              onclick="app.openFilePicker('${d.id}')"
+              ondragover="app.onDragOver(event, '${d.id}')"
+              ondragleave="app.onDragLeave(event)"
+              ondrop="app.onDrop(event, '${d.id}')"
+              title="Agregar imágenes">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </div>
+          ` : ''}
         </div>
 
+        ${d.images.length === 0 ? `
         <div class="drop-zone"
           onclick="app.openFilePicker('${d.id}')"
           ondragover="app.onDragOver(event, '${d.id}')"
@@ -157,6 +168,7 @@ export function renderSidebar() {
           ondrop="app.onDrop(event, '${d.id}')">
           + AGREGAR IMÁGENES
         </div>
+        ` : ''}
       </div>
     `}).join('');
 

@@ -601,6 +601,20 @@ body {
   background: rgba(240, 160, 48, 0.05);
 }
 
+/* Square drop-zone inline with thumbs */
+.drop-zone.thumb {
+  width: 50px;
+  height: 50px;
+  margin: 0;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  flex-shrink: 0;
+  font-size: 1.5rem;
+}
+
 /* Preview document title */
 .preview-document-title {
   display: flex;
@@ -907,6 +921,11 @@ body {
   .thumb-wrap {
     width: 60px;
     height: 60px;
+  }
+  .drop-zone.thumb {
+    width: 60px;
+    height: 60px;
+    font-size: 1.8rem;
   }
   .thumb-remove {
     display: flex !important;
