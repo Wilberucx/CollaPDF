@@ -202,11 +202,12 @@ body {
 }
 .sidebar-right {
   position: fixed;
-  top: 48px;
+  top: 0;
   right: 0;
   bottom: 0;
-  width: 360px;
-  min-width: 360px;
+  width: 44vw;
+  min-width: 380px;
+  max-width: 600px;
   z-index: 200;
   background: var(--surface);
   display: flex;
@@ -219,6 +220,30 @@ body {
   opacity: 0;
   visibility: hidden;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Settings close button */
+.settings-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.12s;
+  z-index: 1;
+}
+.settings-close:hover {
+  background: var(--surface2);
+  color: var(--text);
+  border-color: var(--border2);
 }
 .sidebar-right.open {
   transform: translateX(0);
@@ -1009,6 +1034,12 @@ body {
     display: flex;
   }
   .settings-backdrop {
+    display: none;
+  }
+  .settings-close {
+    display: none;
+  }
+  .settings-close {
     display: none;
   }
   .mob-hidden {
