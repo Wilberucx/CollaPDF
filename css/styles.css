@@ -291,6 +291,16 @@ body {
   padding: 12px 12px 6px;
 }
 
+/* Settings title: Archivo Black like the logo */
+.sidebar-right .sidebar-label {
+  font-family: "Archivo Black", sans-serif;
+  font-size: 1.143rem;
+  letter-spacing: -0.3px;
+  text-transform: none;
+  color: var(--text);
+  padding: 14px 50px 10px 14px;
+}
+
 /* ── PRESET SETTINGS ── */
 .preset-settings {
   display: flex;
@@ -1034,9 +1044,6 @@ body {
     display: flex;
   }
   .settings-backdrop {
-    display: none;
-  }
-  .settings-close {
     display: none;
   }
   .settings-close {
