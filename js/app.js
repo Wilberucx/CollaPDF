@@ -420,6 +420,64 @@ function setupDragAndDrop() {
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', 'thumb');
   });
+
+  // ── Touch drag & drop for mobile list rows ──
+  let touchDraggedRow = null;
+  let touchStartY = 0;
+
+  list.addEventListener('touchstart', (e) => {
+    const grip = e.target.closest('.thumb-row-grip');
+    if (!grip) return;
+    const row = grip.closest('.thumb-row');
+    if (!row || row.classList.contains('add-row')) return;
+
+    touchDraggedRow = row;
+    touchStartY = e.touches[0].clientY;
+    row.classList.add('dragging');
+  }, { passive: true });
+
+  list.addEventListener('touchmove', (e) => {
+    if (!touchDraggedRow) return;
+    e.preventDefault();
+
+    const touch = e.touches[0];
+    // Find what's under the finger
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (!target) return;
+    const targetRow = target.closest('.thumb-row');
+    if (!targetRow || targetRow === touchDraggedRow || targetRow.classList.contains('add-row')) return;
+
+    // Same document check
+    if (touchDraggedRow.dataset.docId !== targetRow.dataset.docId) return;
+
+    // Clear previous indicators
+    list.querySelectorAll('.thumb-row').forEach(r => {
+      if (r !== touchDraggedRow) r.classList.remove('drag-over');
+    });
+
+    targetRow.classList.add('drag-over');
+  }, { passive: false });
+
+  list.addEventListener('touchend', (e) => {
+    if (!touchDraggedRow) return;
+
+    const targetRow = list.querySelector('.thumb-row.drag-over');
+    if (targetRow) {
+      const fromIndex = parseInt(touchDraggedRow.dataset.imgIndex, 10);
+      const toIndex = parseInt(targetRow.dataset.imgIndex, 10);
+
+      state.reorderImages(touchDraggedRow.dataset.docId, fromIndex, toIndex);
+
+      ui.renderSidebar();
+      renderPreview();
+      updateStats();
+    }
+
+    list.querySelectorAll('.thumb-row').forEach(r => {
+      r.classList.remove('dragging', 'drag-over');
+    });
+    touchDraggedRow = null;
+  }, { passive: true });
 }
 
 // ── Sync DOM values from persisted config ──

@@ -1093,6 +1093,10 @@ body {
     border: 1px dashed var(--accent);
     border-radius: 4px;
   }
+  .thumb-row.drag-over {
+    border-left: 3px solid var(--accent);
+    background: rgba(240, 160, 48, 0.08);
+  }
 
   /* Add row (mobile list) */
   .thumb-row.add-row {
