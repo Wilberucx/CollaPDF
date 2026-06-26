@@ -131,6 +131,10 @@ function removeImage(docId, imgId) {
   updateStats();
 }
 
+function renameImage(docId, imgId, name) {
+  state.renameImage(docId, imgId, name);
+}
+
 function reorderImages(docId, fromIndex, toIndex) {
   state.reorderImages(docId, fromIndex, toIndex);
   ui.renderSidebar();
