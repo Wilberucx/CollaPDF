@@ -23,8 +23,6 @@ window.app = {
   exportPDF,
   switchTab,
   toggleSettings,
-  updatePreset,
-  updateMaxRow,
   setLayoutMode,
   presetStep,
   maxRowStep,
@@ -143,11 +141,6 @@ function toggleSettings() {
   btn.classList.toggle('active', open);
 }
 
-function updatePreset(key, val) {
-  config.updatePreset(key, val);
-  renderPreview();
-}
-
 function presetStep(key, delta) {
   const el = document.getElementById('preset' + key);
   if (!el) return;
@@ -156,11 +149,6 @@ function presetStep(key, delta) {
   const next = Math.max(30, Math.min(300, current + delta));
   config.updatePreset(key, next);
   el.textContent = next;
-  renderPreview();
-}
-
-function updateMaxRow(key, val) {
-  config.updateMaxRow(key, val);
   renderPreview();
 }
 
@@ -381,10 +369,21 @@ function setupDragAndDrop() {
   });
 }
 
+// ── Sync DOM values from persisted config ──
+function syncConfigUI() {
+  for (const key of ['S', 'M', 'L']) {
+    const presetEl = document.getElementById('preset' + key);
+    if (presetEl) presetEl.textContent = config.PRESETS[key];
+    const maxEl = document.getElementById('max' + key);
+    if (maxEl) maxEl.textContent = config.MAX_PER_ROW[key];
+  }
+}
+
 // ── INIT ──
 if (state.getGroups().length === 0) {
   state.addGroup();
 }
+syncConfigUI();
 setupDragAndDrop();
 ui.renderSidebar();
 renderPreview();
