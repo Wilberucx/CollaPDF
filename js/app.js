@@ -15,6 +15,7 @@ window.app = {
   setPreset,
   renameDocument,
   removeImage,
+  renameImage,
   reorderImages,
   openFilePicker,
   onDragOver,
@@ -267,12 +268,16 @@ function setupDragAndDrop() {
   if (!list) return;
 
   // ── Document drag & drop ──
+  function getThumb(el) {
+    return el.closest('.thumb-wrap') || el.closest('.thumb-row');
+  }
+
   list.addEventListener('dragstart', (e) => {
     const handle = e.target.closest('.document-drag-handle');
     if (!handle) {
       // Check if it's a thumb drag
-      const thumbWrap = e.target.closest('.thumb-wrap');
-      if (thumbWrap) return; // Let thumb handler deal with it
+      const thumb = getThumb(e.target);
+      if (thumb) return; // Let thumb handler deal with it
       e.preventDefault();
       return;
     }
@@ -292,20 +297,20 @@ function setupDragAndDrop() {
     // Check if we're dragging a thumb
     if (draggedThumb) {
       e.preventDefault();
-      const thumbWrap = e.target.closest('.thumb-wrap');
-      if (!thumbWrap || thumbWrap === draggedThumb) return;
+      const thumb = getThumb(e.target);
+      if (!thumb || thumb === draggedThumb) return;
 
       // Only allow drop within same document
       const draggedDocId = draggedThumb.dataset.docId;
-      const targetDocId = thumbWrap.dataset.docId;
+      const targetDocId = thumb.dataset.docId;
       if (draggedDocId !== targetDocId) return;
 
       // Clear other indicators
-      list.querySelectorAll('.thumb-wrap').forEach(t => {
-        if (t !== thumbWrap) t.classList.remove('drag-over');
+      list.querySelectorAll('.thumb-wrap, .thumb-row').forEach(t => {
+        if (t !== thumb) t.classList.remove('drag-over');
       });
 
-      thumbWrap.classList.add('drag-over');
+      thumb.classList.add('drag-over');
       return;
     }
 
@@ -337,9 +342,9 @@ function setupDragAndDrop() {
     if (card) {
       card.classList.remove('drag-over-before', 'drag-over-after');
     }
-    const thumbWrap = e.target.closest('.thumb-wrap');
-    if (thumbWrap) {
-      thumbWrap.classList.remove('drag-over');
+    const thumb = getThumb(e.target);
+    if (thumb) {
+      thumb.classList.remove('drag-over');
     }
   });
 
@@ -347,7 +352,7 @@ function setupDragAndDrop() {
     list.querySelectorAll('.document-card').forEach(c => {
       c.classList.remove('dragging', 'drag-over-before', 'drag-over-after');
     });
-    list.querySelectorAll('.thumb-wrap').forEach(t => {
+    list.querySelectorAll('.thumb-wrap, .thumb-row').forEach(t => {
       t.classList.remove('dragging', 'drag-over');
     });
     draggedDocumentId = null;
@@ -359,19 +364,19 @@ function setupDragAndDrop() {
     if (draggedThumb) {
       e.preventDefault();
       e.stopPropagation();
-      const thumbWrap = e.target.closest('.thumb-wrap');
-      if (!thumbWrap || thumbWrap === draggedThumb) return;
+      const thumb = getThumb(e.target);
+      if (!thumb || thumb === draggedThumb) return;
 
       const draggedDocId = draggedThumb.dataset.docId;
-      const targetDocId = thumbWrap.dataset.docId;
+      const targetDocId = thumb.dataset.docId;
       if (draggedDocId !== targetDocId) return;
 
       const fromIndex = parseInt(draggedThumb.dataset.imgIndex, 10);
-      const toIndex = parseInt(thumbWrap.dataset.imgIndex, 10);
+      const toIndex = parseInt(thumb.dataset.imgIndex, 10);
 
       state.reorderImages(draggedDocId, fromIndex, toIndex);
 
-      list.querySelectorAll('.thumb-wrap').forEach(t => {
+      list.querySelectorAll('.thumb-wrap, .thumb-row').forEach(t => {
         t.classList.remove('dragging', 'drag-over');
       });
 
@@ -403,11 +408,11 @@ function setupDragAndDrop() {
 
   // ── Thumb dragstart (delegated) ──
   list.addEventListener('dragstart', (e) => {
-    const thumbWrap = e.target.closest('.thumb-wrap');
-    if (!thumbWrap) return;
+    const thumb = getThumb(e.target);
+    if (!thumb) return;
 
-    draggedThumb = thumbWrap;
-    thumbWrap.classList.add('dragging');
+    draggedThumb = thumb;
+    thumb.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', 'thumb');
   });

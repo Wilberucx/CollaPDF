@@ -1008,6 +1008,103 @@ body {
     font-size: 1.8rem;
   }
 
+  /* List view on mobile */
+  .thumb-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--border);
+    cursor: grab;
+    transition: background 0.12s;
+  }
+  .thumb-row:last-child {
+    border-bottom: none;
+  }
+  .thumb-row:active {
+    cursor: grabbing;
+  }
+  .thumb-row.selected {
+    background: rgba(240, 160, 48, 0.08);
+  }
+  .thumb-row-grip {
+    color: var(--muted);
+    flex-shrink: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+  }
+  .thumb-row-img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .thumb-row-name {
+    flex: 1;
+    min-width: 0;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid transparent;
+    color: var(--text);
+    font-family: 'Archivo', sans-serif;
+    font-size: 0.857rem;
+    padding: 2px 0;
+    outline: none;
+    transition: border-color 0.12s;
+  }
+  .thumb-row-name:focus {
+    border-bottom-color: var(--accent);
+  }
+  .thumb-row .thumb-select {
+    display: flex;
+    position: static;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: 2px solid var(--muted);
+    border-radius: 50%;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .thumb-row .thumb-select svg {
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .thumb-row.selected .thumb-select {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .thumb-row.selected .thumb-select svg {
+    opacity: 1;
+  }
+  .thumb-row.dragging {
+    opacity: 0.4;
+    border: 1px dashed var(--accent);
+    border-radius: 4px;
+  }
+  .document-thumbs {
+    flex-direction: column;
+    gap: 0;
+    padding: 4px 8px;
+  }
+  .drop-zone.thumb {
+    margin: 6px auto;
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
 
   /* Preview hint badge */
   .preview-hint {

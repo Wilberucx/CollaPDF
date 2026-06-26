@@ -87,6 +87,16 @@ export function removeImage(docId, imgId) {
   }
 }
 
+export function renameImage(docId, imgId, name) {
+  const d = documents.find(d => d.id === docId);
+  if (!d) return;
+  const img = d.images.find(i => i.id === imgId);
+  if (img) {
+    img.name = name;
+    saveState();
+  }
+}
+
 export function addImagesToDocument(docId, images) {
   const d = documents.find(d => d.id === docId);
   if (d) {
