@@ -558,28 +558,6 @@ body {
   border-radius: 3px;
   display: block;
 }
-.thumb-remove {
-  display: none;
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 14px;
-  height: 14px;
-  background: var(--danger);
-  border-radius: 50%;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.571rem;
-  color: #fff;
-  cursor: pointer;
-  border: none;
-  z-index: 3;
-  line-height: 1;
-}
-.thumb-wrap:hover .thumb-remove {
-  display: flex;
-}
-
 /* Selection overlay (mobile multi-select) */
 .thumb-wrap .thumb-select {
   display: none;
@@ -623,10 +601,7 @@ body {
   .thumb-wrap.selected img {
     opacity: 0.7;
   }
-  .thumb-wrap:hover .thumb-remove,
-  .thumb-wrap.selected .thumb-remove {
-    display: none !important;
-  }
+
 }
 
 /* Drop zone */
@@ -1032,14 +1007,7 @@ body {
     height: 60px;
     font-size: 1.8rem;
   }
-  .thumb-remove {
-    display: flex !important;
-    width: 18px;
-    height: 18px;
-    font-size: 0.714rem;
-    top: -5px;
-    right: -5px;
-  }
+
 
   /* Preview hint badge */
   .preview-hint {
