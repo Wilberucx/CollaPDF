@@ -125,10 +125,6 @@ body {
   border-color: var(--border2);
   background: var(--surface2);
 }
-.btn-xs {
-  padding: 3px 8px;
-  font-size: 0.714rem;
-}
 .btn-icon {
   padding: 5px;
   background: transparent;
@@ -225,13 +221,6 @@ body {
   border-radius: 2px;
 }
 
-.sidebar-top {
-  padding: 12px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
 .sidebar-label {
   font-family: 'Space Mono', monospace;
   font-size: 0.714rem;
@@ -1159,18 +1148,6 @@ body {
   .add-doc-btn {
     display: inline-flex !important;
   }
-}
-
-/* Dividers in sidebar */
-.sidebar-footer {
-  margin-top: auto;
-  padding: 12px;
-  border-top: 1px solid var(--border);
-}
-
-/* Settings toggle - Removed as we use header button now */
-.settings-toggle {
-  display: none;
 }
 
 /* Add document button (mobile) */
