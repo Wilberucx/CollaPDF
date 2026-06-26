@@ -519,28 +519,71 @@ body {
   text-align: center;
 }
 
-/* Per-document stepper controls */
-.doc-options {
+/* Preset toggle (Compacto/Normal/Amplio) in document sidebar */
+.preset-toggle {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  gap: 2px;
   padding: 4px 10px 6px;
   background: rgba(0,0,0,0.08);
   border-bottom: 1px solid var(--border);
 }
-.doc-opt {
+.preset-toggle-btn {
+  flex: 1;
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  font-family: "Space Mono", monospace;
+  font-size: 0.643rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.12s;
+  text-transform: uppercase;
+}
+.preset-toggle-btn:first-child {
+  border-radius: 3px 0 0 3px;
+}
+.preset-toggle-btn:last-child {
+  border-radius: 0 3px 3px 0;
+}
+.preset-toggle-btn:not(:last-child) {
+  border-right: none;
+}
+.preset-toggle-btn:hover {
+  color: var(--text);
+  background: rgba(255,255,255,0.03);
+}
+.preset-toggle-btn.active {
+  background: var(--accent);
+  color: #0c0c0c;
+  border-color: var(--accent);
+}
+
+/* Preview options (Tam/Filas steppers) */
+.preview-options {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 4px 0 8px;
+  width: 100%;
+}
+.preview-opt {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
   font-family: 'Space Mono', monospace;
   font-size: 0.643rem;
   color: var(--muted);
 }
-.doc-opt-label {
+.preview-opt-label {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-right: 2px;
 }
+
+/* Stepper controls (reused in preview) */
 .doc-stepper {
   display: inline-flex;
   align-items: center;

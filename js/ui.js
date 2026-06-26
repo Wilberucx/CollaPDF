@@ -47,6 +47,39 @@ export function renderPreview() {
     `;
     area.appendChild(docLabel);
 
+    // Per-document controls: Tamaño de imagen e Imágenes por fila
+    const previewOpts = document.createElement('div');
+    previewOpts.className = 'preview-options';
+    previewOpts.innerHTML = `
+      <span class="preview-opt">
+        <span class="preview-opt-label">Tam</span>
+        <span class="doc-stepper">
+          <button class="doc-stepper-btn" onclick="app.docRowHStep('${doc.id}', -5)" aria-label="Disminuir">
+            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <span class="doc-stepper-value" id="docRowH_${doc.id}">${doc.customRowH ?? PRESETS[doc.preset]}</span>
+          <button class="doc-stepper-btn" onclick="app.docRowHStep('${doc.id}', 5)" aria-label="Aumentar">
+            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </span>
+        ${doc.customRowH !== null ? `<button class="doc-opt-reset" onclick="app.docReset('${doc.id}', 'rowH')" title="Restablecer valor por defecto"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
+      </span>
+      <span class="preview-opt">
+        <span class="preview-opt-label">Filas</span>
+        <span class="doc-stepper">
+          <button class="doc-stepper-btn" onclick="app.docMaxRowStep('${doc.id}', -1)" aria-label="Disminuir">
+            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+          <span class="doc-stepper-value" id="docMaxRow_${doc.id}">${doc.customMaxRow ?? MAX_PER_ROW[doc.preset]}</span>
+          <button class="doc-stepper-btn" onclick="app.docMaxRowStep('${doc.id}', 1)" aria-label="Aumentar">
+            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </button>
+        </span>
+        ${doc.customMaxRow !== null ? `<button class="doc-opt-reset" onclick="app.docReset('${doc.id}', 'maxRow')" title="Restablecer valor por defecto"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
+      </span>
+    `;
+    area.appendChild(previewOpts);
+
     const pages = buildPagesForDocument(doc);
     totalPages += pages.length;
 
@@ -129,33 +162,10 @@ export function renderSidebar() {
           </button>
         </div>
 
-        <div class="doc-options">
-          <span class="doc-opt">
-            <span class="doc-opt-label">Tam</span>
-            <span class="doc-stepper">
-              <button class="doc-stepper-btn" onclick="event.stopPropagation();app.docRowHStep('${d.id}', -5)" aria-label="Disminuir">
-                <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              </button>
-              <span class="doc-stepper-value" id="docRowH_${d.id}">${d.customRowH ?? PRESETS[d.preset]}</span>
-              <button class="doc-stepper-btn" onclick="event.stopPropagation();app.docRowHStep('${d.id}', 5)" aria-label="Aumentar">
-                <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              </button>
-            </span>
-            ${d.customRowH !== null ? `<button class="doc-opt-reset" onclick="event.stopPropagation();app.docReset('${d.id}', 'rowH')" title="Restablecer valor por defecto"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
-          </span>
-          <span class="doc-opt">
-            <span class="doc-opt-label">Filas</span>
-            <span class="doc-stepper">
-              <button class="doc-stepper-btn" onclick="event.stopPropagation();app.docMaxRowStep('${d.id}', -1)" aria-label="Disminuir">
-                <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              </button>
-              <span class="doc-stepper-value" id="docMaxRow_${d.id}">${d.customMaxRow ?? MAX_PER_ROW[d.preset]}</span>
-              <button class="doc-stepper-btn" onclick="event.stopPropagation();app.docMaxRowStep('${d.id}', 1)" aria-label="Aumentar">
-                <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              </button>
-            </span>
-            ${d.customMaxRow !== null ? `<button class="doc-opt-reset" onclick="event.stopPropagation();app.docReset('${d.id}', 'maxRow')" title="Restablecer valor por defecto"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
-          </span>
+        <div class="preset-toggle">
+          <button class="preset-toggle-btn ${d.preset === 'S' ? 'active' : ''}" onclick="event.stopPropagation();app.setPreset('${d.id}', 'S')">Compacto</button>
+          <button class="preset-toggle-btn ${d.preset === 'M' ? 'active' : ''}" onclick="event.stopPropagation();app.setPreset('${d.id}', 'M')">Normal</button>
+          <button class="preset-toggle-btn ${d.preset === 'L' ? 'active' : ''}" onclick="event.stopPropagation();app.setPreset('${d.id}', 'L')">Amplio</button>
         </div>
         <div class="document-thumbs" id="thumbs_${d.id}">
           ${(window.innerWidth <= 640 ? renderImageList(d) : renderImageGrid(d))}
