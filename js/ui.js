@@ -27,7 +27,8 @@ export function renderPreview() {
   area.innerHTML = '';
 
   let totalPages = 0;
-  docs.forEach((doc, di) => {
+  for (let di = 0; di < docs.length; di++) {
+    const doc = docs[di];
     if (!doc.images.length) continue;
 
     // Separador entre documentos (no antes del primero)
@@ -105,7 +106,7 @@ export function renderPreview() {
 
       area.appendChild(pageEl);
     });
-  });
+  }
 
   document.getElementById('statPages').textContent = totalPages;
 }
