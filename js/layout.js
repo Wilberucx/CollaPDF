@@ -34,16 +34,14 @@ export function justifiedLayout(images, containerWidth, targetRowHeight, maxPerR
         if (h > maxH) { h = maxH; w = h * ar; }
       }
       const xOffset = (containerWidth - w) / 2;
-      const scale = h / ih;
-      const capH = CAPTION_H * scale;
       rows.push({
         items: [{
           img: img0.img,
-          w, h, capH,
-          totalH: h + CAPTION_PAD * scale + capH,
+          w, h, capH: CAPTION_H,
+          totalH: h + CAPTION_PAD + CAPTION_H,
           xOffset
         }],
-        h: h + CAPTION_PAD * scale + capH
+        h: h + CAPTION_PAD + CAPTION_H
       });
       return;
     }
@@ -54,16 +52,15 @@ export function justifiedLayout(images, containerWidth, targetRowHeight, maxPerR
     const avail = containerWidth - gaps;
     const scale = avail / imgOnlyW;
     const scaledImgH = targetRowHeight * scale;
-    const scaledCapH = CAPTION_H * scale;
     rows.push({
       items: items.map(r => ({
         img: r.img,
         w: r.w * scale,
         h: scaledImgH,
-        capH: scaledCapH,
-        totalH: scaledImgH + CAPTION_PAD * scale + scaledCapH
+        capH: CAPTION_H,
+        totalH: scaledImgH + CAPTION_PAD + CAPTION_H
       })),
-      h: scaledImgH + CAPTION_PAD * scale + scaledCapH
+      h: scaledImgH + CAPTION_PAD + CAPTION_H
     });
   };
 
@@ -118,8 +115,7 @@ export function gridLayout(images, containerWidth, targetRowHeight, maxPerRow) {
       const ar = iw / ih;
       let imgH = distributedCellW / ar;
       if (imgH > targetRowHeight * 1.5) imgH = targetRowHeight * 1.5;
-      const scale = imgH / ih;
-      return imgH + CAPTION_PAD * scale + CAPTION_H * scale;
+      return imgH + CAPTION_PAD + CAPTION_H;
     }));
 
     const rowItems = items.map(({ img }) => {
@@ -133,12 +129,9 @@ export function gridLayout(images, containerWidth, targetRowHeight, maxPerRow) {
       }
       let imgW = imgH * ar;
 
-      const scale = imgH / ih;
-      const capH = CAPTION_H * scale;
-      const totalH = imgH + CAPTION_PAD * scale + capH;
       const xOffset = (distributedCellW - imgW) / 2;
 
-      return { img, w: imgW, h: imgH, capH, totalH, xOffset, cellW: distributedCellW };
+      return { img, w: imgW, h: imgH, capH: CAPTION_H, totalH: imgH + CAPTION_PAD + CAPTION_H, xOffset, cellW: distributedCellW };
     });
 
     rows.push({ items: rowItems, h: rowH });
