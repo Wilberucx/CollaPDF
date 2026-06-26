@@ -158,9 +158,9 @@ export function gridLayout(images, containerWidth, targetRowHeight, maxPerRow) {
 }
 
 /**
- * Genera páginas para un grupo específico
+ * Genera páginas para un documento específico
  */
-export function buildPagesForGroup(group) {
+export function buildPagesForDocument(doc) {
   const pages = [];
   let page = [];
   let y = MARGIN;
@@ -171,13 +171,13 @@ export function buildPagesForGroup(group) {
     y = MARGIN;
   }
 
-  if (!group.images.length) return pages;
+  if (!doc.images.length) return pages;
 
-  const rowH = PRESETS[group.preset];
-  const maxPerRow = MAX_PER_ROW[group.preset];
+  const rowH = PRESETS[doc.preset];
+  const maxPerRow = MAX_PER_ROW[doc.preset];
 
   const layoutFn = LAYOUT_MODE === 'grid' ? gridLayout : justifiedLayout;
-  const rows = layoutFn(group.images, USABLE_W, rowH, maxPerRow);
+  const rows = layoutFn(doc.images, USABLE_W, rowH, maxPerRow);
 
   for (let ri = 0; ri < rows.length; ri++) {
     const row = rows[ri];

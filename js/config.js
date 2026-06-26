@@ -6,7 +6,7 @@ export const MARGIN = 20;
 export const GAP = 4;
 export const CAPTION_H = 14;
 export const CAPTION_PAD = 2;
-export const GROUP_GAP = 12;
+export const DOCUMENT_GAP = 12;
 export const USABLE_W = PDF.w - MARGIN * 2;
 
 const STORAGE_KEY = 'collapdf_config';
@@ -15,7 +15,8 @@ const STORAGE_KEY = 'collapdf_config';
 const DEFAULTS = {
   PRESETS: { S: 70, M: 130, L: 200 },
   MAX_PER_ROW: { S: 8, M: 5, L: 3 },
-  LAYOUT_MODE: 'justified'
+  LAYOUT_MODE: 'justified',
+  FONT_SCALE: 'M'
 };
 
 // Inicializar desde localStorage o defaults
@@ -27,7 +28,8 @@ function loadConfig() {
       return {
         PRESETS: { ...DEFAULTS.PRESETS, ...parsed.PRESETS },
         MAX_PER_ROW: { ...DEFAULTS.MAX_PER_ROW, ...parsed.MAX_PER_ROW },
-        LAYOUT_MODE: parsed.LAYOUT_MODE || DEFAULTS.LAYOUT_MODE
+        LAYOUT_MODE: parsed.LAYOUT_MODE || DEFAULTS.LAYOUT_MODE,
+        FONT_SCALE: parsed.FONT_SCALE || DEFAULTS.FONT_SCALE
       };
     }
   } catch (e) {
@@ -41,7 +43,8 @@ function saveConfig() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       PRESETS,
       MAX_PER_ROW,
-      LAYOUT_MODE
+      LAYOUT_MODE,
+      FONT_SCALE
     }));
   } catch (e) {
     console.error('Failed to save config to localStorage:', e);
@@ -52,6 +55,7 @@ const loaded = loadConfig();
 export let PRESETS = loaded.PRESETS;
 export let MAX_PER_ROW = loaded.MAX_PER_ROW;
 export let LAYOUT_MODE = loaded.LAYOUT_MODE;
+export let FONT_SCALE = loaded.FONT_SCALE;
 
 export function updatePreset(key, val) {
   const v = parseInt(val);
@@ -74,4 +78,17 @@ export function setLayoutMode(mode) {
     LAYOUT_MODE = mode;
     saveConfig();
   }
+}
+
+export const FONT_SCALE_MAP = { S: 0.85, M: 1.0, L: 1.15 };
+
+export function setFontScale(scale) {
+  if (scale === 'S' || scale === 'M' || scale === 'L') {
+    FONT_SCALE = scale;
+    saveConfig();
+  }
+}
+
+export function getFontScaleValue() {
+  return FONT_SCALE_MAP[FONT_SCALE] || 1.0;
 }
