@@ -1074,12 +1074,12 @@ body {
   .thumb-row .thumb-select {
     display: flex;
     position: absolute;
-    top: 2px;
-    left: 2px;
+    top: 0;
+    left: 0;
     width: 18px;
     height: 18px;
-    background: rgba(0,0,0,0.4);
-    border: 2px solid rgba(255,255,255,0.7);
+    background: var(--accent);
+    border: 2px solid var(--accent);
     border-radius: 50%;
     align-items: center;
     justify-content: center;
@@ -1087,19 +1087,15 @@ body {
     color: #fff;
     cursor: pointer;
     z-index: 2;
-    transition: all 0.15s;
-  }
-  .thumb-row .thumb-select svg {
     opacity: 0;
     transition: opacity 0.15s;
+  }
+  .thumb-row .thumb-select svg {
+    opacity: 1;
     width: 10px;
     height: 10px;
   }
   .thumb-row.selected .thumb-select {
-    background: var(--accent);
-    border-color: var(--accent);
-  }
-  .thumb-row.selected .thumb-select svg {
     opacity: 1;
   }
   .thumb-row.selected .thumb-row-img {
