@@ -103,17 +103,16 @@ export function renderPreview() {
         `;
         pageEl.appendChild(img);
 
-        // Caption
-        const capH = item.capH || (CAPTION_H * scale);
-        const capHeight = Math.max(capH * 1.4, 12);
-        const capFont = Math.max(7, capH * 0.65);
+        // Caption (item.capH from layout is in PDF pts, scale to preview)
+        const capH = (item.capH != null ? item.capH : CAPTION_H) * scale;
+        const capFont = Math.max(6, capH * 0.6);
         const caption = document.createElement('div');
         caption.style.cssText = `
           position: absolute;
           left: ${xPos.toFixed(1)}px;
           top: ${((y + item.h + CAPTION_PAD) * scale).toFixed(1)}px;
           width: ${(item.w * scale).toFixed(1)}px;
-          height: ${capHeight.toFixed(1)}px;
+          height: ${capH.toFixed(1)}px;
           display: flex;
           align-items: center;
           justify-content: center;
