@@ -26,6 +26,7 @@ window.app = {
   setLayoutMode,
   presetStep,
   maxRowStep,
+  setFontScale,
   getDocuments: state.getDocuments
 };
 
@@ -175,6 +176,28 @@ function updateLayoutToggleUI() {
   if (autoBtn && gridBtn) {
     autoBtn.classList.toggle('active', config.LAYOUT_MODE === 'justified');
     gridBtn.classList.toggle('active', config.LAYOUT_MODE === 'grid');
+  }
+}
+
+// ── FONT SCALE ──
+function setFontScale(scale) {
+  config.setFontScale(scale);
+  applyFontScale();
+  updateFontScaleUI();
+}
+
+function applyFontScale() {
+  const scale = config.getFontScaleValue();
+  const baseSize = Math.round(14 * scale * 10) / 10;
+  document.documentElement.style.fontSize = baseSize + 'px';
+}
+
+function updateFontScaleUI() {
+  for (const s of ['S', 'M', 'L']) {
+    const btn = document.getElementById('font' + s);
+    if (btn) {
+      btn.classList.toggle('active', config.FONT_SCALE === s);
+    }
   }
 }
 
@@ -386,6 +409,8 @@ if (state.getDocuments().length === 0) {
 }
 syncConfigUI();
 setupDragAndDrop();
+applyFontScale();
+updateFontScaleUI();
 ui.renderSidebar();
 renderPreview();
 updateStats();

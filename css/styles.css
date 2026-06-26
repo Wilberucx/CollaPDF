@@ -21,6 +21,10 @@
   --radius:    5px;
 }
 
+html {
+  font-size: 14px;
+}
+
 body {
   font-family: 'Archivo', sans-serif;
   background: var(--bg);
@@ -30,7 +34,7 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  font-size: 14px;
+  font-size: 1rem;
 }
 
 /* ── HEADER ── */
@@ -50,7 +54,7 @@ body {
 }
 .logo {
   font-family: "Archivo Black", sans-serif;
-  font-size: 16px;
+  font-size: 1.143rem;
   letter-spacing: -0.5px;
   color: var(--text);
 }
@@ -59,7 +63,7 @@ body {
 }
 .logo-sub {
   font-family: "Space Mono", monospace;
-  font-size: 9px;
+  font-size: 0.643rem;
   color: var(--muted);
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -89,7 +93,7 @@ body {
   border: 1px solid transparent;
   cursor: pointer;
   font-family: 'Archivo', sans-serif;
-  font-size: 13px;
+  font-size: 0.929rem;
   font-weight: 600;
   transition: all 0.12s;
   white-space: nowrap;
@@ -123,7 +127,7 @@ body {
 }
 .btn-xs {
   padding: 3px 8px;
-  font-size: 10px;
+  font-size: 0.714rem;
 }
 .btn-icon {
   padding: 5px;
@@ -140,7 +144,7 @@ body {
 }
 
 #settingsBtn {
-  font-size: 20px;
+  font-size: 1.429rem;
   width: 36px;
   height: 36px;
   background: transparent;
@@ -230,7 +234,7 @@ body {
 }
 .sidebar-label {
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
+  font-size: 0.714rem;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--muted);
@@ -261,7 +265,7 @@ body {
 }
 .settings-section-title {
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
+  font-size: 0.714rem;
   letter-spacing: 1.5px;
   text-transform: uppercase;
   color: var(--text);
@@ -269,7 +273,7 @@ body {
 }
 .settings-section-desc {
   font-family: 'Space Mono', monospace;
-  font-size: 9px;
+  font-size: 0.643rem;
   color: var(--muted);
   margin-bottom: 10px;
   line-height: 1.4;
@@ -283,7 +287,7 @@ body {
 }
 .preset-row label {
   font-family: 'Space Mono', monospace;
-  font-size: 12px;
+  font-size: 0.857rem;
   color: var(--text);
 }
 .preset-input {
@@ -294,14 +298,14 @@ body {
   padding: 4px 8px;
   border-radius: var(--radius);
   font-family: 'Space Mono', monospace;
-  font-size: 11px;
+  font-size: 0.786rem;
   outline: none;
   width: 60px;
 }
 .preset-input:focus { border-color: var(--accent); }
 .preset-unit {
   font-family: 'Space Mono', monospace;
-  font-size: 11px;
+  font-size: 0.786rem;
   color: var(--muted);
   min-width: 32px;
   text-align: right;
@@ -326,7 +330,7 @@ body {
   background: transparent;
   color: var(--muted);
   font-family: "Space Mono", monospace;
-  font-size: 14px;
+  font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.12s;
@@ -345,7 +349,7 @@ body {
   min-width: 40px;
   text-align: center;
   font-family: "Space Mono", monospace;
-  font-size: 12px;
+  font-size: 0.857rem;
   color: var(--text);
   padding: 0 4px;
   border-left: 1px solid var(--border);
@@ -370,7 +374,7 @@ body {
   background: transparent;
   color: var(--muted);
   font-family: "Space Mono", monospace;
-  font-size: 10px;
+  font-size: 0.714rem;
   font-weight: 600;
   letter-spacing: 0.5px;
   cursor: pointer;
@@ -430,7 +434,7 @@ body {
 .document-drag-handle {
   color: var(--muted);
   cursor: grab;
-  font-size: 14px;
+  font-size: 1rem;
   line-height: 1;
   user-select: none;
 }
@@ -444,7 +448,7 @@ body {
   border: none;
   color: var(--text);
   font-family: 'Archivo', sans-serif;
-  font-size: 13px;
+  font-size: 0.929rem;
   font-weight: 600;
   outline: none;
   min-width: 0;
@@ -456,7 +460,7 @@ body {
 }
 .document-count {
   font-family: 'Space Mono', monospace;
-  font-size: 11px;
+  font-size: 0.786rem;
   color: var(--text);
   background: var(--border);
   padding: 2px 6px;
@@ -474,7 +478,7 @@ body {
   border-radius: 4px;
   color: var(--text);
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
+  font-size: 0.714rem;
   font-weight: 700;
   padding: 2px 20px 2px 6px;
   cursor: pointer;
@@ -532,7 +536,7 @@ body {
   position: absolute;
   top: 1px;
   left: 2px;
-  font-size: 8px;
+  font-size: 0.571rem;
   color: var(--muted);
   opacity: 0;
   transition: opacity 0.12s;
@@ -565,7 +569,7 @@ body {
   border-radius: 50%;
   align-items: center;
   justify-content: center;
-  font-size: 8px;
+  font-size: 0.571rem;
   color: #fff;
   cursor: pointer;
   border: none;
@@ -583,7 +587,7 @@ body {
   border-radius: 4px;
   padding: 10px;
   text-align: center;
-  font-size: 12px;
+  font-size: 0.857rem;
   color: var(--muted);
   cursor: pointer;
   transition: all 0.15s;
@@ -603,7 +607,7 @@ body {
   align-items: center;
   gap: 6px;
   font-family: "Space Mono", monospace;
-  font-size: 11px;
+  font-size: 0.786rem;
   color: var(--accent);
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -638,7 +642,7 @@ body {
   gap: 12px;
   padding: 12px 16px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 0.857rem;
   font-weight: 500;
   color: var(--text);
   background: rgba(20, 20, 20, 0.85);
@@ -695,7 +699,7 @@ body {
 .toast-text {
   flex: 1;
   font-family: "Space Mono", monospace;
-  font-size: 11px;
+  font-size: 0.786rem;
   line-height: 1.4;
 }
 
@@ -703,7 +707,7 @@ body {
   background: transparent;
   border: none;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 1rem;
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
@@ -765,7 +769,7 @@ body {
   bottom: 6px;
   right: 8px;
   font-family: "Space Mono", monospace;
-  font-size: 8px;
+  font-size: 0.571rem;
   color: #bbb;
 }
 
@@ -780,12 +784,12 @@ body {
   text-align: center;
 }
 .preview-empty .icon {
-  font-size: 48px;
+  font-size: 3.429rem;
   opacity: 0.5;
 }
 .preview-empty p {
   font-family: 'Space Mono', monospace;
-  font-size: 12px;
+  font-size: 0.857rem;
   letter-spacing: 1px;
   line-height: 1.8;
   color: var(--muted);
@@ -794,7 +798,7 @@ body {
 /* Stats bar */
 .stats-bar {
   font-family: 'Space Mono', monospace;
-  font-size: 10px;
+  font-size: 0.714rem;
   color: var(--muted);
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -839,7 +843,7 @@ body {
     flex: 1;
     padding: 8px 4px 6px;
     font-family: 'Space Mono', monospace;
-    font-size: 10px;
+    font-size: 0.714rem;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     background: transparent;
@@ -855,7 +859,7 @@ body {
     gap: 2px;
   }
   .mob-tab-icon {
-    font-size: 24px;
+    font-size: 1.714rem;
     line-height: 1;
     transition: transform 0.2s;
   }
@@ -863,7 +867,7 @@ body {
     transform: scale(1.15);
   }
   .mob-tab-label {
-    font-size: 10px;
+    font-size: 0.714rem;
     letter-spacing: 0.8px;
   }
   .mob-tab.active {
@@ -897,8 +901,8 @@ body {
   }  .preview-area { flex: 1; min-height: 0; padding: 16px 12px; }
 
   /* Bigger touch targets on mobile */
-  .preset-select { font-size: 12px; padding: 4px 24px 4px 8px; }
-  .drop-zone { padding: 14px; font-size: 13px; }
+  .preset-select { font-size: 0.857rem; padding: 4px 24px 4px 8px; }
+  .drop-zone { padding: 14px; font-size: 0.929rem; }
   .btn { padding: 8px 14px; }
   .thumb-wrap {
     width: 60px;
@@ -908,7 +912,7 @@ body {
     display: flex !important;
     width: 18px;
     height: 18px;
-    font-size: 10px;
+    font-size: 0.714rem;
     top: -5px;
     right: -5px;
   }
@@ -940,7 +944,7 @@ body {
   background: var(--accent);
   color: #0c0c0c;
   font-family: 'Space Mono', monospace;
-  font-size: 11px;
+  font-size: 0.786rem;
   font-weight: 700;
   letter-spacing: 1px;
   padding: 10px 16px;
@@ -969,7 +973,7 @@ body {
 }
 .loader-text {
   font-family: "Space Mono", monospace;
-  font-size: 12px;
+  font-size: 0.857rem;
   color: var(--accent);
   letter-spacing: 2px;
   animation: pulse 1.2s ease-in-out infinite;
