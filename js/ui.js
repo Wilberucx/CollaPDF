@@ -105,7 +105,7 @@ export function renderPreview() {
 
         // Caption (item.capH from layout is in PDF pts, scale to preview)
         const capH = (item.capH != null ? item.capH : CAPTION_H) * scale;
-        const capFont = Math.max(6, capH * 0.6);
+        const capFont = Math.max(5, capH * 0.65);
         const caption = document.createElement('div');
         caption.style.cssText = `
           position: absolute;
@@ -119,9 +119,7 @@ export function renderPreview() {
           font-size: ${capFont.toFixed(1)}px;
           color: #888;
           font-family: 'Space Mono', monospace;
-          overflow: hidden;
           white-space: nowrap;
-          text-overflow: ellipsis;
           padding: 0 2px;
         `;
         caption.textContent = truncateName(item.img.name, Math.floor(item.w * scale / 5));
