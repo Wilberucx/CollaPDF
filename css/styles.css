@@ -241,16 +241,6 @@ body {
   padding: 12px 12px 6px;
 }
 
-.sidebar-add-wrap {
-  padding: 0 8px 8px;
-}
-
-.sidebar-add-btn {
-  width: 100%;
-  justify-content: center;
-  margin: 0;
-}
-
 /* ── PRESET SETTINGS ── */
 .preset-settings {
   display: flex;
