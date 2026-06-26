@@ -1,5 +1,5 @@
 import { CAPTION_H, CAPTION_PAD, PDF, MAX_PER_ROW } from './config.js';
-import { getDocuments } from './state.js';
+import { getDocuments, getSelectedImages, toggleImageSelection } from './state.js';
 import { buildPagesForDocument } from './layout.js';
 import { truncateName, esc } from './utils.js';
 
@@ -137,8 +137,14 @@ export function renderSidebar() {
         </div>
 
         <div class="document-thumbs">
-          ${d.images.map((img, i) => `
-            <div class="thumb-wrap" draggable="true" data-doc-id="${d.id}" data-img-index="${i}">
+          ${d.images.map((img, i) => {
+            const sel = getSelectedImages();
+            const isSelected = sel.some(s => s.docId === d.id && s.imgId === img.id);
+            return `
+            <div class="thumb-wrap${isSelected ? ' selected' : ''}" draggable="true" data-doc-id="${d.id}" data-img-index="${i}">
+              <button class="thumb-select" onclick="event.stopPropagation();app.toggleImageSelection('${d.id}', '${img.id}')" title="Seleccionar">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
               <span class="thumb-drag-handle">
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="8" cy="5" r="1.5"/><circle cx="16" cy="5" r="1.5"/><circle cx="8" cy="12" r="1.5"/><circle cx="16" cy="12" r="1.5"/><circle cx="8" cy="19" r="1.5"/><circle cx="16" cy="19" r="1.5"/></svg>
               </span>
@@ -147,7 +153,7 @@ export function renderSidebar() {
                 <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
-          `).join('')}
+          `}).join('')}
           ${d.images.length > 0 ? `
             <div class="drop-zone thumb"
               onclick="app.openFilePicker('${d.id}')"
@@ -172,6 +178,9 @@ export function renderSidebar() {
       </div>
     `}).join('');
 
+  // Update selection bar
+  updateSelectionBar();
+
   // Mobile: show "Ver preview" button if there are images
   const hasImages = docs.some(d => d.images.length > 0);
   const existing = list.parentElement.querySelector('.preview-hint');
@@ -183,4 +192,16 @@ export function renderSidebar() {
     hint.onclick = () => app.switchTab('preview');
     list.parentElement.appendChild(hint);
   }
+}
+
+function updateSelectionBar() {
+  const bar = document.getElementById('selectionBar');
+  if (!bar) return;
+  const sel = getSelectedImages();
+  const count = sel.length;
+  const countEl = bar.querySelector('.sel-count');
+  if (countEl) {
+    countEl.textContent = count + ' seleccionada' + (count !== 1 ? 's' : '');
+  }
+  bar.classList.toggle('active', count > 0);
 }

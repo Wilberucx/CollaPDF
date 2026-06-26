@@ -580,6 +580,55 @@ body {
   display: flex;
 }
 
+/* Selection overlay (mobile multi-select) */
+.thumb-wrap .thumb-select {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .thumb-wrap .thumb-select {
+    display: flex;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.6);
+    background: rgba(0,0,0,0.35);
+    align-items: center;
+    justify-content: center;
+    z-index: 4;
+    cursor: pointer;
+    transition: all 0.15s;
+    padding: 0;
+    color: #fff;
+  }
+  .thumb-wrap .thumb-select svg {
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
+  .thumb-wrap.selected .thumb-select {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .thumb-wrap.selected .thumb-select svg {
+    opacity: 1;
+  }
+  .thumb-wrap.selected {
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+    border-radius: 4px;
+  }
+  .thumb-wrap.selected img {
+    opacity: 0.7;
+  }
+  .thumb-wrap:hover .thumb-remove,
+  .thumb-wrap.selected .thumb-remove {
+    display: none !important;
+  }
+}
+
 /* Drop zone */
 .drop-zone {
   margin: 0 8px 8px;
@@ -735,6 +784,62 @@ body {
 .toast-close:hover {
   color: var(--text);
   background: rgba(255, 255, 255, 0.05);
+}
+
+/* ── SELECTION ACTION BAR (mobile) ── */
+.selection-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: 10;
+  flex-shrink: 0;
+  gap: 8px;
+}
+.selection-bar.active {
+  display: flex;
+}
+.selection-bar .sel-count {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.857rem;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+.selection-bar .sel-actions {
+  display: flex;
+  gap: 6px;
+}
+.selection-bar .sel-actions button {
+  padding: 5px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.714rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.12s;
+  text-transform: uppercase;
+}
+.selection-bar .sel-cancel {
+  background: transparent;
+  color: var(--muted);
+}
+.selection-bar .sel-cancel:hover {
+  color: var(--text);
+  border-color: var(--border2);
+}
+.selection-bar .sel-delete {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+.selection-bar .sel-delete:hover {
+  background: #e06060;
+  border-color: #e06060;
 }
 
 /* ── PREVIEW AREA ── */

@@ -27,7 +27,10 @@ window.app = {
   presetStep,
   maxRowStep,
   setFontScale,
-  getDocuments: state.getDocuments
+  getDocuments: state.getDocuments,
+  toggleImageSelection,
+  deleteSelectedImages,
+  clearSelection
 };
 
 // ── FILE PICKER ──
@@ -215,6 +218,24 @@ function switchTab(tab) {
   right.classList.toggle('active', tab === 'settings');
   
   if (tab === 'preview') renderPreview();
+}
+
+// ── SELECTION ──
+function toggleImageSelection(docId, imgId) {
+  state.toggleImageSelection(docId, imgId);
+  ui.renderSidebar();
+}
+
+function deleteSelectedImages() {
+  state.deleteSelectedImages();
+  ui.renderSidebar();
+  renderPreview();
+  updateStats();
+}
+
+function clearSelection() {
+  state.clearSelection();
+  ui.renderSidebar();
 }
 
 // ── STATS ──

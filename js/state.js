@@ -5,6 +5,9 @@ let documents = [];
 let dCounter = 0;
 let activeDocumentId = null;
 
+// ── Selection state (multi-select on mobile) ──
+let selectedImages = []; // {docId, imgId}[]
+
 // Initialize state from localStorage if available
 try {
   const saved = localStorage.getItem('collapdf_state');
@@ -109,6 +112,38 @@ export function reorderImages(docId, fromIndex, toIndex) {
  * @param {string} targetId 
  * @param {'before'|'after'} position 
  */
+// ── SELECTION ──
+
+export function getSelectedImages() { return selectedImages; }
+
+export function toggleImageSelection(docId, imgId) {
+  const idx = selectedImages.findIndex(s => s.docId === docId && s.imgId === imgId);
+  if (idx >= 0) {
+    selectedImages.splice(idx, 1);
+  } else {
+    selectedImages.push({ docId, imgId });
+  }
+  // Return new selection state
+  return selectedImages.length;
+}
+
+export function clearSelection() {
+  selectedImages = [];
+}
+
+export function deleteSelectedImages() {
+  // Iterate backwards so splice indices stay valid
+  for (let i = selectedImages.length - 1; i >= 0; i--) {
+    const { docId, imgId } = selectedImages[i];
+    const d = documents.find(doc => doc.id === docId);
+    if (d) {
+      d.images = d.images.filter(img => img.id !== imgId);
+    }
+  }
+  selectedImages = [];
+  saveState();
+}
+
 export function reorderDocuments(draggedId, targetId, position) {
   const draggedIndex = documents.findIndex(d => d.id === draggedId);
   const targetIndex = documents.findIndex(d => d.id === targetId);
