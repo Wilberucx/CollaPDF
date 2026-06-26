@@ -519,37 +519,93 @@ body {
   text-align: center;
 }
 
-/* Preset select dropdown */
-.preset-select {
-  appearance: none;
-  -webkit-appearance: none;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  color: var(--text);
+/* Per-document stepper controls */
+.doc-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px 6px;
+  background: rgba(0,0,0,0.08);
+  border-bottom: 1px solid var(--border);
+}
+.doc-opt {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font-family: 'Space Mono', monospace;
+  font-size: 0.643rem;
+  color: var(--muted);
+}
+.doc-opt-label {
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-right: 2px;
+}
+.doc-stepper {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.doc-stepper-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: "Space Mono", monospace;
   font-size: 0.714rem;
   font-weight: 700;
-  padding: 2px 20px 2px 6px;
   cursor: pointer;
-  transition: all 0.12s;
-  min-width: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' width='10' height='10' fill='none' stroke='%23999' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 4px center;
-  background-size: 10px;
+  transition: all 0.08s;
+  user-select: none;
+  line-height: 1;
+  padding: 0;
 }
-.preset-select:hover {
-  border-color: var(--accent);
+.doc-stepper-btn:hover {
+  background: var(--surface2);
   color: var(--accent);
 }
-.preset-select:focus {
-  border-color: var(--accent);
-  outline: none;
+.doc-stepper-btn:active {
+  background: var(--accent-dim);
+  color: #fff;
 }
-.preset-select option {
-  background: var(--surface2);
+.doc-stepper-value {
+  min-width: 26px;
+  text-align: center;
+  font-family: "Space Mono", monospace;
+  font-size: 0.714rem;
   color: var(--text);
+  padding: 0 2px;
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  background: var(--surface2);
+  line-height: 18px;
+}
+.doc-opt-reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  border-radius: 2px;
+  padding: 0;
+  line-height: 1;
+  transition: all 0.08s;
+  opacity: 0.4;
+}
+.doc-opt-reset:hover {
+  opacity: 1;
+  color: var(--accent);
 }
 
 /* Thumbnails */
@@ -1054,7 +1110,7 @@ body {
   }  .preview-area { flex: 1; min-height: 0; padding: 16px 12px; }
 
   /* Bigger touch targets on mobile */
-  .preset-select { font-size: 0.857rem; padding: 4px 24px 4px 8px; }
+
   .drop-zone { padding: 14px; font-size: 0.929rem; }
   .btn { padding: 8px 14px; }
   .thumb-wrap {

@@ -1,4 +1,4 @@
-import { CAPTION_H, CAPTION_PAD, PDF, MAX_PER_ROW } from './config.js';
+import { CAPTION_H, CAPTION_PAD, PDF, PRESETS, MAX_PER_ROW } from './config.js';
 import { getDocuments, getSelectedImages, toggleImageSelection } from './state.js';
 import { buildPagesForDocument } from './layout.js';
 import { truncateName, esc } from './utils.js';
@@ -124,18 +124,39 @@ export function renderSidebar() {
             onchange="app.renameDocument('${d.id}', this.value)"
             title="Renombrar documento">
           <span class="document-count">${d.images.length}</span>
-          <select class="preset-select"
-            onchange="app.setPreset('${d.id}', this.value)"
-            title="Tamaño de las imágenes">
-            <option value="S" ${d.preset === 'S' ? 'selected' : ''}>Compacto</option>
-            <option value="M" ${d.preset === 'M' ? 'selected' : ''}>Normal</option>
-            <option value="L" ${d.preset === 'L' ? 'selected' : ''}>Amplio</option>
-          </select>
           <button class="btn-icon danger" onclick="app.removeDocument('${d.id}')" title="Eliminar documento">
             <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
 
+        <div class="doc-options">
+          <span class="doc-opt">
+            <span class="doc-opt-label">Tam</span>
+            <span class="doc-stepper">
+              <button class="doc-stepper-btn" onclick="event.stopPropagation();app.docRowHStep('${d.id}', -5)" aria-label="Disminuir">
+                <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <span class="doc-stepper-value" id="docRowH_${d.id}">${d.customRowH ?? PRESETS[d.preset]}</span>
+              <button class="doc-stepper-btn" onclick="event.stopPropagation();app.docRowHStep('${d.id}', 5)" aria-label="Aumentar">
+                <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+            </span>
+            ${d.customRowH !== null ? `<button class="doc-opt-reset" onclick="event.stopPropagation();app.docReset('${d.id}', 'rowH')" title="Restablecer valor por defecto"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
+          </span>
+          <span class="doc-opt">
+            <span class="doc-opt-label">Filas</span>
+            <span class="doc-stepper">
+              <button class="doc-stepper-btn" onclick="event.stopPropagation();app.docMaxRowStep('${d.id}', -1)" aria-label="Disminuir">
+                <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+              <span class="doc-stepper-value" id="docMaxRow_${d.id}">${d.customMaxRow ?? MAX_PER_ROW[d.preset]}</span>
+              <button class="doc-stepper-btn" onclick="event.stopPropagation();app.docMaxRowStep('${d.id}', 1)" aria-label="Aumentar">
+                <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              </button>
+            </span>
+            ${d.customMaxRow !== null ? `<button class="doc-opt-reset" onclick="event.stopPropagation();app.docReset('${d.id}', 'maxRow')" title="Restablecer valor por defecto"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
+          </span>
+        </div>
         <div class="document-thumbs" id="thumbs_${d.id}">
           ${(window.innerWidth <= 640 ? renderImageList(d) : renderImageGrid(d))}
           ${d.images.length > 0 ? (window.innerWidth <= 640 ? renderAddRow(d) : renderAddButton(d)) : ''}

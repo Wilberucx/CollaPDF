@@ -13,6 +13,9 @@ window.app = {
   addDocument,
   removeDocument,
   setPreset,
+  docRowHStep,
+  docMaxRowStep,
+  docReset,
   renameDocument,
   removeImage,
   renameImage,
@@ -115,6 +118,39 @@ function removeDocument(id) {
 
 function setPreset(docId, preset) {
   state.setPreset(docId, preset);
+  ui.renderSidebar();
+  renderPreview();
+}
+
+// ── PER-DOCUMENT STEPPERS ──
+function docRowHStep(docId, delta) {
+  const docs = state.getDocuments();
+  const doc = docs.find(d => d.id === docId);
+  if (!doc) return;
+  const current = doc.customRowH ?? config.PRESETS[doc.preset];
+  const next = Math.max(30, Math.min(300, current + delta));
+  state.setDocumentRowH(docId, next);
+  document.getElementById('docRowH_' + docId).textContent = next;
+  renderPreview();
+}
+
+function docMaxRowStep(docId, delta) {
+  const docs = state.getDocuments();
+  const doc = docs.find(d => d.id === docId);
+  if (!doc) return;
+  const current = doc.customMaxRow ?? config.MAX_PER_ROW[doc.preset];
+  const next = Math.max(1, Math.min(20, current + delta));
+  state.setDocumentMaxRow(docId, next);
+  document.getElementById('docMaxRow_' + docId).textContent = next;
+  renderPreview();
+}
+
+function docReset(docId, field) {
+  if (field === 'rowH') {
+    state.setDocumentRowH(docId, null);
+  } else if (field === 'maxRow') {
+    state.setDocumentMaxRow(docId, null);
+  }
   ui.renderSidebar();
   renderPreview();
 }

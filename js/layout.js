@@ -173,8 +173,8 @@ export function buildPagesForDocument(doc) {
 
   if (!doc.images.length) return pages;
 
-  const rowH = PRESETS[doc.preset];
-  const maxPerRow = MAX_PER_ROW[doc.preset];
+  const rowH = doc.customRowH ?? PRESETS[doc.preset];
+  const maxPerRow = doc.customMaxRow ?? MAX_PER_ROW[doc.preset];
 
   const layoutFn = LAYOUT_MODE === 'grid' ? gridLayout : justifiedLayout;
   const rows = layoutFn(doc.images, USABLE_W, rowH, maxPerRow);

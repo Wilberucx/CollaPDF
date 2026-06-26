@@ -14,7 +14,11 @@ try {
   if (saved) {
     const parsed = JSON.parse(saved);
     if (parsed && Array.isArray(parsed.documents)) {
-      documents = parsed.documents;
+      documents = parsed.documents.map(d => ({
+        ...d,
+        customRowH: d.customRowH ?? null,
+        customMaxRow: d.customMaxRow ?? null
+      }));
       dCounter = parsed.dCounter || documents.length;
     } else if (parsed && Array.isArray(parsed.groups)) {
       // Migration from old format
@@ -50,7 +54,9 @@ export function addDocument() {
     id: 'd' + dCounter,
     name: 'Documento ' + dCounter,
     preset: 'M',
-    images: []
+    images: [],
+    customRowH: null,
+    customMaxRow: null
   };
   documents.push(newDoc);
   saveState();
@@ -67,6 +73,31 @@ export function setPreset(docId, preset) {
   const d = documents.find(d => d.id === docId);
   if (d) {
     d.preset = preset;
+    saveState();
+  }
+}
+
+export function setDocumentRowH(docId, val) {
+  const d = documents.find(d => d.id === docId);
+  if (d) {
+    d.customRowH = val;
+    saveState();
+  }
+}
+
+export function setDocumentMaxRow(docId, val) {
+  const d = documents.find(d => d.id === docId);
+  if (d) {
+    d.customMaxRow = val;
+    saveState();
+  }
+}
+
+export function resetDocumentOverrides(docId) {
+  const d = documents.find(d => d.id === docId);
+  if (d) {
+    d.customRowH = null;
+    d.customMaxRow = null;
     saveState();
   }
 }
