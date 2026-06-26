@@ -194,10 +194,12 @@ function renderImageList(d) {
     const isSelected = sel.some(s => s.docId === d.id && s.imgId === img.id);
     return `
     <div class="thumb-row${isSelected ? ' selected' : ''}" draggable="true" data-doc-id="${d.id}" data-img-index="${i}">
-      <button class="thumb-select" onclick="event.stopPropagation();app.toggleImageSelection('${d.id}', '${img.id}')" title="Seleccionar">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
-      <img class="thumb-row-img" src="${img.dataUrl}" loading="lazy">
+      <div class="thumb-row-img-wrap" onclick="app.toggleImageSelection('${d.id}', '${img.id}')">
+        <img class="thumb-row-img" src="${img.dataUrl}" loading="lazy">
+        <button class="thumb-select" onclick="event.stopPropagation();app.toggleImageSelection('${d.id}', '${img.id}')" title="Seleccionar">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
       <input class="thumb-row-name" value="${esc(img.name)}"
         onchange="app.renameImage('${d.id}', '${img.id}', this.value)"
         onclick="event.stopPropagation()"
