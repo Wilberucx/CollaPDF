@@ -145,8 +145,10 @@ function reorderImages(docId, fromIndex, toIndex) {
 // ── SETTINGS ──
 function toggleSettings() {
   const el = document.getElementById('sidebarRight');
+  const backdrop = document.getElementById('settingsBackdrop');
   const btn = document.getElementById('settingsBtn');
   const open = el.classList.toggle('open');
+  if (backdrop) backdrop.classList.toggle('open', open);
   btn.classList.toggle('active', open);
 }
 

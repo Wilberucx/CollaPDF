@@ -55,14 +55,17 @@
     </div>
   </div>
 
-  <!-- Sidebar Right (Settings) -->
+  <!-- Settings backdrop -->
+  <div class="settings-backdrop" id="settingsBackdrop" onclick="app.toggleSettings()"></div>
+
+  <!-- Sidebar Right (Settings overlay) -->
   <div class="sidebar sidebar-right" id="sidebarRight">
     <div class="sidebar-label">CONFIGURACIÓN</div>
     <div class="preset-settings" id="presetSettings">
 
       <div class="settings-section">
         <div class="settings-section-title">Tamaño de imagen</div>
-        <div class="settings-section-desc">Controla el tamaño de las imágenes en el PDF.</div>
+        <div class="settings-section-desc">Controla el tamaño de las imágenes en el PDF. Valor por defecto personalizable por documento.</div>
         <div class="preset-row">
           <label>Compacto</label>
           <span style="display:flex;align-items:center;gap:6px">
@@ -100,7 +103,7 @@
 
       <div class="settings-section">
         <div class="settings-section-title">Imágenes por fila</div>
-        <div class="settings-section-desc">Máximo de imágenes permitidas por fila en el PDF.</div>
+        <div class="settings-section-desc">Máximo de imágenes permitidas por fila en el PDF. Valor por defecto personalizable por documento.</div>
         <div class="preset-row">
           <label>Compacto</label>
           <span style="display:flex;align-items:center;gap:6px">
