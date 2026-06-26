@@ -64,66 +64,86 @@
   <div class="sidebar sidebar-right" id="sidebarRight">
     <div class="sidebar-label">CONFIGURACIÓN</div>
     <div class="preset-settings" id="presetSettings">
-      <div style="font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px;">Altura de fila en PDF (pt)</div>
-      <div class="preset-row">
-        <label>S — Pequeño</label>
-        <div class="stepper">
-          <button class="stepper-btn" onclick="app.presetStep('S', -5)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-          <span class="stepper-value" id="presetS">70</span>
-          <button class="stepper-btn" onclick="app.presetStep('S', 5)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-        </div>
-        <span class="preset-unit">pt</span>
-      </div>
-      <div class="preset-row">
-        <label>M — Mediano</label>
-        <div class="stepper">
-          <button class="stepper-btn" onclick="app.presetStep('M', -5)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-          <span class="stepper-value" id="presetM">130</span>
-          <button class="stepper-btn" onclick="app.presetStep('M', 5)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-        </div>
-        <span class="preset-unit">pt</span>
-      </div>
-      <div class="preset-row">
-        <label>L — Grande</label>
-        <div class="stepper">
-          <button class="stepper-btn" onclick="app.presetStep('L', -5)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-          <span class="stepper-value" id="presetL">200</span>
-          <button class="stepper-btn" onclick="app.presetStep('L', 5)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-        </div>
-        <span class="preset-unit">pt</span>
-      </div>
-      <div style="margin-top:6px; border-top:1px solid var(--border); padding-top:8px;">
-        <div style="font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">Máx. imágenes por fila</div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Altura de fila</div>
+        <div class="settings-section-desc">Define cuánto ocupa cada fila de imágenes en el PDF.</div>
         <div class="preset-row">
-          <label>S</label>
-          <div class="stepper">
-            <button class="stepper-btn" onclick="app.maxRowStep('S', -1)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            <span class="stepper-value" id="maxS">8</span>
-            <button class="stepper-btn" onclick="app.maxRowStep('S', 1)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-          </div>
-          <span class="preset-unit">imgs</span>
+          <label>S — Pequeño</label>
+          <span style="display:flex;align-items:center;gap:6px">
+            <div class="stepper">
+              <button class="stepper-btn" onclick="app.presetStep('S', -5)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              <span class="stepper-value" id="presetS">70</span>
+              <button class="stepper-btn" onclick="app.presetStep('S', 5)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
+            <span class="preset-unit">pt</span>
+          </span>
         </div>
         <div class="preset-row">
-          <label>M</label>
-          <div class="stepper">
-            <button class="stepper-btn" onclick="app.maxRowStep('M', -1)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            <span class="stepper-value" id="maxM">5</span>
-            <button class="stepper-btn" onclick="app.maxRowStep('M', 1)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-          </div>
-          <span class="preset-unit">imgs</span>
+          <label>M — Mediano</label>
+          <span style="display:flex;align-items:center;gap:6px">
+            <div class="stepper">
+              <button class="stepper-btn" onclick="app.presetStep('M', -5)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              <span class="stepper-value" id="presetM">130</span>
+              <button class="stepper-btn" onclick="app.presetStep('M', 5)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
+            <span class="preset-unit">pt</span>
+          </span>
         </div>
         <div class="preset-row">
-          <label>L</label>
-          <div class="stepper">
-            <button class="stepper-btn" onclick="app.maxRowStep('L', -1)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            <span class="stepper-value" id="maxL">3</span>
-            <button class="stepper-btn" onclick="app.maxRowStep('L', 1)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-          </div>
-          <span class="preset-unit">imgs</span>
+          <label>L — Grande</label>
+          <span style="display:flex;align-items:center;gap:6px">
+            <div class="stepper">
+              <button class="stepper-btn" onclick="app.presetStep('L', -5)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              <span class="stepper-value" id="presetL">200</span>
+              <button class="stepper-btn" onclick="app.presetStep('L', 5)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
+            <span class="preset-unit">pt</span>
+          </span>
         </div>
       </div>
-      <div style="margin-top:6px; border-top:1px solid var(--border); padding-top:8px;">
-        <div style="font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">Modo de layout</div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Máx. imágenes por fila</div>
+        <div class="settings-section-desc">Controla cuántas imágenes entran antes de saltar a la siguiente fila.</div>
+        <div class="preset-row">
+          <label>S — Pequeño</label>
+          <span style="display:flex;align-items:center;gap:6px">
+            <div class="stepper">
+              <button class="stepper-btn" onclick="app.maxRowStep('S', -1)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              <span class="stepper-value" id="maxS">8</span>
+              <button class="stepper-btn" onclick="app.maxRowStep('S', 1)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
+            <span class="preset-unit">imgs</span>
+          </span>
+        </div>
+        <div class="preset-row">
+          <label>M — Mediano</label>
+          <span style="display:flex;align-items:center;gap:6px">
+            <div class="stepper">
+              <button class="stepper-btn" onclick="app.maxRowStep('M', -1)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              <span class="stepper-value" id="maxM">5</span>
+              <button class="stepper-btn" onclick="app.maxRowStep('M', 1)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
+            <span class="preset-unit">imgs</span>
+          </span>
+        </div>
+        <div class="preset-row">
+          <label>L — Grande</label>
+          <span style="display:flex;align-items:center;gap:6px">
+            <div class="stepper">
+              <button class="stepper-btn" onclick="app.maxRowStep('L', -1)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+              <span class="stepper-value" id="maxL">3</span>
+              <button class="stepper-btn" onclick="app.maxRowStep('L', 1)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            </div>
+            <span class="preset-unit">imgs</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Modo de layout</div>
+        <div class="settings-section-desc">Elige cómo se distribuyen las imágenes en cada fila del PDF.</div>
         <div class="layout-toggle">
           <button class="layout-toggle-btn" id="layoutJustified" onclick="app.setLayoutMode('justified')" title="Justified Layout">
             <span>Justified</span>
@@ -133,6 +153,7 @@
           </button>
         </div>
       </div>
+
     </div>
   </div>
 </div>

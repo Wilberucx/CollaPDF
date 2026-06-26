@@ -7,29 +7,29 @@
 }
 
 :root {
-  --bg: #0c0c0c;
-  --surface: #141414;
-  --surface2: #1c1c1c;
-  --border: #282828;
-  --border2: #333;
-  --text: #e0ddd5;
-  --muted: #666;
-  --accent: #f0a030;
-  --accent-dim: #7a5010;
-  --danger: #e05050;
-  --green: #50d090;
-  --radius: 5px;
+  --bg:        #0c0c0c;
+  --surface:   #141414;
+  --surface2:  #1c1c1c;
+  --border:    #282828;
+  --border2:   #333;
+  --text:      #ece9e0;
+  --muted:     #999;
+  --accent:    #f0a030;
+  --accent-dim:#7a5010;
+  --danger:    #e05050;
+  --green:     #50d090;
+  --radius:    5px;
 }
 
 body {
-  font-family: "Archivo", sans-serif;
+  font-family: 'Archivo', sans-serif;
   background: var(--bg);
   color: var(--text);
   height: 100vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  font-size: 13px;
+  font-size: 14px;
 }
 
 /* ── HEADER ── */
@@ -87,10 +87,9 @@ body {
   border-radius: var(--radius);
   border: 1px solid transparent;
   cursor: pointer;
-  font-family: "Archivo", sans-serif;
-  font-size: 12px;
+  font-family: 'Archivo', sans-serif;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 0.2px;
   transition: all 0.12s;
   white-space: nowrap;
   text-transform: uppercase;
@@ -229,12 +228,12 @@ body {
   gap: 8px;
 }
 .sidebar-label {
-  font-family: "Space Mono", monospace;
-  font-size: 9px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
   letter-spacing: 2px;
   text-transform: uppercase;
   color: var(--muted);
-  padding: 10px 12px 4px;
+  padding: 12px 12px 6px;
 }
 
 .sidebar-add-wrap {
@@ -250,21 +249,41 @@ body {
 /* ── PRESET SETTINGS ── */
 .preset-settings {
   display: flex;
-  padding: 12px;
-  background: transparent;
-  gap: 8px;
   flex-direction: column;
 }
+
+.settings-section {
+  padding: 12px;
+}
+.settings-section + .settings-section {
+  border-top: 1px solid var(--border);
+}
+.settings-section-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.settings-section-desc {
+  font-family: 'Space Mono', monospace;
+  font-size: 9px;
+  color: var(--muted);
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
 .preset-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  padding: 5px 0;
 }
 .preset-row label {
-  font-family: "Space Mono", monospace;
-  font-size: 11px;
-  width: 80px;
-  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: var(--text);
 }
 .preset-input {
   flex: 1;
@@ -273,18 +292,18 @@ body {
   color: var(--text);
   padding: 4px 8px;
   border-radius: var(--radius);
-  font-family: "Space Mono", monospace;
+  font-family: 'Space Mono', monospace;
   font-size: 11px;
   outline: none;
   width: 60px;
 }
-.preset-input:focus {
-  border-color: var(--accent);
-}
+.preset-input:focus { border-color: var(--accent); }
 .preset-unit {
-  font-family: "Space Mono", monospace;
-  font-size: 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
   color: var(--muted);
+  min-width: 32px;
+  text-align: right;
 }
 
 /* Stepper controls */
@@ -420,8 +439,8 @@ body {
   background: transparent;
   border: none;
   color: var(--text);
-  font-family: "Archivo", sans-serif;
-  font-size: 12px;
+  font-family: 'Archivo', sans-serif;
+  font-size: 13px;
   font-weight: 600;
   outline: none;
   min-width: 0;
@@ -432,13 +451,13 @@ body {
   padding: 1px 4px;
 }
 .group-count {
-  font-family: "Space Mono", monospace;
-  font-size: 10px;
-  color: var(--muted);
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  color: var(--text);
   background: var(--border);
-  padding: 1px 5px;
+  padding: 2px 6px;
   border-radius: 10px;
-  min-width: 20px;
+  min-width: 22px;
   text-align: center;
 }
 
@@ -556,13 +575,13 @@ body {
   margin: 0 8px 8px;
   border: 1px dashed var(--border2);
   border-radius: 4px;
-  padding: 8px;
+  padding: 10px;
   text-align: center;
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted);
   cursor: pointer;
   transition: all 0.15s;
-  font-family: "Space Mono", monospace;
+  font-family: 'Space Mono', monospace;
   letter-spacing: 0.5px;
 }
 .drop-zone:hover,
@@ -748,16 +767,17 @@ body {
   opacity: 0.5;
 }
 .preview-empty p {
-  font-family: "Space Mono", monospace;
-  font-size: 11px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
   letter-spacing: 1px;
   line-height: 1.8;
+  color: var(--muted);
 }
 
 /* Stats bar */
 .stats-bar {
-  font-family: "Space Mono", monospace;
-  font-size: 9px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
   color: var(--muted);
   letter-spacing: 1px;
   text-transform: uppercase;
@@ -765,9 +785,7 @@ body {
   gap: 16px;
   padding: 4px 0;
 }
-.stats-bar span {
-  color: var(--accent);
-}
+.stats-bar span { color: var(--accent); }
 
 /* ── MOBILE TABS ── */
 .mob-tabs {
@@ -800,11 +818,11 @@ body {
     z-index: 10;
     padding-bottom: env(safe-area-inset-bottom, 0);
   }
-  .mob-tab {
+.mob-tab {
     flex: 1;
     padding: 8px 4px 6px;
-    font-family: "Space Mono", monospace;
-    font-size: 9px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     background: transparent;
@@ -828,7 +846,7 @@ body {
     transform: scale(1.15);
   }
   .mob-tab-label {
-    font-size: 9px;
+    font-size: 10px;
     letter-spacing: 0.8px;
   }
   .mob-tab.active {
@@ -859,27 +877,12 @@ body {
   }
   .mob-hidden {
     display: none !important;
-  }
-
-  .preview-area {
-    flex: 1;
-    min-height: 0;
-    padding: 16px 12px;
-  }
+  }  .preview-area { flex: 1; min-height: 0; padding: 16px 12px; }
 
   /* Bigger touch targets on mobile */
-  .preset-pill {
-    width: 30px;
-    height: 28px;
-    font-size: 12px;
-  }
-  .drop-zone {
-    padding: 14px;
-    font-size: 12px;
-  }
-  .btn {
-    padding: 8px 12px;
-  }
+  .preset-pill { width: 30px; height: 28px; font-size: 12px; }
+  .drop-zone { padding: 14px; font-size: 13px; }
+  .btn { padding: 8px 14px; }
   .thumb-wrap {
     width: 60px;
     height: 60px;
@@ -919,11 +922,11 @@ body {
   gap: 6px;
   background: var(--accent);
   color: #0c0c0c;
-  font-family: "Space Mono", monospace;
-  font-size: 10px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 1px;
-  padding: 8px 14px;
+  padding: 10px 16px;
   border-radius: 20px;
   cursor: pointer;
   margin: 8px 12px;
