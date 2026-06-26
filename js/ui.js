@@ -105,7 +105,9 @@ export function renderSidebar() {
   list.innerHTML = groups.map(g => `
     <div class="group-card" id="card_${g.id}" draggable="true" data-id="${g.id}">
       <div class="group-header">
-        <span class="group-drag-handle">⠿</span>
+        <span class="group-drag-handle">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+        </span>
         <input class="group-name-input"
           value="${esc(g.name)}"
           onchange="app.renameGroup('${g.id}', this.value)"
@@ -120,15 +122,21 @@ export function renderSidebar() {
             </button>
           `).join('')}
         </div>
-        <button class="btn-icon danger" onclick="app.removeGroup('${g.id}')" title="Eliminar grupo">✕</button>
+        <button class="btn-icon danger" onclick="app.removeGroup('${g.id}')" title="Eliminar grupo">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
       </div>
 
       <div class="group-thumbs">
         ${g.images.map((img, i) => `
           <div class="thumb-wrap" draggable="true" data-group-id="${g.id}" data-img-index="${i}">
-            <span class="thumb-drag-handle">⠿</span>
+            <span class="thumb-drag-handle">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor"><circle cx="8" cy="5" r="1.5"/><circle cx="16" cy="5" r="1.5"/><circle cx="8" cy="12" r="1.5"/><circle cx="16" cy="12" r="1.5"/><circle cx="8" cy="19" r="1.5"/><circle cx="16" cy="19" r="1.5"/></svg>
+            </span>
             <img src="${img.dataUrl}" title="${esc(img.name)}" loading="lazy">
-            <button class="thumb-remove" onclick="app.removeImage('${g.id}', '${img.id}')">✕</button>
+            <button class="thumb-remove" onclick="app.removeImage('${g.id}', '${img.id}')">
+              <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
           </div>
         `).join('')}
       </div>
@@ -150,7 +158,7 @@ export function renderSidebar() {
   if (hasImages) {
     const hint = document.createElement('button');
     hint.className = 'preview-hint';
-    hint.innerHTML = '◻ VER PREVIEW →';
+    hint.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> VER PREVIEW <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
     hint.onclick = () => app.switchTab('preview');
     list.parentElement.appendChild(hint);
   }

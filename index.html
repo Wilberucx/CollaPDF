@@ -27,16 +27,14 @@
     <div>páginas: <span id="statPages">—</span></div>
   </div>
   <div class="header-right">
-    <button class="btn btn-icon mob-hidden" id="settingsBtn" onclick="app.toggleSettings()" title="Configuración">⚙</button>
-    <button class="btn btn-accent" id="exportBtn" onclick="app.exportPDF()">↓ Exportar PDF</button>
+    <button class="btn btn-icon mob-hidden" id="settingsBtn" onclick="app.toggleSettings()" title="Configuración">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+    <button class="btn btn-accent" id="exportBtn" onclick="app.exportPDF()">
+      <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Exportar PDF
+    </button>
   </div>
-</div>
-
-<!-- Mobile tabs -->
-<div class="mob-tabs" id="mobTabs">
-  <button class="mob-tab active" data-tab="sidebar" onclick="app.switchTab('sidebar')">⊞ Grupos</button>
-  <button class="mob-tab" data-tab="preview" onclick="app.switchTab('preview')">◻ Preview</button>
-  <button class="mob-tab" data-tab="settings" onclick="app.switchTab('settings')">⚙ Ajustes</button>
 </div>
 
 <div class="app-body">
@@ -44,7 +42,10 @@
   <div class="sidebar sidebar-left active">
     <div class="sidebar-label">GRUPOS</div>
     <div class="sidebar-add-wrap">
-      <button class="btn btn-ghost sidebar-add-btn" onclick="app.addGroup()">＋ Grupo</button>
+      <button class="btn btn-ghost sidebar-add-btn" onclick="app.addGroup()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Grupo
+      </button>
     </div>
     <div class="groups-list" id="groupsList"></div>
   </div>
@@ -52,7 +53,9 @@
   <!-- Preview -->
   <div class="preview-area mob-hidden" id="previewArea">
     <div class="preview-empty" id="previewEmpty">
-      <div class="icon">⬛</div>
+      <div class="icon">
+        <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
       <p>AGREGÁ IMÁGENES<br>A LOS GRUPOS<br>PARA PREVISUALIZAR</p>
     </div>
   </div>
@@ -64,34 +67,58 @@
       <div style="font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px;">Altura de fila en PDF (pt)</div>
       <div class="preset-row">
         <label>S — Pequeño</label>
-        <input class="preset-input" type="number" id="presetS" value="70" min="30" max="300" oninput="app.updatePreset('S', this.value)">
+        <div class="stepper">
+          <button class="stepper-btn" onclick="app.presetStep('S', -5)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <span class="stepper-value" id="presetS">70</span>
+          <button class="stepper-btn" onclick="app.presetStep('S', 5)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        </div>
         <span class="preset-unit">pt</span>
       </div>
       <div class="preset-row">
         <label>M — Mediano</label>
-        <input class="preset-input" type="number" id="presetM" value="130" min="30" max="300" oninput="app.updatePreset('M', this.value)">
+        <div class="stepper">
+          <button class="stepper-btn" onclick="app.presetStep('M', -5)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <span class="stepper-value" id="presetM">130</span>
+          <button class="stepper-btn" onclick="app.presetStep('M', 5)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        </div>
         <span class="preset-unit">pt</span>
       </div>
       <div class="preset-row">
         <label>L — Grande</label>
-        <input class="preset-input" type="number" id="presetL" value="200" min="30" max="300" oninput="app.updatePreset('L', this.value)">
+        <div class="stepper">
+          <button class="stepper-btn" onclick="app.presetStep('L', -5)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          <span class="stepper-value" id="presetL">200</span>
+          <button class="stepper-btn" onclick="app.presetStep('L', 5)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        </div>
         <span class="preset-unit">pt</span>
       </div>
       <div style="margin-top:6px; border-top:1px solid var(--border); padding-top:8px;">
         <div style="font-family:'Space Mono',monospace; font-size:9px; color:var(--muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">Máx. imágenes por fila</div>
         <div class="preset-row">
           <label>S</label>
-          <input class="preset-input" type="number" id="maxS" value="8" min="1" max="20" oninput="app.updateMaxRow('S', this.value)">
+          <div class="stepper">
+            <button class="stepper-btn" onclick="app.maxRowStep('S', -1)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <span class="stepper-value" id="maxS">8</span>
+            <button class="stepper-btn" onclick="app.maxRowStep('S', 1)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          </div>
           <span class="preset-unit">imgs</span>
         </div>
         <div class="preset-row">
           <label>M</label>
-          <input class="preset-input" type="number" id="maxM" value="5" min="1" max="20" oninput="app.updateMaxRow('M', this.value)">
+          <div class="stepper">
+            <button class="stepper-btn" onclick="app.maxRowStep('M', -1)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <span class="stepper-value" id="maxM">5</span>
+            <button class="stepper-btn" onclick="app.maxRowStep('M', 1)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          </div>
           <span class="preset-unit">imgs</span>
         </div>
         <div class="preset-row">
           <label>L</label>
-          <input class="preset-input" type="number" id="maxL" value="3" min="1" max="20" oninput="app.updateMaxRow('L', this.value)">
+          <div class="stepper">
+            <button class="stepper-btn" onclick="app.maxRowStep('L', -1)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+            <span class="stepper-value" id="maxL">3</span>
+            <button class="stepper-btn" onclick="app.maxRowStep('L', 1)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          </div>
           <span class="preset-unit">imgs</span>
         </div>
       </div>
@@ -108,6 +135,28 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Bottom tab bar (mobile) -->
+<div class="mob-tabs" id="mobTabs">
+  <button class="mob-tab active" data-tab="sidebar" onclick="app.switchTab('sidebar')">
+    <span class="mob-tab-icon">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    </span>
+    <span class="mob-tab-label">Grupos</span>
+  </button>
+  <button class="mob-tab" data-tab="preview" onclick="app.switchTab('preview')">
+    <span class="mob-tab-icon">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    </span>
+    <span class="mob-tab-label">Preview</span>
+  </button>
+  <button class="mob-tab" data-tab="settings" onclick="app.switchTab('settings')">
+    <span class="mob-tab-icon">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </span>
+    <span class="mob-tab-label">Ajustes</span>
+  </button>
 </div>
 
 <input type="file" id="fileInput" multiple accept="image/*">

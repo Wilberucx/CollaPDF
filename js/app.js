@@ -26,6 +26,8 @@ window.app = {
   updatePreset,
   updateMaxRow,
   setLayoutMode,
+  presetStep,
+  maxRowStep,
   getGroups: state.getGroups
 };
 
@@ -146,8 +148,30 @@ function updatePreset(key, val) {
   renderPreview();
 }
 
+function presetStep(key, delta) {
+  const el = document.getElementById('preset' + key);
+  if (!el) return;
+  const current = parseInt(el.textContent, 10);
+  if (isNaN(current)) return;
+  const next = Math.max(30, Math.min(300, current + delta));
+  config.updatePreset(key, next);
+  el.textContent = next;
+  renderPreview();
+}
+
 function updateMaxRow(key, val) {
   config.updateMaxRow(key, val);
+  renderPreview();
+}
+
+function maxRowStep(key, delta) {
+  const el = document.getElementById('max' + key);
+  if (!el) return;
+  const current = parseInt(el.textContent, 10);
+  if (isNaN(current)) return;
+  const next = Math.max(1, Math.min(20, current + delta));
+  config.updateMaxRow(key, next);
+  el.textContent = next;
   renderPreview();
 }
 

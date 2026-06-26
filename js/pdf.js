@@ -16,7 +16,7 @@ export async function exportPDF() {
   }
 
   const exportBtn = document.getElementById('exportBtn');
-  const originalText = exportBtn ? exportBtn.textContent : '↓ Exportar PDF';
+  const originalText = exportBtn ? exportBtn.textContent : 'Exportar PDF';
   if (exportBtn) {
     exportBtn.disabled = true;
     exportBtn.textContent = 'PROCESANDO...';
