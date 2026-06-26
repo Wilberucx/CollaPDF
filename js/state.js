@@ -1,18 +1,25 @@
 // ═══════════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════════
-let groups = [];
-let gCounter = 0;
-let activeGroupId = null;
+let documents = [];
+let dCounter = 0;
+let activeDocumentId = null;
 
 // Initialize state from localStorage if available
 try {
   const saved = localStorage.getItem('collapdf_state');
   if (saved) {
     const parsed = JSON.parse(saved);
-    if (parsed && Array.isArray(parsed.groups)) {
-      groups = parsed.groups;
-      gCounter = parsed.gCounter || groups.length;
+    if (parsed && Array.isArray(parsed.documents)) {
+      documents = parsed.documents;
+      dCounter = parsed.dCounter || documents.length;
+    } else if (parsed && Array.isArray(parsed.groups)) {
+      // Migration from old format
+      documents = parsed.groups.map(g => ({
+        ...g,
+        name: g.name.replace('Grupo', 'Documento')
+      }));
+      dCounter = parsed.gCounter || documents.length;
     }
   }
 } catch (e) {
@@ -22,97 +29,97 @@ try {
 function saveState() {
   try {
     localStorage.setItem('collapdf_state', JSON.stringify({
-      groups,
-      gCounter
+      documents,
+      dCounter
     }));
   } catch (e) {
     console.error('Failed to save state to localStorage:', e);
   }
 }
 
-export function getGroups() { return groups; }
-export function getActiveGroupId() { return activeGroupId; }
-export function setActiveGroupId(id) { activeGroupId = id; }
+export function getDocuments() { return documents; }
+export function getActiveDocumentId() { return activeDocumentId; }
+export function setActiveDocumentId(id) { activeDocumentId = id; }
 
-export function addGroup() {
-  gCounter++;
-  const newGroup = {
-    id: 'g' + gCounter,
-    name: 'Grupo ' + gCounter,
+export function addDocument() {
+  dCounter++;
+  const newDoc = {
+    id: 'd' + dCounter,
+    name: 'Documento ' + dCounter,
     preset: 'M',
     images: []
   };
-  groups.push(newGroup);
+  documents.push(newDoc);
   saveState();
-  return newGroup;
+  return newDoc;
 }
 
-export function removeGroup(id) {
-  if (groups.length === 1) return; // keep at least one
-  groups = groups.filter(g => g.id !== id);
+export function removeDocument(id) {
+  if (documents.length === 1) return; // keep at least one
+  documents = documents.filter(d => d.id !== id);
   saveState();
 }
 
-export function setPreset(groupId, preset) {
-  const g = groups.find(g => g.id === groupId);
-  if (g) {
-    g.preset = preset;
+export function setPreset(docId, preset) {
+  const d = documents.find(d => d.id === docId);
+  if (d) {
+    d.preset = preset;
     saveState();
   }
 }
 
-export function renameGroup(id, name) {
-  const g = groups.find(g => g.id === id);
-  if (g) {
-    g.name = name;
+export function renameDocument(id, name) {
+  const d = documents.find(d => d.id === id);
+  if (d) {
+    d.name = name;
     saveState();
   }
 }
 
-export function removeImage(groupId, imgId) {
-  const g = groups.find(g => g.id === groupId);
-  if (g) {
-    g.images = g.images.filter(i => i.id !== imgId);
+export function removeImage(docId, imgId) {
+  const d = documents.find(d => d.id === docId);
+  if (d) {
+    d.images = d.images.filter(i => i.id !== imgId);
     saveState();
   }
 }
 
-export function addImagesToGroup(groupId, images) {
-  const g = groups.find(g => g.id === groupId);
-  if (g) {
-    g.images.push(...images);
+export function addImagesToDocument(docId, images) {
+  const d = documents.find(d => d.id === docId);
+  if (d) {
+    d.images.push(...images);
     saveState();
   }
 }
 
-export function reorderImages(groupId, fromIndex, toIndex) {
-  const g = groups.find(g => g.id === groupId);
-  if (!g || fromIndex === toIndex) return;
-  if (fromIndex < 0 || fromIndex >= g.images.length) return;
-  if (toIndex < 0 || toIndex >= g.images.length) return;
+export function reorderImages(docId, fromIndex, toIndex) {
+  const d = documents.find(d => d.id === docId);
+  if (!d || fromIndex === toIndex) return;
+  if (fromIndex < 0 || fromIndex >= d.images.length) return;
+  if (toIndex < 0 || toIndex >= d.images.length) return;
 
-  const [img] = g.images.splice(fromIndex, 1);
-  g.images.splice(toIndex, 0, img);
+  const [img] = d.images.splice(fromIndex, 1);
+  d.images.splice(toIndex, 0, img);
   saveState();
 }
 
 /**
- * Reorder groups inside the state array.
+ * Reorder documents inside the state array.
  * @param {string} draggedId 
  * @param {string} targetId 
  * @param {'before'|'after'} position 
  */
-export function reorderGroups(draggedId, targetId, position) {
-  const draggedIndex = groups.findIndex(g => g.id === draggedId);
-  const targetIndex = groups.findIndex(g => g.id === targetId);
+export function reorderDocuments(draggedId, targetId, position) {
+  const draggedIndex = documents.findIndex(d => d.id === draggedId);
+  const targetIndex = documents.findIndex(d => d.id === targetId);
 
   if (draggedIndex === -1 || targetIndex === -1 || draggedId === targetId) return;
 
-  const [draggedGroup] = groups.splice(draggedIndex, 1);
+  const [draggedDoc] = documents.splice(draggedIndex, 1);
 
-  const newTargetIndex = groups.findIndex(g => g.id === targetId);
+  const newTargetIndex = documents.findIndex(d => d.id === targetId);
   const insertIndex = position === 'before' ? newTargetIndex : newTargetIndex + 1;
 
-  groups.splice(insertIndex, 0, draggedGroup);
+  documents.splice(insertIndex, 0, draggedDoc);
   saveState();
 }

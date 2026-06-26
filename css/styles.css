@@ -386,40 +386,39 @@ body {
   color: #0c0c0c;
 }
 
-/* ── GROUPS ── */
-.groups-list {
+/* ── DOCUMENTS ── */
+.documents-list {
   display: flex;
   flex-direction: column;
-  gap: 0;
   padding: 8px;
   gap: 8px;
 }
 
-.group-card {
+.document-card {
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 6px;
   overflow: hidden;
   transition: border-color 0.15s;
 }
-.group-card:has(.drop-zone.drag-over) {
+.document-card:has(.drop-zone.drag-over) {
   border-color: var(--accent);
 }
-.group-card.dragging {
+.document-card.dragging {
   opacity: 0.45;
   border-style: dashed;
   border-color: var(--accent);
 }
-.group-card.drag-over-before {
+.document-card.drag-over-before {
   border-top-color: var(--accent);
   box-shadow: 0 -2px 0 0 var(--accent);
 }
-.group-card.drag-over-after {
+.document-card.drag-over-after {
   border-bottom-color: var(--accent);
   box-shadow: 0 2px 0 0 var(--accent);
 }
 
-.group-header {
+.document-header {
   display: flex;
   align-items: center;
   padding: 8px 10px;
@@ -427,14 +426,18 @@ body {
   background: rgba(255, 255, 255, 0.02);
   border-bottom: 1px solid var(--border);
 }
-.group-drag-handle {
+.document-drag-handle {
   color: var(--muted);
   cursor: grab;
   font-size: 14px;
   line-height: 1;
   user-select: none;
 }
-.group-name-input {
+.document-header-icon {
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.document-name-input {
   flex: 1;
   background: transparent;
   border: none;
@@ -445,12 +448,12 @@ body {
   outline: none;
   min-width: 0;
 }
-.group-name-input:focus {
+.document-name-input:focus {
   background: rgba(255, 255, 255, 0.05);
   border-radius: 3px;
   padding: 1px 4px;
 }
-.group-count {
+.document-count {
   font-family: 'Space Mono', monospace;
   font-size: 11px;
   color: var(--text);
@@ -461,39 +464,41 @@ body {
   text-align: center;
 }
 
-/* Preset pills */
-.preset-pills {
-  display: flex;
-  gap: 3px;
-}
-.preset-pill {
-  width: 22px;
-  height: 20px;
-  border-radius: 3px;
+/* Preset select dropdown */
+.preset-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--surface);
   border: 1px solid var(--border);
-  background: transparent;
-  color: var(--muted);
-  font-family: "Space Mono", monospace;
+  border-radius: 4px;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
   font-size: 10px;
   font-weight: 700;
+  padding: 2px 20px 2px 6px;
   cursor: pointer;
   transition: all 0.12s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-width: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' width='10' height='10' fill='none' stroke='%23999' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  background-size: 10px;
 }
-.preset-pill:hover {
+.preset-select:hover {
   border-color: var(--accent);
   color: var(--accent);
 }
-.preset-pill.active {
-  background: var(--accent);
+.preset-select:focus {
   border-color: var(--accent);
-  color: #0c0c0c;
+  outline: none;
+}
+.preset-select option {
+  background: var(--surface2);
+  color: var(--text);
 }
 
 /* Thumbnails */
-.group-thumbs {
+.document-thumbs {
   display: flex;
   flex-wrap: wrap;
   gap: 3px;
@@ -591,15 +596,26 @@ body {
   background: rgba(240, 160, 48, 0.05);
 }
 
-.preview-group-title {
+/* Preview document title */
+.preview-document-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-family: "Space Mono", monospace;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--accent);
   letter-spacing: 2px;
   text-transform: uppercase;
-  margin: 12px 0 6px;
-  text-align: center;
+  margin: 16px 0 8px;
   width: 100%;
+}
+
+/* Preview document separator */
+.preview-document-separator {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border2), transparent);
+  margin: 16px 0;
 }
 
 /* ── TOAST NOTIFICATIONS (Glassmorphism) ── */
@@ -880,7 +896,7 @@ body {
   }  .preview-area { flex: 1; min-height: 0; padding: 16px 12px; }
 
   /* Bigger touch targets on mobile */
-  .preset-pill { width: 30px; height: 28px; font-size: 12px; }
+  .preset-select { font-size: 12px; padding: 4px 24px 4px 8px; }
   .drop-zone { padding: 14px; font-size: 13px; }
   .btn { padding: 8px 14px; }
   .thumb-wrap {

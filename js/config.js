@@ -6,7 +6,7 @@ export const MARGIN = 20;
 export const GAP = 4;
 export const CAPTION_H = 14;
 export const CAPTION_PAD = 2;
-export const GROUP_GAP = 12;
+export const DOCUMENT_GAP = 12;
 export const USABLE_W = PDF.w - MARGIN * 2;
 
 const STORAGE_KEY = 'collapdf_config';

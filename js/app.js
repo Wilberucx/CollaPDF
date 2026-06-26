@@ -6,14 +6,14 @@ import * as state from './state.js';
 import * as ui from './ui.js';
 import { exportPDF } from './pdf.js';
 import { renderPreview } from './ui.js';
-import { buildPagesForGroup } from './layout.js';
+import { buildPagesForDocument } from './layout.js';
 
 // ── Exponer API pública globalmente para los onclick del HTML ──
 window.app = {
-  addGroup,
-  removeGroup,
+  addDocument,
+  removeDocument,
   setPreset,
-  renameGroup,
+  renameDocument,
   removeImage,
   reorderImages,
   openFilePicker,
@@ -26,12 +26,12 @@ window.app = {
   setLayoutMode,
   presetStep,
   maxRowStep,
-  getGroups: state.getGroups
+  getDocuments: state.getDocuments
 };
 
 // ── FILE PICKER ──
-function openFilePicker(groupId) {
-  state.setActiveGroupId(groupId);
+function openFilePicker(docId) {
+  state.setActiveDocumentId(docId);
   const el = document.getElementById('fileInput');
   el.value = '';
   el.click();
@@ -39,12 +39,12 @@ function openFilePicker(groupId) {
 
 document.getElementById('fileInput').addEventListener('change', async (e) => {
   const files = Array.from(e.target.files);
-  const groupId = state.getActiveGroupId();
-  if (!files.length || !groupId) return;
-  await loadImages(files, groupId);
+  const docId = state.getActiveDocumentId();
+  if (!files.length || !docId) return;
+  await loadImages(files, docId);
 });
 
-async function loadImages(files, groupId) {
+async function loadImages(files, docId) {
   const promises = files.filter(f => f.type.startsWith('image/')).map(file =>
     new Promise(resolve => {
       const reader = new FileReader();
@@ -66,14 +66,14 @@ async function loadImages(files, groupId) {
   );
 
   const loaded = (await Promise.all(promises)).filter(Boolean);
-  state.addImagesToGroup(groupId, loaded);
+  state.addImagesToDocument(docId, loaded);
   ui.renderSidebar();
   renderPreview();
   updateStats();
 }
 
 // ── DRAG & DROP ──
-function onDragOver(e, groupId) {
+function onDragOver(e, docId) {
   e.preventDefault();
   e.stopPropagation();
   e.currentTarget.classList.add('drag-over');
@@ -83,51 +83,51 @@ function onDragLeave(e) {
   e.currentTarget.classList.remove('drag-over');
 }
 
-async function onDrop(e, groupId) {
+async function onDrop(e, docId) {
   e.preventDefault();
   e.stopPropagation();
   e.currentTarget.classList.remove('drag-over');
   const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
   if (files.length) {
-    state.setActiveGroupId(groupId);
-    await loadImages(files, groupId);
+    state.setActiveDocumentId(docId);
+    await loadImages(files, docId);
   }
 }
 
-// ── GROUP MANAGEMENT ──
-function addGroup() {
-  state.addGroup();
+// ── DOCUMENT MANAGEMENT ──
+function addDocument() {
+  state.addDocument();
   ui.renderSidebar();
   updateStats();
 }
 
-function removeGroup(id) {
-  state.removeGroup(id);
-  ui.renderSidebar();
-  renderPreview();
-  updateStats();
-}
-
-function setPreset(groupId, preset) {
-  state.setPreset(groupId, preset);
-  ui.renderSidebar();
-  renderPreview();
-}
-
-function renameGroup(id, name) {
-  state.renameGroup(id, name);
-  updateStats();
-}
-
-function removeImage(groupId, imgId) {
-  state.removeImage(groupId, imgId);
+function removeDocument(id) {
+  state.removeDocument(id);
   ui.renderSidebar();
   renderPreview();
   updateStats();
 }
 
-function reorderImages(groupId, fromIndex, toIndex) {
-  state.reorderImages(groupId, fromIndex, toIndex);
+function setPreset(docId, preset) {
+  state.setPreset(docId, preset);
+  ui.renderSidebar();
+  renderPreview();
+}
+
+function renameDocument(id, name) {
+  state.renameDocument(id, name);
+  updateStats();
+}
+
+function removeImage(docId, imgId) {
+  state.removeImage(docId, imgId);
+  ui.renderSidebar();
+  renderPreview();
+  updateStats();
+}
+
+function reorderImages(docId, fromIndex, toIndex) {
+  state.reorderImages(docId, fromIndex, toIndex);
   ui.renderSidebar();
   renderPreview();
   updateStats();
@@ -170,10 +170,10 @@ function setLayoutMode(mode) {
 }
 
 function updateLayoutToggleUI() {
-  const justifiedBtn = document.getElementById('layoutJustified');
+  const autoBtn = document.getElementById('layoutAuto');
   const gridBtn = document.getElementById('layoutGrid');
-  if (justifiedBtn && gridBtn) {
-    justifiedBtn.classList.toggle('active', config.LAYOUT_MODE === 'justified');
+  if (autoBtn && gridBtn) {
+    autoBtn.classList.toggle('active', config.LAYOUT_MODE === 'justified');
     gridBtn.classList.toggle('active', config.LAYOUT_MODE === 'grid');
   }
 }
@@ -196,35 +196,35 @@ function switchTab(tab) {
 
 // ── STATS ──
 function updateStats() {
-  const groups = state.getGroups();
-  document.getElementById('statGroups').textContent = groups.length;
-  const total = groups.reduce((s, g) => s + g.images.length, 0);
+  const docs = state.getDocuments();
+  document.getElementById('statDocuments').textContent = docs.length;
+  const total = docs.reduce((s, d) => s + d.images.length, 0);
   document.getElementById('statImages').textContent = total;
 
   let totalPages = 0;
   let hasImages = false;
-  for (const group of groups) {
-    if (group.images.length > 0) {
+  for (const doc of docs) {
+    if (doc.images.length > 0) {
       hasImages = true;
-      totalPages += buildPagesForGroup(group).length;
+      totalPages += buildPagesForDocument(doc).length;
     }
   }
   document.getElementById('statPages').textContent = hasImages ? totalPages : '—';
 }
 
-// ── DRAG & DROP FOR GROUP REORDERING ──
-let draggedGroupId = null;
+// ── DRAG & DROP FOR DOCUMENT REORDERING ──
+let draggedDocumentId = null;
 
 // ── DRAG & DROP FOR IMAGE REORDERING ──
 let draggedThumb = null;
 
 function setupDragAndDrop() {
-  const list = document.getElementById('groupsList');
+  const list = document.getElementById('documentsList');
   if (!list) return;
 
-  // ── Group drag & drop ──
+  // ── Document drag & drop ──
   list.addEventListener('dragstart', (e) => {
-    const handle = e.target.closest('.group-drag-handle');
+    const handle = e.target.closest('.document-drag-handle');
     if (!handle) {
       // Check if it's a thumb drag
       const thumbWrap = e.target.closest('.thumb-wrap');
@@ -232,16 +232,16 @@ function setupDragAndDrop() {
       e.preventDefault();
       return;
     }
-    const card = e.target.closest('.group-card');
+    const card = e.target.closest('.document-card');
     if (!card) {
       e.preventDefault();
       return;
     }
 
-    draggedGroupId = card.dataset.id;
+    draggedDocumentId = card.dataset.id;
     card.classList.add('dragging');
     e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain', draggedGroupId);
+    e.dataTransfer.setData('text/plain', draggedDocumentId);
   });
 
   list.addEventListener('dragover', (e) => {
@@ -251,10 +251,10 @@ function setupDragAndDrop() {
       const thumbWrap = e.target.closest('.thumb-wrap');
       if (!thumbWrap || thumbWrap === draggedThumb) return;
 
-      // Only allow drop within same group
-      const draggedGroupId2 = draggedThumb.dataset.groupId;
-      const targetGroupId = thumbWrap.dataset.groupId;
-      if (draggedGroupId2 !== targetGroupId) return;
+      // Only allow drop within same document
+      const draggedDocId = draggedThumb.dataset.docId;
+      const targetDocId = thumbWrap.dataset.docId;
+      if (draggedDocId !== targetDocId) return;
 
       // Clear other indicators
       list.querySelectorAll('.thumb-wrap').forEach(t => {
@@ -265,15 +265,15 @@ function setupDragAndDrop() {
       return;
     }
 
-    // Group drag & drop
+    // Document drag & drop
     e.preventDefault();
-    const card = e.target.closest('.group-card');
-    if (!card || card.dataset.id === draggedGroupId) return;
+    const card = e.target.closest('.document-card');
+    if (!card || card.dataset.id === draggedDocumentId) return;
 
     const rect = card.getBoundingClientRect();
     const relativeY = e.clientY - rect.top;
 
-    list.querySelectorAll('.group-card').forEach(c => {
+    list.querySelectorAll('.document-card').forEach(c => {
       if (c !== card) {
         c.classList.remove('drag-over-before', 'drag-over-after');
       }
@@ -289,7 +289,7 @@ function setupDragAndDrop() {
   });
 
   list.addEventListener('dragleave', (e) => {
-    const card = e.target.closest('.group-card');
+    const card = e.target.closest('.document-card');
     if (card) {
       card.classList.remove('drag-over-before', 'drag-over-after');
     }
@@ -300,13 +300,13 @@ function setupDragAndDrop() {
   });
 
   list.addEventListener('dragend', (e) => {
-    list.querySelectorAll('.group-card').forEach(c => {
+    list.querySelectorAll('.document-card').forEach(c => {
       c.classList.remove('dragging', 'drag-over-before', 'drag-over-after');
     });
     list.querySelectorAll('.thumb-wrap').forEach(t => {
       t.classList.remove('dragging', 'drag-over');
     });
-    draggedGroupId = null;
+    draggedDocumentId = null;
     draggedThumb = null;
   });
 
@@ -318,14 +318,14 @@ function setupDragAndDrop() {
       const thumbWrap = e.target.closest('.thumb-wrap');
       if (!thumbWrap || thumbWrap === draggedThumb) return;
 
-      const draggedGroupId2 = draggedThumb.dataset.groupId;
-      const targetGroupId = thumbWrap.dataset.groupId;
-      if (draggedGroupId2 !== targetGroupId) return;
+      const draggedDocId = draggedThumb.dataset.docId;
+      const targetDocId = thumbWrap.dataset.docId;
+      if (draggedDocId !== targetDocId) return;
 
       const fromIndex = parseInt(draggedThumb.dataset.imgIndex, 10);
       const toIndex = parseInt(thumbWrap.dataset.imgIndex, 10);
 
-      state.reorderImages(draggedGroupId2, fromIndex, toIndex);
+      state.reorderImages(draggedDocId, fromIndex, toIndex);
 
       list.querySelectorAll('.thumb-wrap').forEach(t => {
         t.classList.remove('dragging', 'drag-over');
@@ -338,17 +338,17 @@ function setupDragAndDrop() {
       return;
     }
 
-    // Group drop
+    // Document drop
     e.preventDefault();
-    const card = e.target.closest('.group-card');
-    if (!card || card.dataset.id === draggedGroupId) return;
+    const card = e.target.closest('.document-card');
+    if (!card || card.dataset.id === draggedDocumentId) return;
 
     const position = card.classList.contains('drag-over-before') ? 'before' : 'after';
-    const targetGroupId = card.dataset.id;
+    const targetDocId = card.dataset.id;
 
-    state.reorderGroups(draggedGroupId, targetGroupId, position);
+    state.reorderDocuments(draggedDocumentId, targetDocId, position);
 
-    list.querySelectorAll('.group-card').forEach(c => {
+    list.querySelectorAll('.document-card').forEach(c => {
       c.classList.remove('dragging', 'drag-over-before', 'drag-over-after');
     });
 
@@ -380,8 +380,9 @@ function syncConfigUI() {
 }
 
 // ── INIT ──
-if (state.getGroups().length === 0) {
-  state.addGroup();
+// Ensure at least one document exists at startup
+if (state.getDocuments().length === 0) {
+  state.addDocument();
 }
 syncConfigUI();
 setupDragAndDrop();
@@ -392,7 +393,7 @@ updateLayoutToggleUI();
 
 // ── RESPONSIVE ──
 window.addEventListener('resize', () => {
-  if (state.getGroups().some(g => g.images.length > 0)) {
+  if (state.getDocuments().some(d => d.images.length > 0)) {
     renderPreview();
   }
 });
