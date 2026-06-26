@@ -15,7 +15,7 @@ export function renderPreview() {
   if (!hasImages) {
     area.innerHTML = '';
     if (empty) area.appendChild(empty);
-    document.getElementById('statPages').textContent = '—';
+    document.getElementById('statPages').textContent = '\u2014';
     return;
   }
 
@@ -138,7 +138,7 @@ export function renderSidebar() {
 
         <div class="document-thumbs" id="thumbs_${d.id}">
           ${(window.innerWidth <= 640 ? renderImageList(d) : renderImageGrid(d))}
-          ${d.images.length > 0 ? renderAddButton(d) : ''}
+          ${d.images.length > 0 ? (window.innerWidth <= 640 ? renderAddRow(d) : renderAddButton(d)) : ''}
         </div>
 
         ${d.images.length === 0 ? `
@@ -194,19 +194,35 @@ function renderImageList(d) {
     const isSelected = sel.some(s => s.docId === d.id && s.imgId === img.id);
     return `
     <div class="thumb-row${isSelected ? ' selected' : ''}" draggable="true" data-doc-id="${d.id}" data-img-index="${i}">
-      <span class="thumb-row-grip">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
-      </span>
+      <button class="thumb-select" onclick="event.stopPropagation();app.toggleImageSelection('${d.id}', '${img.id}')" title="Seleccionar">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       <img class="thumb-row-img" src="${img.dataUrl}" loading="lazy">
       <input class="thumb-row-name" value="${esc(img.name)}"
         onchange="app.renameImage('${d.id}', '${img.id}', this.value)"
         onclick="event.stopPropagation()"
         title="Renombrar imagen">
-      <button class="thumb-select" onclick="event.stopPropagation();app.toggleImageSelection('${d.id}', '${img.id}')" title="Seleccionar">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </button>
+      <span class="thumb-row-grip">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+      </span>
     </div>
   `}).join('');
+}
+
+function renderAddRow(d) {
+  return `
+    <div class="thumb-row add-row"
+      onclick="app.openFilePicker('${d.id}')"
+      title="Agregar imágenes">
+      <div class="add-row-icon">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <span class="add-row-label">AGREGAR IMÁGENES</span>
+      <span class="thumb-row-grip" style="visibility:hidden">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+      </span>
+    </div>
+  `;
 }
 
 function renderAddButton(d) {

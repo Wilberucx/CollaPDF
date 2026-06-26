@@ -1093,16 +1093,54 @@ body {
     border: 1px dashed var(--accent);
     border-radius: 4px;
   }
+
+  /* Add row (mobile list) */
+  .thumb-row.add-row {
+    cursor: pointer;
+    border-bottom: none;
+    border-top: 1px solid var(--border);
+    margin-top: 4px;
+    padding: 10px 4px;
+    gap: 8px;
+    transition: background 0.12s;
+    justify-content: flex-start;
+  }
+  .thumb-row.add-row:hover {
+    background: rgba(240, 160, 48, 0.05);
+  }
+  .add-row-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 3px;
+    border: 1px dashed var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    flex-shrink: 0;
+    transition: all 0.15s;
+  }
+  .thumb-row.add-row:hover .add-row-icon {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(240, 160, 48, 0.08);
+  }
+  .add-row-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.786rem;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+    transition: color 0.15s;
+  }
+  .thumb-row.add-row:hover .add-row-label {
+    color: var(--accent);
+  }
+
   .document-thumbs {
     flex-direction: column;
     gap: 0;
     padding: 4px 8px;
-  }
-  .drop-zone.thumb {
-    margin: 6px auto;
-    width: 40px;
-    height: 40px;
-    font-size: 1.5rem;
   }
 
 
