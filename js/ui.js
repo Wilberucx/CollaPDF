@@ -105,17 +105,19 @@ export function renderPreview() {
 
         // Caption
         const capH = item.capH || (CAPTION_H * scale);
+        const capHeight = Math.max(capH * 1.4, 12);
+        const capFont = Math.max(7, capH * 0.65);
         const caption = document.createElement('div');
         caption.style.cssText = `
           position: absolute;
           left: ${xPos.toFixed(1)}px;
           top: ${((y + item.h + CAPTION_PAD) * scale).toFixed(1)}px;
           width: ${(item.w * scale).toFixed(1)}px;
-          height: ${capH.toFixed(1)}px;
+          height: ${capHeight.toFixed(1)}px;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: ${Math.max(6, capH * 0.7).toFixed(1)}px;
+          font-size: ${capFont.toFixed(1)}px;
           color: #888;
           font-family: 'Space Mono', monospace;
           overflow: hidden;
