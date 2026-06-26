@@ -1,530 +1,333 @@
-# 📋 Plan de Implementación: CollaPDF v1.0 — CLI Binario + Release
+# 📋 Plan de Implementación: Fix inconsistencias módulo vs inline build
 
-_Versión: 1 — Generado: 2026-05-20_
+_Versión: 1 — Generado: 2026-06-26_
 _Estado: PENDIENTE DE APROBACIÓN_
-
----
 
 ## 1. Resumen Ejecutivo
 
-Transformar CollaPDF (app web estática HTML/CSS/JS) en un **binario auto-contenido** distribuible para Linux (amd64 + arm64/Termux), macOS (amd64 + arm64) y Windows. El binario embebe toda la app web inline y levanta un servidor HTTP local en `localhost:8080`. Se automatiza el build cross-platform y el release a GitHub con `gh`.
+Corregir las dos inconsistencias funcionales encontradas entre los módulos (`js/` + `index.html`) y el inline build (`build/cli/inline.html`):
 
-**Resultado**: Un solo archivo ejecutable por plataforma. El usuario descarga, ejecuta, y abre `http://localhost:8080` en su navegador.
+1. **renderSidebar**: en el inline build los documentos vacíos se ocultan (no se pueden agregar imágenes), mientras que en el módulo se muestran con su drop-zone.
+2. **Font Scale**: el inline build no tiene el toggle de tamaño de fuente que sí existe en los módulos.
 
-**Tiempo estimado**: 2-3 horas.
-
----
+Ambos fixes se aplican exclusivamente sobre `build/cli/inline.html`, alineándolo al comportamiento de los módulos. Tiempo estimado: ~30 min.
 
 ## 2. Contexto y Estado Actual
 
-- **Situación actual**: CollaPDF es una app web estática (HTML + CSS + 7 módulos JS) que se abre directamente en el navegador con `index.html`. Usa jsPDF desde CDN y Google Fonts desde CDN.
-- **Problema**: No hay forma de distribuirlo como aplicación. El usuario necesita tener los archivos y abrirlos manualmente.
-- **Objetivo**: Generar binarios nativos por plataforma + release automatizado en GitHub como v1.0.
-
-### Suposiciones
-
-- jsPDF y Google Fonts se cargan desde CDN → el usuario necesita internet para la primera carga (aceptable, ya es así en la versión actual)
-- Las imágenes del usuario nunca salen del dispositivo (todo corre en localhost)
-- Deno 2.x está disponible en el sistema de build (ya confirmado: Deno 2.7.14)
-- `gh` CLI está configurado con permisos de write al repo (ya confirmado: `Wilberucx/CollaPDF`)
-
-### Dependencias externas
-
-- Deno CLI (para compilación cruzada)
-- `gh` CLI (para release en GitHub)
-- Internet para CDN de jsPDF y Google Fonts (runtime del usuario)
-
----
+- **Situación actual**: `build/cli/inline.html` es un archivo autónomo (todo-en-uno) que duplica la lógica de los módulos. No hay un build script que lo genere automáticamente, por lo que las modificaciones deben hacerse a mano en ambos lugares.
+- **Problema o gap**: El inline build se desvió del comportamiento de los módulos en dos puntos: filtra documentos vacíos (en vez de mostrarlos) y no incluye el Font Scale.
+- **Suposiciones**:
+  - El inline build se considera un "snapshot" del app que debe tener el mismo comportamiento que los módulos.
+  - No hay tests automatizados; la validación es manual abriendo el HTML en el navegador.
+  - `build/cli/inline.html` usa `px` duros para font-size, mientras que el módulo usa `rem`. No se planea cambiar esto ahora (solo se documenta la diferencia).
+- **Dependencias externas**: Ninguna.
 
 ## 3. Arquitectura / Diseño de la Solución
 
-### Flujo de build
+### 3.1 Fix renderSidebar: docs vacíos visibles
 
-```
-Source files (index.html + css/ + js/)
-        │
-        ▼
-  build-inline.sh          ← Inyecta CSS + JS inline en un solo HTML
-        │
-        ▼
-  build/cli/inline.html    ← HTML auto-contenido (un solo archivo)
-        │
-        ▼
-  cli/server.ts            ← Deno server que sirve el inline.html embebido
-        │
-        ▼
-  build.sh                 ← deno compile --target × 5 plataformas
-        │
-        ▼
-  dist/
-  ├── collapdf-v1.0-linux-amd64
-  ├── collapdf-v1.0-linux-arm64    ← Termux / Raspberry Pi
-  ├── collapdf-v1.0-darwin-amd64
-  ├── collapdf-v1.0-darwin-arm64   ← Mac M1/M2/M3
-  └── collapdf-v1.0-windows-x86_64.exe
-        │
-        ▼
-  release.sh               ← gh release create + upload de binarios + SHA256SUMS
-```
+**Cambio**: Reemplazar la lógica de filtrado (`visibleDocs`) por la misma del módulo: iterar sobre todos los documentos y mostrar el drop-zone en los vacíos.
 
-### Decisiones de arquitectura
+**Archivo afectado**: `build/cli/inline.html`
 
-```
-DECISIÓN: Inline HTML vs archivos separados
-OPCIONES CONSIDERADAS:
-  A) Binario + carpeta de archivos estáticos
-  B) HTML inline embebido en el binario (single file)
-  C) Self-extracting archive
-ELECCIÓN: B
-RAZÓN: El usuario pidió "un solo archivo". Con Deno.compile y --embed, el HTML inline queda dentro del binario.
-TRADE-OFFS: Se pierde la capacidad de editar los assets sin recompilar. Se mantiene el source separado para desarrollo.
+**Líneas afectadas en el inline build**:
 
-DECISIÓN: Deno vs Bun para compilación
-OPCIONES CONSIDERADAS: A) Deno compile, B) Bun build --compile
-ELECCIÓN: A (Deno)
-RAZÓN: Deno soporta cross-compilation nativa con --target para 5 plataformas desde una sola máquina. Bun no soporta cross-compile.
-TRADE-OFFS: Los binarios de Deno son ligeramente más grandes (~30-40MB) vs Bun (~15-20MB).
+- `const visibleDocs = docs.filter(d => d.images.length > 0);` (dentro de `renderSidebar`)
+- El bloque `if (visibleDocs.length === 0) { ... sidebar-empty ... }`
+- El `list.innerHTML = visibleDocs.map(...)` debe cambiarse a `list.innerHTML = docs.map(...)`
 
-DECISIÓN: Puerto del servidor
-OPCIONES CONSIDERADAS: 8080 (default), puerto configurable con flag
-ELECCIÓN: 8080 fijo por ahora
-RAZÓN: KISS. Se puede agregar --port en v1.1 si hay conflictos.
-TRADE-OFFS: Si 8080 está ocupado, el servidor falla. Se puede mejorar con fallback automático.
-```
+**Efecto**: Los documentos sin imágenes se mostrarán como cards con drop-zone, idéntico al módulo.
 
-### Componente: Deno Server
+### 3.2 Font Scale
 
-El servidor es mínimo: sirve un solo archivo HTML embebido en el binario via `--embed`.
+**Cambio**: Agregar al inline build las piezas faltantes:
 
-```
-cli/
-├── server.ts          ← Entry point: Deno.serve + embed de inline.html
-build/
-├── cli/
-│   └── inline.html    ← Generado por build-inline.sh
-```
+1. **Config**: `FONT_SCALE: 'M'` en DEFAULTS, `loadConfig()` debe parsearlo, `saveConfig()` debe guardarlo.
+2. **Variables/funciones**: `FONT_SCALE`, `FONT_SCALE_MAP`, `setFontScale()`, `getFontScaleValue()`.
+3. **UI**: Sección "Tamaño de fuente" en el panel de settings (HTML) + `updateFontScaleUI()` en JS.
+4. **Bridge**: `setFontScale`, `applyFontScale`, `updateFontScaleUI` en la sección app + `window.app.setFontScale`.
+5. **Init**: Llamar `applyFontScale()` y `updateFontScaleUI()` al inicio.
 
----
+**Archivo afectado**: `build/cli/inline.html` (tanto HTML como JS y CSS)
 
 ## 4. Fases e Hitos
 
-### Fase 1: Build de HTML inline
+### Fase 1: Fix renderSidebar — docs vacíos en el inline build
 
-DURACIÓN ESTIMADA: 30 min
-OBJETIVO: Script que combina index.html + css/styles.css + todos los módulos JS en un solo archivo HTML auto-contenido.
-ENTREGABLE: `build-inline.sh` funcional + `build/cli/inline.html` generado.
-
-#### Tareas
-
-- [ ] Tarea 1.1 — Crear `build-inline.sh` — 15 min
-  - Lee `index.html`, inyecta el contenido de `css/styles.css` dentro de `<style>`
-  - Lee todos los archivos `.js` del directorio `js/`, los concatena en orden correcto (resolviendo imports), e inyecta dentro de `<script>`
-  - Reemplaza `<link rel="stylesheet" href="css/styles.css">` por `<style>/* contenido */</style>`
-  - Reemplaza `<script type="module" src="js/app.js"></script>` por `<script>/* JS inline */</script>`
-  - Elimina `type="module"` del script inline (ya no es módulo, es código plano)
-  - Output: `build/cli/inline.html`
-  - **Criterio de completado**: `build/cli/inline.html` abre en el navegador y funciona idéntico al `index.html` original
-
-- [ ] Tarea 1.2 — Resolver orden de imports JS — 15 min
-  - El orden correcto de concatenación es: `config.js` → `utils.js` → `state.js` → `layout.js` → `ui.js` → `pdf.js` → `app.js`
-  - Eliminar las líneas `import ... from './xxx.js'` ya que todo está inline
-  - Eliminar `export` statements innecesarios (convertir a funciones globales o IIFE)
-  - **Criterio de completado**: El JS inline no tiene errores de consola al cargar
-
-### Fase 2: Deno Server
-
-DURACIÓN ESTIMADA: 20 min
-OBJETIVO: Servidor Deno mínimo que sirve el HTML embebido.
-ENTREGABLE: `cli/server.ts` funcional.
+**DURACIÓN ESTIMADA**: 10 min
+**OBJETIVO**: El inline build muestra todos los documentos (incluso vacíos) igual que el módulo.
+**ENTREGABLE**: `build/cli/inline.html` modificado, revisado y commiteado.
 
 #### Tareas
 
-- [ ] Tarea 2.1 — Crear `cli/server.ts` — 20 min
-  - Usa `Deno.serve()` para levantar HTTP en `:8080`
-  - Sirve el `inline.html` embebido en `GET /` con `Content-Type: text/html`
-  - Retorna 404 para cualquier otra ruta
-  - Imprime en consola: mensaje con la URL `http://localhost:8080`
-  - En sistemas desktop (no Termux), intenta abrir el navegador automáticamente (`xdg-open`, `open`, `start`)
-  - **Criterio de completado**: `deno run --allow-net cli/server.ts` levanta el servidor y se puede acceder desde el navegador
+- [ ] Tarea 1.1 — Reemplazar filtro `visibleDocs` en `renderSidebar`
+  - Archivos afectados: `build/cli/inline.html`
+  - Instrucciones: Cambiar `const visibleDocs = docs.filter(d => d.images.length > 0);` por la iteración directa sobre `docs`. Cambiar `visibleDocs.map(...)` por `docs.map(...)`. Reemplazar el bloque `if (visibleDocs.length === 0) { ... sidebar-empty ... }` con la lógica que renderiza todos los docs + el drop-zone condicional cuando `d.images.length === 0`.
+  - Referencia: La implementación exacta está en `js/ui.js` en `renderSidebar()`, desde `list.innerHTML = docs.map(...)` hasta el cierre del `.join('')`.
+  - Criterio de completado: Al abrir el inline build se ven todos los documentos en la sidebar, incluso los vacíos con su drop-zone "+ AGREGAR IMÁGENES".
 
-### Fase 3: Script de compilación cross-platform
+#### Criterio de Aceptación de la Fase
 
-DURACIÓN ESTIMADA: 30 min
-OBJETIVO: Compilar para las 5 plataformas target con un solo comando.
-ENTREGABLE: `build.sh` funcional + 5 binarios en `dist/`.
+- [ ] Documentos vacíos se muestran con drop-zone en el inline (vs ocultos antes)
+- [ ] Documentos con imágenes se siguen mostrando correctamente
+- [ ] El botón "Agregar Documento" mobile sigue funcionando
 
-#### Tareas
+#### Riesgos de la fase
 
-- [ ] Tarea 3.1 — Crear `build.sh` — 30 min
-  - Define targets: `x86_64-unknown-linux-gnu`, `aarch64-unknown-linux-gnu`, `x86_64-pc-windows-msvc`, `x86_64-apple-darwin`, `aarch64-apple-darwin`
-  - Para cada target: ejecuta `deno compile --target <target> --output dist/collapdf-v1.0-<short-name> --embed build/cli/inline.html cli/server.ts`
-  - Crea `dist/` si no existe
-  - Muestra progreso de compilación
-  - Genera `dist/SHA256SUMS` con checksums de todos los binarios
-  - **Criterio de completado**: `dist/` contiene los 5 binarios ejecutables + SHA256SUMS
+- El bloque `sidebar-empty` CSS y HTML ya no se usa → podría eliminarse si se desea, pero es optativo. → Se deja como código muerto documentado.
 
-### Fase 4: Script de release con `gh`
+---
 
-DURACIÓN ESTIMADA: 20 min
-OBJETIVO: Crear release en GitHub v1.0 con todos los binarios adjuntos.
-ENTREGABLE: `release.sh` funcional.
+### Fase 2: Agregar Font Scale al inline build
+
+**DURACIÓN ESTIMADA**: 20 min
+**OBJETIVO**: El inline build tiene el toggle de tamaño de fuente funcionando, igual que el módulo.
+**ENTREGABLE**: `build/cli/inline.html` modificado, revisado y commiteado.
 
 #### Tareas
 
-- [ ] Tarea 4.1 — Crear `release.sh` — 20 min
-  - Valida que `dist/` existe y tiene binarios
-  - Valida que `gh` está autenticado (`gh auth status`)
-  - Crea tag git `v1.0` si no existe
-  - Ejecuta: `gh release create v1.0 dist/* --title "CollaPDF v1.0" --notes "<release notes>" --draft`
-  - Release notes: features, plataformas soportadas, instrucciones de uso
-  - Crea como draft para revisión antes de publicar
-  - **Criterio de completado**: Release draft creado en GitHub con todos los binarios adjuntos
+- [ ] Tarea 2.1 — Agregar `FONT_SCALE` a DEFAULTS y config
+  - Archivos afectados: `build/cli/inline.html`
+  - Instrucciones: En la sección de CONSTANTS/DEFAULTS, agregar `FONT_SCALE: 'M'`. En `loadConfig()`, agregar `FONT_SCALE: parsed.FONT_SCALE || DEFAULTS.FONT_SCALE`. En `saveConfig()`, agregar `FONT_SCALE`. Declarar `let FONT_SCALE = loaded.FONT_SCALE;`. Agregar `const FONT_SCALE_MAP = { S: 0.85, M: 1.0, L: 1.15 };`. Agregar funciones `setFontScale(scale)` y `getFontScaleValue()`.
+  - Referencia: `js/config.js` líneas 9, 17, 29, 35, 46, 79-89.
+  - Criterio de completado: Las variables existen y se persisten en localStorage.
 
-### Fase 5: Documentación y limpieza
+- [ ] Tarea 2.2 — Agregar UI del Font Scale (HTML)
+  - Archivos afectados: `build/cli/inline.html`
+  - Instrucciones: En la sección de settings (`#presetSettings`), después del layout-toggle, agregar los `<div class="settings-section">` con el toggle S/M/L. Es idéntico a `index.html` líneas 155-164.
+  - Criterio de completado: Se ven los 3 botones S/M/L en el panel de settings.
 
-DURACIÓN ESTIMADA: 20 min
-OBJETIVO: README actualizado con instrucciones CLI + .gitignore.
-ENTREGABLE: README.md actualizado + .gitignore.
+- [ ] Tarea 2.3 — Agregar lógica de app (Bridge, apply, UI)
+  - Archivos afectados: `build/cli/inline.html`
+  - Instrucciones: Agregar `setFontScale`, `applyFontScale`, `updateFontScaleUI` en la sección de APP, antes del init. Agregar `setFontScale: setFontScale` (o `setFontScale: _setFontScale`) al objeto `window.app`. Llamar `applyFontScale()` y `updateFontScaleUI()` al inicio.
+  - Referencia: `js/app.js` líneas 30, 191-207, y las llamadas en init (líneas 506-507).
+  - Criterio de completado: Al hacer clic en S/M/L cambia el font-size de la UI y se persiste.
+
+- [ ] Tarea 2.4 — Agregar CSS para el Font Scale (si es necesario)
+  - Archivos afectados: `build/cli/inline.html` (CSS embebido)
+  - Instrucciones: Revisar si se necesita CSS adicional. El módulo reutiliza `.layout-toggle` y `.layout-toggle-btn` que ya existen en el inline build. No debería necesitar CSS nuevo.
+  - Criterio de completado: Los botones S/M/L se ven correctamente estilizados.
+
+#### Criterio de Aceptación de la Fase
+
+- [ ] Aparece la sección "Tamaño de fuente" en settings con botones S/M/L
+- [ ] Hacer clic en S cambia a fuente pequeña, M a normal, L a grande
+- [ ] El cambio persiste al recargar la página
+- [ ] El botón activo tiene el estilo visual correcto (clase `active`)
+
+#### Riesgos de la fase
+
+- `applyFontScale()` modifica `document.documentElement.style.fontSize`. Como el inline build usa `px` duros, el Font Scale solo afectará a elementos con `rem` (que no existen en el inline) y a los que heredan de `html`. → El fix sería agregar `html { font-size: 14px; }` al CSS del inline para que la escala funcione correctamente.
+- **Mitigación**: Agregar `html { font-size: 14px; }` al CSS del inline build si no existe. Esto permite que `applyFontScale()` funcione correctamente (multiplica la base 14px por el factor de escala).
+
+---
+
+### Fase 3: Revisión y validación
+
+**DURACIÓN ESTIMADA**: 5 min
+**OBJETIVO**: Verificar que ambos fixes son correctos y no rompen nada.
+**ENTREGABLE**: Code review + commit.
 
 #### Tareas
 
-- [ ] Tarea 5.1 — Actualizar README.md — 10 min
-  - Agregar sección "CLI / Binarios" con instrucciones de descarga y uso por plataforma
-  - Incluir instrucciones específicas para Termux
-  - Mantener la sección "Quick Start" original (abrir index.html)
-  - **Criterio de completado**: README tiene instrucciones claras para ambos modos (web + CLI)
+- [ ] Tarea 3.1 — Code review con code-reviewer-deepseek-flash
+  - Archivos afectados: `build/cli/inline.html`
+  - Instrucciones: Revisar ambos cambios. Confirmar que la lógica de renderSidebar es idéntica al módulo y que el Font Scale funciona correctamente sin efectos secundarios.
+  - Criterio de completado: Reviewer no encuentra issues críticos.
 
-- [ ] Tarea 5.2 — Crear/actualizar .gitignore — 5 min
-  - Ignorar `dist/`, `build/cli/inline.html`, binarios compilados
-  - No ignorar los scripts de build (`build-inline.sh`, `build.sh`, `release.sh`, `cli/server.ts`)
-  - **Criterio de completado**: `git status` no muestra archivos de build como unstaged
+- [ ] Tarea 3.2 — Validación manual en navegador
+  - Archivos afectados: `build/cli/inline.html`
+  - Instrucciones: Abrir el archivo en Chrome. Verificar: (1) docs vacíos se ven con drop-zone, (2) Font Scale cambia el tamaño, (3) no hay errores en consola.
+  - Criterio de completado: Todo funciona.
 
-- [ ] Tarea 5.3 — Commit inicial del sistema de build — 5 min
-  - Commit: `feat: add CLI build system and cross-platform compilation`
-  - **Criterio de completado**: Changes commiteados sin errores
+- [ ] Tarea 3.3 — Commit atómico
+  - Instrucciones: `git add -A && git commit -m "fix(inline): align renderSidebar (show empty docs) + add font scale toggle"`
+  - Criterio de completado: Commit creado.
 
 ---
 
 ## 5. Especificaciones Técnicas Detalladas
 
-### 5.1 Estructura de archivos resultante
+### 5.1 Estructura de archivos
 
-```
-CollaPDF/
-├── index.html              ← Original (desarrollo web)
-├── css/styles.css          ← Original
-├── js/                     ← Original (7 módulos)
-├── cli/
-│   └── server.ts           ← NUEVO: Deno server entry point
-├── build/
-│   ├── inline.sh           ← NUEVO: genera HTML inline
-│   ├── build.sh            ← NUEVO: compila cross-platform
-│   ├── release.sh          ← NUEVO: crea GitHub release
-│   └── cli/
-│       └── inline.html     ← GENERADO: no commitear
-├── dist/                   ← GENERADO: no commitear
-│   ├── collapdf-v1.0-linux-amd64
-│   ├── collapdf-v1.0-linux-arm64
-│   ├── collapdf-v1.0-darwin-amd64
-│   ├── collapdf-v1.0-darwin-arm64
-│   ├── collapdf-v1.0-windows-x86_64.exe
-│   └── SHA256SUMS
-├── .gitignore              ← NUEVO/actualizado
-└── README.md               ← Actualizado
+No se crean archivos nuevos. Solo se modifica `build/cli/inline.html`.
+
+### 5.2 Snippets de código críticos
+
+#### Font Scale — Config (en CONSTANTS/DEFAULTS):
+
+```js
+const DEFAULTS = {
+  PRESETS: { S: 70, M: 130, L: 200 },
+  MAX_PER_ROW: { S: 8, M: 5, L: 3 },
+  LAYOUT_MODE: "justified",
+  FONT_SCALE: "M",
+};
 ```
 
-### 5.2 .gitignore
+#### Font Scale — loadConfig:
 
-```
-# Build artifacts
-dist/
-build/cli/inline.html
-*.exe
+```js
+FONT_SCALE: parsed.FONT_SCALE || DEFAULTS.FONT_SCALE;
 ```
 
-### 5.3 Snippet crítico: build-inline.sh (lógica de inyección)
+#### Font Scale — saveConfig:
 
-```bash
-#!/usr/bin/env bash
-# Orden de imports: config → utils → state → layout → ui → pdf → app
-JS_ORDER="config utils state layout ui pdf app"
-
-# 1. Leer HTML base
-HTML=$(cat index.html)
-
-# 2. Inyectar CSS inline
-CSS=$(cat css/styles.css)
-HTML=$(echo "$HTML" | sed 's|<link rel="stylesheet" href="css/styles.css">|<style>'"$CSS"'</style>|')
-
-# 3. Concatenar JS en orden, removiendo imports/exports
-JS_BUNDLE=""
-for mod in $JS_ORDER; do
-  FILE="js/${mod}.js"
-  CONTENT=$(cat "$FILE")
-  # Remover líneas de import
-  CONTENT=$(echo "$CONTENT" | grep -v "^import ")
-  # Remover líneas de export
-  CONTENT=$(echo "$CONTENT" | grep -v "^export ")
-  JS_BUNDLE="${JS_BUNDLE}${CONTENT}"$'\n'
-done
-
-# 4. Reemplazar script module tag
-HTML=$(echo "$HTML" | sed 's|<script type="module" src="js/app.js"></script>|<script>'"$JS_BUNDLE"'</script>|')
-
-# 5. Output
-mkdir -p build/cli
-echo "$HTML" > build/cli/inline.html
+```js
+localStorage.setItem(
+  STORAGE_KEY,
+  JSON.stringify({
+    PRESETS,
+    MAX_PER_ROW,
+    LAYOUT_MODE,
+    FONT_SCALE,
+  }),
+);
 ```
 
-### 5.4 Snippet crítico: cli/server.ts
+#### Font Scale — Variables y funciones:
 
-```typescript
-// Inline HTML se carga via --embed flag de deno compile
-// En desarrollo: se lee del filesystem
-const HTML_PATH = "build/cli/inline.html";
+```js
+let FONT_SCALE = loaded.FONT_SCALE;
+const FONT_SCALE_MAP = { S: 0.85, M: 1.0, L: 1.15 };
 
-async function handler(req: Request): Promise<Response> {
-  const url = new URL(req.url);
-  if (url.pathname === "/" || url.pathname === "/index.html") {
-    const html = await Deno.readTextFile(HTML_PATH);
-    return new Response(html, {
-      headers: { "Content-Type": "text/html; charset=utf-8" },
-    });
+function setFontScale(scale) {
+  if (scale === "S" || scale === "M" || scale === "L") {
+    FONT_SCALE = scale;
+    saveConfig();
   }
-  return new Response("Not Found", { status: 404 });
+}
+function getFontScaleValue() {
+  return FONT_SCALE_MAP[FONT_SCALE] || 1.0;
+}
+```
+
+#### Font Scale — App bridge + apply + UI update:
+
+```js
+function _setFontScale(scale) {
+  setFontScale(scale);
+  applyFontScale();
+  updateFontScaleUI();
 }
 
-const port = 8080;
-console.log(`CollaPDF v1.0`);
-console.log(`Servidor activo → http://localhost:${port}`);
-console.log(`Abrí esa URL en tu navegador (Chrome, Firefox, etc.)`);
-
-// Intentar abrir navegador automáticamente
-const openCmd =
-  Deno.build.os === "darwin"
-    ? "open"
-    : Deno.build.os === "windows"
-      ? "cmd.exe"
-      : "xdg-open";
-
-try {
-  if (Deno.build.os === "windows") {
-    new Deno.Command("cmd.exe", {
-      args: ["/c", "start", `http://localhost:${port}`],
-    }).spawn();
-  } else {
-    new Deno.Command(openCmd, { args: [`http://localhost:${port}`] }).spawn();
-  }
-} catch {
-  // Silenciar error (ej: servidor sin display)
+function applyFontScale() {
+  const scale = getFontScaleValue();
+  const baseSize = Math.round(14 * scale * 10) / 10;
+  document.documentElement.style.fontSize = baseSize + "px";
 }
 
-await Deno.serve({ port }, handler);
+function updateFontScaleUI() {
+  for (const s of ["S", "M", "L"]) {
+    const btn = document.getElementById("font" + s);
+    if (btn) {
+      btn.classList.toggle("active", FONT_SCALE === s);
+    }
+  }
+}
 ```
 
-### 5.5 Snippet crítico: build.sh
+#### renderSidebar — Cambio de visibleDocs a docs.map():
 
-```bash
-#!/usr/bin/env bash
-set -e
+Reemplazar:
 
-VERSION="1.0"
-DIST="dist"
-TARGETS=(
-  "x86_64-unknown-linux-gnu:linux-amd64"
-  "aarch64-unknown-linux-gnu:linux-arm64"
-  "x86_64-pc-windows-msvc:windows-x86_64"
-  "x86_64-apple-darwin:darwin-amd64"
-  "aarch64-apple-darwin:darwin-arm64"
-)
-
-mkdir -p "$DIST"
-
-for target_pair in "${TARGETS[@]}"; do
-  TARGET="${target_pair%%:*}"
-  NAME="${target_pair##*:}"
-  OUTPUT="${DIST}/collapdf-v${VERSION}-${NAME}"
-
-  echo "→ Compilando ${TARGET}..."
-  deno compile \
-    --target "$TARGET" \
-    --allow-net \
-    --allow-read \
-    --output "$OUTPUT" \
-    --embed build/cli/inline.html \
-    cli/server.ts
-done
-
-# SHA256SUMS
-cd "$DIST"
-sha256sum collapdf-v${VERSION}-* > SHA256SUMS
-echo "✓ Build completo en ${DIST}/"
+```js
+const visibleDocs = docs.filter(d => d.images.length > 0);
+if (visibleDocs.length === 0) {
+  list.innerHTML = `...sidebar-empty...`;
+} else {
+  list.innerHTML = visibleDocs.map(d => { ... }).join('');
+}
 ```
 
-### 5.6 Snippet crítico: release.sh
+Por:
 
-```bash
-#!/usr/bin/env bash
-set -e
-
-VERSION="1.0"
-DIST="dist"
-TAG="v${VERSION}"
-
-# Validaciones
-[ -d "$DIST" ] || { echo "Error: dist/ no existe. Corré build.sh primero."; exit 1; }
-gh auth status >/dev/null 2>&1 || { echo "Error: gh no está autenticado. Corré gh auth login."; exit 1; }
-
-# Crear tag si no existe
-git tag -l "$TAG" | grep -q "$TAG" || git tag "$TAG"
-
-# Release notes
-NOTES="## CollaPDF v1.0
-
-Image collage creator for PDF with automatic captions.
-
-### Plataformas
-- Linux x86_64 (Ubuntu, Arch, Fedora, etc.)
-- Linux ARM64 (Termux, Raspberry Pi)
-- macOS Intel
-- macOS Apple Silicon (M1/M2/M3)
-- Windows x86_64
-
-### Uso
-\`\`\`bash
-# Linux / macOS
-chmod +x collapdf-v${VERSION}-*
-./collapdf-v${VERSION}-<tu-plataforma>
-
-# Windows
-collapdf-v${VERSION}-windows-x86_64.exe
-\`\`\`
-
-El servidor se levanta en \`http://localhost:8080\$. Abrí esa URL en tu navegador.
-
-### Termux
-\`\`\`bash
-chmod +x collapdf-v${VERSION}-linux-arm64
-./collapdf-v${VERSION}-linux-arm64
-# Abrí http://localhost:8080 en Chrome/Firefox de Android
-\`\`\`
-
-### Verificar checksums
-\`\`\`bash
-sha256sum -c SHA256SUMS
-\`\`\`
-"
-
-# Crear release como draft
-gh release create "$TAG" "$DIST"/* \
-  --title "CollaPDF v1.0" \
-  --notes "$NOTES" \
-  --draft
-
-echo "✓ Release draft creado: https://github.com/Wilberucx/CollaPDF/releases/tag/$TAG"
-echo "Revisá y publicá desde GitHub o con: gh release edit $TAG --draft=false"
+```js
+list.innerHTML = docs.map(d => { ... }).join('');
 ```
 
----
+Donde el template incluye el drop-zone condicional para docs sin imágenes, igual que en `js/ui.js`.
+
+### 5.3 HTML del Font Scale
+
+```html
+<div class="settings-section">
+  <div class="settings-section-title">Tamaño de fuente</div>
+  <div class="settings-section-desc">
+    Controla el tamaño de la interfaz. Se adapta automáticamente en dispositivos
+    móviles.
+  </div>
+  <div class="layout-toggle" id="fontScaleToggle">
+    <button
+      class="layout-toggle-btn"
+      id="fontS"
+      onclick="app.setFontScale('S')"
+      title="Fuente pequeña"
+    >
+      <span>S</span>
+    </button>
+    <button
+      class="layout-toggle-btn"
+      id="fontM"
+      onclick="app.setFontScale('M')"
+      title="Fuente normal"
+    >
+      <span>M</span>
+    </button>
+    <button
+      class="layout-toggle-btn"
+      id="fontL"
+      onclick="app.setFontScale('L')"
+      title="Fuente grande"
+    >
+      <span>L</span>
+    </button>
+  </div>
+</div>
+```
 
 ## 6. Testing y Validación
 
-| Tipo de test | Cobertura esperada        | Herramienta                 | Criterio de paso                                     |
-| ------------ | ------------------------- | --------------------------- | ---------------------------------------------------- |
-| Manual       | HTML inline funcional     | Navegador                   | Inline.html funciona idéntico al index.html original |
-| Manual       | Servidor Deno             | `deno run`                  | Server responde en localhost:8080                    |
-| Manual       | Binario compilado (local) | `deno compile` sin --target | Binario local ejecuta y sirve correctamente          |
-| Manual       | Release draft             | `gh release view`           | Release draft existe con todos los binarios          |
-
-### Checklist de validación manual
-
-- [ ] `build/cli/inline.html` abre en navegador → UI funciona, grupos, imágenes, export PDF
-- [ ] `deno run --allow-net --allow-read cli/server.ts` → servidor responde en :8080
-- [ ] Binario local (`deno compile` sin --target) → ejecuta y sirve correctamente
-- [ ] `build.sh` completa sin errores
-- [ ] `dist/SHA256SUMS` verifica correctamente con `sha256sum -c`
-- [ ] `release.sh` crea draft en GitHub visible en la web
-
----
+| Tipo              | Cobertura                 | Herramienta                  | Criterio                                 |
+| ----------------- | ------------------------- | ---------------------------- | ---------------------------------------- |
+| Code review       | Ambas fases               | code-reviewer-deepseek-flash | Sin issues críticos                      |
+| Validación visual | renderSidebar docs vacíos | Abrir inline.html en Chrome  | Docs vacíos visibles con drop-zone       |
+| Validación visual | Font Scale                | Abrir inline.html en Chrome  | Botones S/M/L funcionales y persistentes |
+| Consola           | Sin errores               | DevTools                     | 0 errores JS                             |
 
 ## 7. Plan de Despliegue
 
-```
-PRE-DEPLOY:
-- [ ] Verificar que el working tree está limpio (git status)
-- [ ] Verificar gh auth status
-- [ ] Verificar deno --version
-
-DEPLOY:
-- [ ] Paso 1: build-inline.sh → genera inline.html
-- [ ] Paso 2: Validar inline.html en navegador
-- [ ] Paso 3: build.sh → compila 5 plataformas
-- [ ] Paso 4: release.sh → crea draft release
-- [ ] Validar que todos los binarios están en el draft
-
-POST-DEPLOY:
-- [ ] Revisar draft release en GitHub
-- [ ] Publicar release (quitar draft)
-- [ ] Verificar que los downloads funcionan
-```
-
----
+No aplica (no hay servidor). Los cambios están listos al commitearearlos.
 
 ## 8. Plan de Rollback
 
-1. **Detección**: Binario no arranca, inline.html roto, o release con archivos corruptos
-2. **Decisión**: Si el inline.html no funciona → rollback inmediato. Si un target específico falla → re-compilar solo ese target.
-3. **Pasos de rollback**:
-   - Si release ya publicado: `gh release delete v1.0 --yes` + `git tag -d v1.0`
-   - Corregir el problema
-   - Re-ejecutar build + release
-4. **Tiempo estimado**: 5 minutos
-
----
+`git checkout HEAD~1 build/cli/inline.html` para revertir.
 
 ## 9. Riesgos y Mitigaciones
 
-| Riesgo                                         | Probabilidad | Impacto | Mitigación                                                                                                                  |
-| ---------------------------------------------- | ------------ | ------- | --------------------------------------------------------------------------------------------------------------------------- |
-| jsPDF desde CDN no carga offline               | Media        | Bajo    | Ya es el comportamiento actual. Documentar que requiere internet.                                                           |
-| Deno compile --embed no funciona como esperado | Baja         | Alto    | Fallback: usar Deno.readTextFile desde el filesystem del binario (el binario puede leer archivos relativos a su ubicación). |
-| Cross-compile genera binarios que no corren    | Baja         | Alto    | Testear el binario local primero. Si falla un target, re-compilar con debug.                                                |
-| Puerto 8080 ocupado                            | Media        | Bajo    | Agregar fallback a puerto 8081 si 8080 falla (v1.1). Por ahora, el usuario puede matar el proceso que usa 8080.             |
-| Release draft sin archivos                     | Baja         | Medio   | El script valida que dist/ existe antes de crear el release.                                                                |
-
----
+| Riesgo                                                               | Prob. | Impacto | Mitigación                                                         |
+| -------------------------------------------------------------------- | ----- | ------- | ------------------------------------------------------------------ |
+| Font Scale no funciona porque el CSS usa px duros                    | Alta  | Bajo    | Agregar `html { font-size: 14px }` al CSS del inline               |
+| El template de renderSidebar tiene diferencias sutiles con el módulo | Media | Medio   | Copiar exactamente el template de `js/ui.js` adaptando referencias |
+| Se rompe el drag & drop de documentos (usa IDs)                      | Baja  | Alto    | Revisar que la estructura HTML generada sea idéntica               |
 
 ## 10. Criterios de Éxito Globales
 
-El proyecto se considera **exitoso** cuando:
-
-- [ ] `build-inline.sh` genera un HTML inline que funciona idéntico al original
-- [ ] `build.sh` produce 5 binarios en `dist/` sin errores
-- [ ] Al menos el binario local (sin --target) ejecuta y sirve la app correctamente
-- [ ] `release.sh` crea un draft release en GitHub con todos los binarios + SHA256SUMS
-- [ ] El README tiene instrucciones de uso para CLI y Termux
-- [ ] Los scripts de build están commiteados en el repo
-
----
+- [ ] El inline build muestra documentos vacíos igual que el módulo
+- [ ] El inline build tiene Font Scale funcional (S/M/L con persistencia)
+- [ ] Todos los demás comportamientos del inline build siguen igual
+- [ ] Sin errores de consola
 
 ## 11. Recursos y Referencias
 
-- **Deno compile docs**: <https://docs.deno.com/runtime/manual/tools/compile/>
-- **Deno embed flag**: <https://docs.deno.com/runtime/manual/tools/compile/#embedding-assets>
-- **gh release docs**: <https://cli.github.com/manual/gh_release_create>
-- **Repo**: <git@github.com>:Wilberucx/CollaPDF.git
-
----
+- **Módulo de referencia renderSidebar**: `js/ui.js` → función `renderSidebar()`
+- **Módulo de referencia Font Scale config**: `js/config.js` → `FONT_SCALE`, `setFontScale()`, `getFontScaleValue()`
+- **Módulo de referencia Font Scale app**: `js/app.js` → `setFontScale()`, `applyFontScale()`, `updateFontScaleUI()`
+- **Módulo de referencia HTML**: `index.html` → sección "Tamaño de fuente"
+- **Inline build actual**: `build/cli/inline.html`
 
 ## 12. Primeros pasos al aprobar
 
-1. Crear `cli/server.ts` con el servidor Deno mínimo
-2. Crear `build-inline.sh` y validar que genera un inline.html funcional
-3. Ejecutar `deno run --allow-net --allow-read cli/server.ts` para verificar que el servidor funciona
-
----
-
-El plan ha sido guardado en `IMPLEMENTATION_PLAN.md` en la raíz del proyecto.
-
-Revísalo con calma. Cuando estés listo para comenzar la implementación, responde **procede** (o **proceed**).
-Si necesitas algún ajuste antes de comenzar, descríbelo y actualizaré el plan.
+1. Abrir `build/cli/inline.html` en el editor
+2. Localizar la función `renderSidebar()` y reemplazar el bloque `visibleDocs` por el template de `js/ui.js`
+3. Localizar la sección de CONSTANTS/DEFAULTS y agregar `FONT_SCALE: 'M'`, luego seguir con config, HTML, app bridge e init
