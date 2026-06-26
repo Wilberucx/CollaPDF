@@ -423,7 +423,6 @@ function setupDragAndDrop() {
 
   // ── Touch drag & drop for mobile list rows ──
   let touchDraggedRow = null;
-  let touchStartY = 0;
 
   list.addEventListener('touchstart', (e) => {
     const grip = e.target.closest('.thumb-row-grip');
@@ -432,7 +431,6 @@ function setupDragAndDrop() {
     if (!row || row.classList.contains('add-row')) return;
 
     touchDraggedRow = row;
-    touchStartY = e.touches[0].clientY;
     row.classList.add('dragging');
   }, { passive: true });
 
