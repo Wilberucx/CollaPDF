@@ -2,14 +2,15 @@
 
 **Image collage creator for PDF with automatic captions.**
 
-CollaPDF lets you organize images into groups and export them as individual PDFs. Each image is automatically arranged using a justified layout algorithm and displays the filename as a caption below.
+CollaPDF lets you organize images into **documents** and export each one as an individual PDF. Every image is automatically arranged using Auto layout (justified) or Grid layout, and displays the filename as a caption below.
 
 ## Features
 
-- **Justified layout** — images scale and distribute automatically to fill each row without gaps
-- **3 size presets** — Small (S), Medium (M), Large (L)
+- **Auto layout** — images scale and distribute automatically to fill each row without gaps
+- **Grid layout** — fixed columns for uniform spacing
+- **3 size presets** — Compact, Normal, Wide (per document)
 - **Automatic captions** — filename appears below each image in the PDF
-- **One PDF per group** — each group generates its own document
+- **One PDF per document** — each document generates its own PDF file
 - **Responsive** — works on desktop and mobile
 
 ## Quick Start
