@@ -48,24 +48,25 @@ export function renderPreview() {
     area.appendChild(docLabel);
 
     // Per-document controls: Tamaño de imagen e Imágenes por fila
+    const currentSize = doc.customRowH ?? PRESETS[doc.preset];
+    const sizeOptions = [30, 50, 70, 100, 130, 160, 200, 250, 300];
+    if (!sizeOptions.includes(currentSize)) sizeOptions.unshift(currentSize);
+    sizeOptions.sort((a, b) => a - b);
+
     const previewOpts = document.createElement('div');
     previewOpts.className = 'preview-options';
     previewOpts.innerHTML = `
-      <span class="preview-opt">
-        <span class="preview-opt-label">Tam</span>
-        <span class="doc-stepper">
-          <button class="doc-stepper-btn" onclick="app.docRowHStep('${doc.id}', -5)" aria-label="Disminuir">
-            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <span class="doc-stepper-value" id="docRowH_${doc.id}">${doc.customRowH ?? PRESETS[doc.preset]}</span>
-          <button class="doc-stepper-btn" onclick="app.docRowHStep('${doc.id}', 5)" aria-label="Aumentar">
-            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-        </span>
+      <span class="preview-opt preview-opt-left">
+        <select class="preview-size-select" id="docSize_${doc.id}"
+          onchange="app.docSizeChange('${doc.id}', this.value)">
+          ${sizeOptions.map(v =>
+            `<option value="${v}"${v === currentSize ? ' selected' : ''}>${v} pt${v === 70 ? ' (Compacto)' : v === 130 ? ' (Normal)' : v === 200 ? ' (Amplio)' : ''}</option>`
+          ).join('')}
+        </select>
         ${doc.customRowH !== null ? `<button class="doc-opt-reset" onclick="app.docReset('${doc.id}', 'rowH')" title="Restablecer valor por defecto"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
       </span>
-      <span class="preview-opt">
-        <span class="preview-opt-label">Filas</span>
+      <span class="preview-opt preview-opt-right">
+        <span class="preview-opt-label">Imágenes por fila</span>
         <span class="doc-stepper">
           <button class="doc-stepper-btn" onclick="app.docMaxRowStep('${doc.id}', -1)" aria-label="Disminuir">
             <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>

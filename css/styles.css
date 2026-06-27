@@ -560,12 +560,11 @@ body {
   border-color: var(--accent);
 }
 
-/* Preview options (Tam/Filas steppers) */
+/* Preview options (Tamaño dropdown + Imágenes por fila stepper) */
 .preview-options {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 12px;
+  justify-content: space-between;
   padding: 4px 0 8px;
   width: 100%;
 }
@@ -577,10 +576,38 @@ body {
   font-size: 0.643rem;
   color: var(--muted);
 }
+.preview-opt-left {
+  gap: 3px;
+}
+.preview-opt-right {
+  gap: 4px;
+  justify-content: flex-end;
+}
 .preview-opt-label {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-right: 2px;
+  white-space: nowrap;
+}
+
+/* Size dropdown */
+.preview-size-select {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.714rem;
+  padding: 2px 4px;
+  cursor: pointer;
+  outline: none;
+  max-width: 120px;
+}
+.preview-size-select:hover {
+  border-color: var(--border2);
+}
+.preview-size-select:focus {
+  border-color: var(--accent);
 }
 
 /* Stepper controls (reused in preview) */

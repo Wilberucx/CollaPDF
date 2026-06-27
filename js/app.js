@@ -15,6 +15,7 @@ window.app = {
   setPreset,
   docRowHStep,
   docMaxRowStep,
+  docSizeChange,
   docReset,
   renameDocument,
   removeImage,
@@ -143,6 +144,14 @@ function docMaxRowStep(docId, delta) {
   state.setDocumentMaxRow(docId, next);
   document.getElementById('docMaxRow_' + docId).textContent = next;
   renderPreview();
+}
+
+function docSizeChange(docId, val) {
+  const v = parseInt(val, 10);
+  if (!isNaN(v) && v >= 30 && v <= 300) {
+    state.setDocumentRowH(docId, v);
+    renderPreview();
+  }
 }
 
 function docReset(docId, field) {
