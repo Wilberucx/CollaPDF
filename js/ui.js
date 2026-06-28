@@ -93,7 +93,7 @@ export function renderPreview() {
     const addImgBtn = document.createElement('button');
     addImgBtn.className = 'preview-doc-addimg-btn';
     addImgBtn.title = 'Agregar imágenes';
-    addImgBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Imagen';
+    addImgBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Agregar Imagen';
     addImgBtn.addEventListener('click', () => window.app.openFilePicker(doc.id));
     row3.appendChild(addImgBtn);
 

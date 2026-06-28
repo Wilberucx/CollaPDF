@@ -940,33 +940,33 @@ body {
 .preview-doc-row-edit {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
   padding: 4px 10px;
   border-top: 1px solid var(--border);
 }
 .preview-doc-addimg-btn,
+.preview-doc-editimg-btn,
 .preview-doc-edit-btn {
+  flex: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
   background: transparent;
-  border: none;
-  color: var(--muted);
   font-family: 'Space Mono', monospace;
   font-size: 0.714rem;
   letter-spacing: 0.8px;
   text-transform: uppercase;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 3px 7px;
   border-radius: 3px;
   transition: all 0.12s;
 }
+
+/* Imagen — accent border (primary) */
 .preview-doc-addimg-btn {
   color: var(--accent);
   border: 1px solid var(--accent);
-  border-radius: 3px;
-  padding: 3px 7px;
 }
 .preview-doc-addimg-btn:hover {
   background: var(--accent);
@@ -976,29 +976,15 @@ body {
   stroke: #0c0c0c;
 }
 
-.preview-doc-editimg-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: transparent;
-  border: none;
+/* Editar imágenes & Editar documento — ghost border */
+.preview-doc-editimg-btn,
+.preview-doc-edit-btn {
   color: var(--muted);
-  font-family: 'Space Mono', monospace;
-  font-size: 0.714rem;
-  letter-spacing: 0.8px;
-  text-transform: uppercase;
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 3px;
-  transition: all 0.12s;
+  border: 1px solid var(--border);
 }
-.preview-doc-editimg-btn:hover {
-  color: var(--accent);
-  background: rgba(240, 160, 48, 0.08);
-}
-
+.preview-doc-editimg-btn:hover,
 .preview-doc-edit-btn:hover {
+  border-color: var(--accent);
   color: var(--accent);
   background: rgba(240, 160, 48, 0.08);
 }
@@ -1730,17 +1716,11 @@ body {
   .preview-doc-row-edit {
     padding: 6px 10px;
   }
-  .preview-doc-addimg-btn {
-    font-size: 0.786rem;
-    padding: 5px 11px;
-  }
-  .preview-doc-editimg-btn {
-    font-size: 0.786rem;
-    padding: 6px 12px;
-  }
+  .preview-doc-addimg-btn,
+  .preview-doc-editimg-btn,
   .preview-doc-edit-btn {
     font-size: 0.786rem;
-    padding: 6px 12px;
+    padding: 5px 11px;
   }
 }
 
