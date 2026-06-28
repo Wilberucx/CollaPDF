@@ -7,6 +7,7 @@ import * as ui from './ui.js';
 import { exportPDF } from './pdf.js';
 import { renderPreview } from './ui.js';
 import { buildPagesForDocument } from './layout.js';
+import { esc } from './utils.js';
 
 // ── Exponer API pública globalmente para los onclick del HTML ──
 window.app = {
@@ -16,6 +17,7 @@ window.app = {
   docRowHStep,
   docMaxRowStep,
   docSizeChange,
+  docMaxRowChange,
   docReset,
   renameDocument,
   removeImage,
@@ -35,7 +37,15 @@ window.app = {
   getDocuments: state.getDocuments,
   toggleImageSelection,
   deleteSelectedImages,
-  clearSelection
+  clearSelection,
+  toggleDocPanel,
+  closeDocPanel,
+  refreshDocPanel,
+  refreshOpenDocPanel,
+  toggleDocEditPanel,
+  closeDocEditPanel,
+  refreshDocEditPanel,
+  toggleSidebar
 };
 
 // ── FILE PICKER ──
@@ -79,6 +89,7 @@ async function loadImages(files, docId) {
   ui.renderSidebar();
   renderPreview();
   updateStats();
+  refreshOpenDocPanel(docId);
 }
 
 // ── DRAG & DROP ──
@@ -107,6 +118,7 @@ async function onDrop(e, docId) {
 function addDocument() {
   state.addDocument();
   ui.renderSidebar();
+  renderPreview();
   updateStats();
 }
 
@@ -154,6 +166,31 @@ function docSizeChange(docId, val) {
   }
 }
 
+function docMaxRowChange(docId, val) {
+  if (val === 'custom') {
+    const input = prompt('Ingresá un valor personalizado (1-20):');
+    if (input === null) {
+      // User cancelled — re-render to reset select to previous value
+      renderPreview();
+      return;
+    }
+    const v = parseInt(input, 10);
+    if (isNaN(v) || v < 1 || v > 20) {
+      alert('Valor inválido. Debe ser entre 1 y 20.');
+      renderPreview();
+      return;
+    }
+    state.setDocumentMaxRow(docId, v);
+    renderPreview();
+    return;
+  }
+  const v = parseInt(val, 10);
+  if (!isNaN(v) && v >= 1 && v <= 20) {
+    state.setDocumentMaxRow(docId, v);
+    renderPreview();
+  }
+}
+
 function docReset(docId, field) {
   if (field === 'rowH') {
     state.setDocumentRowH(docId, null);
@@ -167,6 +204,15 @@ function docReset(docId, field) {
 function renameDocument(id, name) {
   state.renameDocument(id, name);
   updateStats();
+  ui.renderSidebar();
+  // Update doc panel title if open for this doc
+  const panel = document.getElementById('docPanel');
+  if (panel && panel.classList.contains('open') && panel.dataset.docId === id) {
+    const title = document.getElementById('docPanelTitle');
+    const docs = state.getDocuments();
+    const doc = docs.find(d => d.id === id);
+    if (doc) title.textContent = doc.name + ' (' + doc.images.length + ')'; 
+  }
 }
 
 function removeImage(docId, imgId) {
@@ -174,6 +220,7 @@ function removeImage(docId, imgId) {
   ui.renderSidebar();
   renderPreview();
   updateStats();
+  refreshOpenDocPanel(docId);
 }
 
 function renameImage(docId, imgId, name) {
@@ -185,6 +232,7 @@ function reorderImages(docId, fromIndex, toIndex) {
   ui.renderSidebar();
   renderPreview();
   updateStats();
+  refreshOpenDocPanel(docId);
 }
 
 // ── SETTINGS ──
@@ -256,30 +304,288 @@ function updateFontScaleUI() {
   }
 }
 
+// ── SIDEBAR TOGGLE (desktop) ──
+function toggleSidebar() {
+  const sidebar = document.querySelector('.sidebar-left');
+  const btn = document.getElementById('sidebarToggle');
+  sidebar.classList.toggle('collapsed');
+  const isCollapsed = sidebar.classList.contains('collapsed');
+  btn.title = isCollapsed ? 'Mostrar panel de documentos' : 'Ocultar panel de documentos';
+  // Adjust the SVG to indicate state
+  btn.classList.toggle('active', isCollapsed);
+}
+
 // ── MOBILE ──
 function switchTab(tab) {
   document.querySelectorAll('.mob-tab').forEach(t =>
     t.classList.toggle('active', t.dataset.tab === tab)
   );
-  const left = document.querySelector('.sidebar-left');
-  const right = document.querySelector('.sidebar-right');
   const preview = document.querySelector('.preview-area');
+  const right = document.querySelector('.sidebar-right');
   
-  left.classList.toggle('active', tab === 'sidebar');
   preview.classList.toggle('mob-hidden', tab !== 'preview');
   right.classList.toggle('active', tab === 'settings');
   
   if (tab === 'preview') renderPreview();
 }
 
+// ── DOC PANEL (mobile) ──
+function toggleDocPanel(docId) {
+  const panel = document.getElementById('docPanel');
+  const backdrop = document.getElementById('docPanelBackdrop');
+  const body = document.getElementById('docPanelBody');
+  const title = document.getElementById('docPanelTitle');
+
+  // If already open for this doc, close it
+  if (panel.classList.contains('open') && panel.dataset.docId === docId) {
+    closeDocPanel();
+    return;
+  }
+
+  const docs = state.getDocuments();
+  const doc = docs.find(d => d.id === docId);
+  if (!doc) return;
+
+  title.textContent = doc.name + ' (' + doc.images.length + ')';
+  panel.dataset.docId = docId;
+
+  // Render doc panel content (mobile list view)
+  body.innerHTML = renderDocPanelContent(doc);
+
+  panel.classList.add('open');
+  backdrop.classList.add('open');
+}
+
+function closeDocPanel() {
+  const panel = document.getElementById('docPanel');
+  const backdrop = document.getElementById('docPanelBackdrop');
+  panel.classList.remove('open');
+  backdrop.classList.remove('open');
+}
+
+function renderDocPanelContent(doc) {
+  const hasImages = doc.images.length > 0;
+  const sel = state.getSelectedImages();
+
+  let html = '';
+
+  // Thumbs list (mobile list view)
+  if (hasImages) {
+    html += '<div class="doc-panel-images" id="docPanelImages_' + doc.id + '">';
+    doc.images.forEach((img, i) => {
+      const isSelected = sel.some(s => s.docId === doc.id && s.imgId === img.id);
+      html += `
+        <div class="thumb-row${isSelected ? ' selected' : ''}" draggable="true" data-doc-id="${doc.id}" data-img-index="${i}">
+          <div class="thumb-row-img-wrap" onclick="app.toggleImageSelection('${doc.id}', '${img.id}')">
+            <img class="thumb-row-img" src="${img.dataUrl}" loading="lazy">
+            <button class="thumb-select" onclick="event.stopPropagation();app.toggleImageSelection('${doc.id}', '${img.id}')" title="Seleccionar">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><polyline points="20 6 9 17 4 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
+          <input class="thumb-row-name" value="${esc(img.name)}"
+            onchange="app.renameImage('${doc.id}', '${img.id}', this.value); app.refreshDocPanel('${doc.id}')"
+            onclick="event.stopPropagation()"
+            title="Renombrar imagen">
+          <button class="btn-icon danger" onclick="app.removeImage('${doc.id}', '${img.id}')" title="Eliminar imagen">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+          <span class="thumb-row-grip">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+          </span>
+        </div>
+      `;
+    });
+    html += '</div>';
+
+    // Add images row
+    html += `
+      <div class="thumb-row add-row"
+        onclick="app.openFilePicker('${doc.id}')"
+        title="Agregar imágenes">
+        <div class="add-row-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        </div>
+        <span class="add-row-label">AGREGAR IMÁGENES</span>
+      </div>
+    `;
+  } else {
+    // Empty state - show drop zone
+    html += `
+      <div class="doc-panel-empty">
+        <div class="drop-zone"
+          onclick="app.openFilePicker('${doc.id}')"
+          ondragover="app.onDragOver(event, '${doc.id}')"
+          ondragleave="app.onDragLeave(event)"
+          ondrop="app.onDrop(event, '${doc.id}')">
+          + AGREGAR IMÁGENES
+        </div>
+      </div>
+    `;
+  }
+
+  return html;
+}
+
+function refreshDocPanel(docId) {
+  // Re-render just the body when actions modify the doc
+  const body = document.getElementById('docPanelBody');
+  const docs = state.getDocuments();
+  const doc = docs.find(d => d.id === docId);
+  if (!doc) return;
+  body.innerHTML = renderDocPanelContent(doc);
+}
+
+function refreshOpenDocPanel(docId) {
+  const panel = document.getElementById('docPanel');
+  if (panel && panel.classList.contains('open')) {
+    refreshDocPanel(panel.dataset.docId || docId);
+  }
+}
+
+// ── DOC EDIT PANEL (mobile) ──
+function toggleDocEditPanel(docId) {
+  const panel = document.getElementById('docEditPanel');
+  const backdrop = document.getElementById('docEditPanelBackdrop');
+
+  // If already open for this doc, close it
+  if (panel.classList.contains('open') && panel.dataset.docId === docId) {
+    closeDocEditPanel();
+    return;
+  }
+
+  const docs = state.getDocuments();
+  const doc = docs.find(d => d.id === docId);
+  if (!doc) return;
+
+  panel.dataset.docId = docId;
+  panel.querySelector('.doc-edit-panel-title').textContent = doc.name;
+
+  // Render edit panel content
+  const body = document.getElementById('docEditPanelBody');
+  body.innerHTML = renderDocEditPanelContent(doc);
+
+  panel.classList.add('open');
+  backdrop.classList.add('open');
+}
+
+function closeDocEditPanel() {
+  const panel = document.getElementById('docEditPanel');
+  const backdrop = document.getElementById('docEditPanelBackdrop');
+  panel.classList.remove('open');
+  backdrop.classList.remove('open');
+}
+
+function renderDocEditPanelContent(doc) {
+  const currentSize = doc.customRowH ?? config.PRESETS[doc.preset];
+  const currentMaxRow = doc.customMaxRow ?? config.MAX_PER_ROW[doc.preset];
+  const sizeOptions = [30, 50, 70, 100, 130, 160, 200, 250, 300];
+  if (!sizeOptions.includes(currentSize)) sizeOptions.unshift(currentSize);
+  sizeOptions.sort((a, b) => a - b);
+
+  // Check if any custom overrides exist
+  const hasOverrides = doc.customRowH !== null || doc.customMaxRow !== null;
+
+  return `
+    <!-- Preset toggle -->
+    <div class="settings-section">
+      <div class="settings-section-title">Layout</div>
+      <div class="preset-toggle">
+        <button class="preset-toggle-btn ${doc.preset === 'S' ? 'active' : ''}" onclick="app.setPreset('${doc.id}', 'S');app.refreshDocEditPanel('${doc.id}')">Compacto</button>
+        <button class="preset-toggle-btn ${doc.preset === 'M' ? 'active' : ''}" onclick="app.setPreset('${doc.id}', 'M');app.refreshDocEditPanel('${doc.id}')">Normal</button>
+        <button class="preset-toggle-btn ${doc.preset === 'L' ? 'active' : ''}" onclick="app.setPreset('${doc.id}', 'L');app.refreshDocEditPanel('${doc.id}')">Amplio</button>
+      </div>
+    </div>
+
+    <!-- Size control -->
+    <div class="settings-section">
+      <div class="settings-section-title">Tamaño de imagen</div>
+      <div class="preset-row">
+        <label>Altura de fila</label>
+        <span style="display:flex;align-items:center;gap:6px">
+          <select class="preset-input" onchange="app.docSizeChange('${doc.id}', this.value);app.refreshDocEditPanel('${doc.id}')">
+            ${sizeOptions.map(v =>
+              `<option value="${v}"${v === currentSize ? ' selected' : ''}>${v} pt</option>`
+            ).join('')}
+          </select>
+        </span>
+      </div>
+    </div>
+
+    <!-- Max per row -->
+    <div class="settings-section">
+      <div class="settings-section-title">Imágenes por fila</div>
+      <div class="preset-row">
+        <label>Máximo</label>
+        <span style="display:flex;align-items:center;gap:6px">
+          <select class="preset-input" onchange="app.docMaxRowChange('${doc.id}', this.value);app.refreshDocEditPanel('${doc.id}')">
+            ${[1,2,3,4,5,6,7,8,9].map(v =>
+              `<option value="${v}"${v === currentMaxRow ? ' selected' : ''}>${v} imgs</option>`
+            ).join('')}
+            ${currentMaxRow > 9 ? `<option value="${currentMaxRow}" selected>${currentMaxRow} imgs</option>` : ''}
+            <option value="custom">Personalizado...</option>
+          </select>
+        </span>
+      </div>
+    </div>
+
+    <!-- Layout mode -->
+    <div class="settings-section">
+      <div class="settings-section-title">Modo de layout</div>
+      <div class="layout-toggle">
+        <button class="layout-toggle-btn ${config.LAYOUT_MODE === 'justified' ? 'active' : ''}" onclick="app.setLayoutMode('justified')">Auto</button>
+        <button class="layout-toggle-btn ${config.LAYOUT_MODE === 'grid' ? 'active' : ''}" onclick="app.setLayoutMode('grid')">Cuadrícula</button>
+      </div>
+    </div>
+
+    ${hasOverrides ? `
+    <!-- Reset overrides -->
+    <div class="settings-section doc-edit-reset-section">
+      <button class="doc-edit-reset-btn" onclick="app.docReset('${doc.id}', 'rowH');app.docReset('${doc.id}', 'maxRow');app.refreshDocEditPanel('${doc.id}')">
+        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        Restablecer valores del documento
+      </button>
+    </div>
+    ` : ''}
+
+    <!-- Delete button -->
+    <div class="settings-section" style="padding-top:16px">
+      <button class="doc-edit-delete-btn" onclick="app.removeDocument('${doc.id}');app.closeDocEditPanel()">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+        Eliminar Documento
+      </button>
+    </div>
+  `;
+}
+
+function refreshDocEditPanel(docId) {
+  const body = document.getElementById('docEditPanelBody');
+  const docs = state.getDocuments();
+  const doc = docs.find(d => d.id === docId);
+  if (!doc) return;
+  body.innerHTML = renderDocEditPanelContent(doc);
+  const panel = document.getElementById('docEditPanel');
+  if (panel) {
+    panel.querySelector('.doc-edit-panel-title').textContent = doc.name;
+  }
+}
+
 // ── SELECTION ──
 function toggleImageSelection(docId, imgId) {
   state.toggleImageSelection(docId, imgId);
+  // Refresh doc panel if open
+  const panel = document.getElementById('docPanel');
+  if (panel && panel.classList.contains('open') && panel.dataset.docId === docId) {
+    refreshDocPanel(docId);
+  }
   ui.renderSidebar();
 }
 
 function deleteSelectedImages() {
   state.deleteSelectedImages();
+  const panel = document.getElementById('docPanel');
+  if (panel && panel.classList.contains('open')) {
+    refreshDocPanel(panel.dataset.docId);
+  }
   ui.renderSidebar();
   renderPreview();
   updateStats();
@@ -287,6 +593,10 @@ function deleteSelectedImages() {
 
 function clearSelection() {
   state.clearSelection();
+  const panel = document.getElementById('docPanel');
+  if (panel && panel.classList.contains('open')) {
+    refreshDocPanel(panel.dataset.docId);
+  }
   ui.renderSidebar();
 }
 
@@ -468,6 +778,119 @@ function setupDragAndDrop() {
     e.dataTransfer.setData('text/plain', 'thumb');
   });
 
+  // ── Doc panel drag & drop ──
+  const docPanelBody = document.getElementById('docPanelBody');
+  if (docPanelBody) {
+    docPanelBody.addEventListener('dragstart', (e) => {
+      const row = e.target.closest('.thumb-row');
+      if (!row || row.classList.contains('add-row')) return;
+      draggedThumb = row;
+      row.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', 'thumb');
+    });
+
+    docPanelBody.addEventListener('dragover', (e) => {
+      if (!draggedThumb) return;
+      e.preventDefault();
+      const row = e.target.closest('.thumb-row');
+      if (!row || row === draggedThumb || row.classList.contains('add-row')) return;
+      if (draggedThumb.dataset.docId !== row.dataset.docId) return;
+
+      docPanelBody.querySelectorAll('.thumb-row').forEach(r => {
+        if (r !== row) r.classList.remove('drag-over');
+      });
+      row.classList.add('drag-over');
+    });
+
+    docPanelBody.addEventListener('dragleave', (e) => {
+      const row = e.target.closest('.thumb-row');
+      if (row) row.classList.remove('drag-over');
+    });
+
+    docPanelBody.addEventListener('drop', (e) => {
+      if (!draggedThumb) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const row = e.target.closest('.thumb-row');
+      if (!row || row === draggedThumb || row.classList.contains('add-row')) return;
+
+      const fromIndex = parseInt(draggedThumb.dataset.imgIndex, 10);
+      const toIndex = parseInt(row.dataset.imgIndex, 10);
+      const docId = draggedThumb.dataset.docId;
+
+      state.reorderImages(docId, fromIndex, toIndex);
+
+      docPanelBody.querySelectorAll('.thumb-row').forEach(r => {
+        r.classList.remove('dragging', 'drag-over');
+      });
+
+      ui.renderSidebar();
+      renderPreview();
+      updateStats();
+      refreshOpenDocPanel(docId);
+      draggedThumb = null;
+    });
+
+    docPanelBody.addEventListener('dragend', (e) => {
+      docPanelBody.querySelectorAll('.thumb-row').forEach(r => {
+        r.classList.remove('dragging', 'drag-over');
+      });
+      if (draggedThumb && draggedThumb.parentNode === docPanelBody) {
+        draggedThumb = null;
+      }
+    });
+
+    // ── Touch drag & drop for doc panel thumb rows ──
+    let panelTouchDraggedRow = null;
+
+    docPanelBody.addEventListener('touchstart', (e) => {
+      const grip = e.target.closest('.thumb-row-grip');
+      if (!grip) return;
+      const row = grip.closest('.thumb-row');
+      if (!row || row.classList.contains('add-row')) return;
+
+      panelTouchDraggedRow = row;
+      row.classList.add('dragging');
+    }, { passive: true });
+
+    docPanelBody.addEventListener('touchmove', (e) => {
+      if (!panelTouchDraggedRow) return;
+      e.preventDefault();
+      const touch = e.touches[0];
+      const target = document.elementFromPoint(touch.clientX, touch.clientY);
+      if (!target) return;
+      const targetRow = target.closest('.thumb-row');
+      if (!targetRow || targetRow === panelTouchDraggedRow || targetRow.classList.contains('add-row')) return;
+      if (panelTouchDraggedRow.dataset.docId !== targetRow.dataset.docId) return;
+
+      docPanelBody.querySelectorAll('.thumb-row').forEach(r => {
+        if (r !== targetRow) r.classList.remove('drag-over');
+      });
+      targetRow.classList.add('drag-over');
+    }, { passive: false });
+
+    docPanelBody.addEventListener('touchend', (e) => {
+      if (!panelTouchDraggedRow) return;
+      const targetRow = docPanelBody.querySelector('.thumb-row.drag-over');
+      if (targetRow) {
+        const fromIndex = parseInt(panelTouchDraggedRow.dataset.imgIndex, 10);
+        const toIndex = parseInt(targetRow.dataset.imgIndex, 10);
+        const docId = panelTouchDraggedRow.dataset.docId;
+
+        state.reorderImages(docId, fromIndex, toIndex);
+        ui.renderSidebar();
+        renderPreview();
+        updateStats();
+        refreshOpenDocPanel(docId);
+      }
+      docPanelBody.querySelectorAll('.thumb-row').forEach(r => {
+        r.classList.remove('dragging', 'drag-over');
+      });
+      panelTouchDraggedRow = null;
+    }, { passive: true });
+  }
+
   // ── Touch drag & drop for mobile list rows ──
   let touchDraggedRow = null;
 
@@ -551,7 +974,9 @@ updateLayoutToggleUI();
 
 // ── RESPONSIVE ──
 window.addEventListener('resize', () => {
-  if (state.getDocuments().some(d => d.images.length > 0)) {
+  // Don't re-render if user is editing an input (keyboard open on mobile)
+  if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+  if (state.getDocuments().length > 0) {
     renderPreview();
   }
 });

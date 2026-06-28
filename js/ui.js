@@ -1,4 +1,4 @@
-import { CAPTION_H, CAPTION_PAD, PDF, PRESETS, MAX_PER_ROW } from './config.js';
+import { CAPTION_H, CAPTION_PAD, PDF, PRESETS, MAX_PER_ROW, LAYOUT_MODE } from './config.js';
 import { getDocuments, getSelectedImages, toggleImageSelection } from './state.js';
 import { buildPagesForDocument } from './layout.js';
 import { truncateName, esc } from './utils.js';
@@ -10,9 +10,7 @@ export function renderPreview() {
   const area = document.getElementById('previewArea');
   const empty = document.getElementById('previewEmpty');
   const docs = getDocuments();
-  const hasImages = docs.some(d => d.images.length > 0);
-
-  if (!hasImages) {
+  if (docs.length === 0) {
     area.innerHTML = '';
     if (empty) area.appendChild(empty);
     document.getElementById('statPages').textContent = '\u2014';
@@ -27,9 +25,9 @@ export function renderPreview() {
   area.innerHTML = '';
 
   let totalPages = 0;
+
   for (let di = 0; di < docs.length; di++) {
     const doc = docs[di];
-    if (!doc.images.length) continue;
 
     // Separador entre documentos (no antes del primero)
     if (di > 0) {
@@ -38,105 +36,149 @@ export function renderPreview() {
       area.appendChild(separator);
     }
 
-    // Título del documento con icono
-    const docLabel = document.createElement('div');
-    docLabel.className = 'preview-document-title';
-    docLabel.innerHTML = `
-      <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M3.75 15C5.13071 15 6.25 16.1193 6.25 17.5C6.25 18.8807 5.13071 20 3.75 20H2.5V21.25C2.5 21.6642 2.16421 22 1.75 22C1.33579 22 1 21.6642 1 21.25V15.75C1 15.3358 1.33579 15 1.75 15H3.75ZM2.5 18.5H3.75C4.30228 18.5 4.75 18.0523 4.75 17.5C4.75 16.9477 4.30228 16.5 3.75 16.5H2.5V18.5ZM9.25 15C10.7688 15 12 16.2312 12 17.75V19.25C12 20.7688 10.7688 22 9.25 22H7.75C7.33579 22 7 21.6642 7 21.25V15.75C7 15.3358 7.33579 15 7.75 15H9.25ZM8.5 20.5H9.25C9.94036 20.5 10.5 19.9404 10.5 19.25V17.75C10.5 17.0596 9.94036 16.5 9.25 16.5H8.5V20.5ZM16.75 15C17.1642 15 17.5 15.3358 17.5 15.75C17.5 16.1642 17.1642 16.5 16.75 16.5H14.5V18H16.25C16.6642 18 17 18.3358 17 18.75C17 19.1642 16.6642 19.5 16.25 19.5H14.5V21.25C14.5 21.6642 14.1642 22 13.75 22C13.3358 22 13 21.6642 13 21.25V15.75C13 15.3358 13.3358 15 13.75 15H16.75ZM12.1289 2C12.7256 2.00006 13.2978 2.23728 13.7197 2.65918L19.3408 8.28027C19.7627 8.70218 19.9999 9.27444 20 9.87109V19.5C20 20.8807 18.8807 22 17.5 22H15.3291C15.4374 21.7724 15.5 21.5188 15.5 21.25V20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V10H14C12.8954 10 12 9.10457 12 8V3.5H6.5C5.94772 3.5 5.5 3.94772 5.5 4.5V14H4V4.5C4 3.11929 5.11929 2 6.5 2H12.1289ZM13.5 8C13.5 8.27614 13.7239 8.5 14 8.5H17.4395L13.5 4.56055V8Z"/></svg>
-      ${esc(doc.name)}
-    `;
-    area.appendChild(docLabel);
-
-    // Per-document controls: Tamaño de imagen e Imágenes por fila
+    // ── Box unificado: nombre arriba, controles medio, editar layout abajo ──
     const currentSize = doc.customRowH ?? PRESETS[doc.preset];
     const sizeOptions = [30, 50, 70, 100, 130, 160, 200, 250, 300];
     if (!sizeOptions.includes(currentSize)) sizeOptions.unshift(currentSize);
     sizeOptions.sort((a, b) => a - b);
 
-    const previewOpts = document.createElement('div');
-    previewOpts.className = 'preview-options';
-    previewOpts.innerHTML = `
-      <span class="preview-opt preview-opt-left">
-        <select class="preview-size-select" id="docSize_${doc.id}"
-          onchange="app.docSizeChange('${doc.id}', this.value)">
-          ${sizeOptions.map(v =>
-            `<option value="${v}"${v === currentSize ? ' selected' : ''}>${v} pt${v === 70 ? ' (Compacto)' : v === 130 ? ' (Normal)' : v === 200 ? ' (Amplio)' : ''}</option>`
-          ).join('')}
-        </select>
-        ${doc.customRowH !== null ? `<button class="doc-opt-reset" onclick="app.docReset('${doc.id}', 'rowH')" title="Restablecer valor por defecto"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
-      </span>
-      <span class="preview-opt preview-opt-right">
-        <span class="preview-opt-label">Imágenes por fila</span>
-        <span class="doc-stepper">
-          <button class="doc-stepper-btn" onclick="app.docMaxRowStep('${doc.id}', -1)" aria-label="Disminuir">
-            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-          <span class="doc-stepper-value" id="docMaxRow_${doc.id}">${doc.customMaxRow ?? MAX_PER_ROW[doc.preset]}</span>
-          <button class="doc-stepper-btn" onclick="app.docMaxRowStep('${doc.id}', 1)" aria-label="Aumentar">
-            <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </button>
-        </span>
-        ${doc.customMaxRow !== null ? `<button class="doc-opt-reset" onclick="app.docReset('${doc.id}', 'maxRow')" title="Restablecer valor por defecto"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg></button>` : ''}
-      </span>
+    const currentMaxRow = doc.customMaxRow ?? MAX_PER_ROW[doc.preset];
+
+    const docBox = document.createElement('div');
+    docBox.className = 'preview-doc-box';
+
+    // ── Fila 1: nombre del documento ──
+    const row1 = document.createElement('div');
+    row1.className = 'preview-doc-row-name';
+    row1.innerHTML = `
+      <svg class="preview-doc-row-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M3.75 15C5.13071 15 6.25 16.1193 6.25 17.5C6.25 18.8807 5.13071 20 3.75 20H2.5V21.25C2.5 21.6642 2.16421 22 1.75 22C1.33579 22 1 21.6642 1 21.25V15.75C1 15.3358 1.33579 15 1.75 15H3.75ZM2.5 18.5H3.75C4.30228 18.5 4.75 18.0523 4.75 17.5C4.75 16.9477 4.30228 16.5 3.75 16.5H2.5V18.5ZM9.25 15C10.7688 15 12 16.2312 12 17.75V19.25C12 20.7688 10.7688 22 9.25 22H7.75C7.33579 22 7 21.6642 7 21.25V15.75C7 15.3358 7.33579 15 7.75 15H9.25ZM8.5 20.5H9.25C9.94036 20.5 10.5 19.9404 10.5 19.25V17.75C10.5 17.0596 9.94036 16.5 9.25 16.5H8.5V20.5ZM16.75 15C17.1642 15 17.5 15.3358 17.5 15.75C17.5 16.1642 17.1642 16.5 16.75 16.5H14.5V18H16.25C16.6642 18 17 18.3358 17 18.75C17 19.1642 16.6642 19.5 16.25 19.5H14.5V21.25C14.5 21.6642 14.1642 22 13.75 22C13.3358 22 13 21.6642 13 21.25V15.75C13 15.3358 13.3358 15 13.75 15H16.75ZM12.1289 2C12.7256 2.00006 13.2978 2.23728 13.7197 2.65918L19.3408 8.28027C19.7627 8.70218 19.9999 9.27444 20 9.87109V19.5C20 20.8807 18.8807 22 17.5 22H15.3291C15.4374 21.7724 15.5 21.5188 15.5 21.25V20.5H17.5C18.0523 20.5 18.5 20.0523 18.5 19.5V10H14C12.8954 10 12 9.10457 12 8V3.5H6.5C5.94772 3.5 5.5 3.94772 5.5 4.5V14H4V4.5C4 3.11929 5.11929 2 6.5 2H12.1289ZM13.5 8C13.5 8.27614 13.7239 8.5 14 8.5H17.4395L13.5 4.56055V8Z"/></svg>
+      <input class="preview-doc-name-input" value="${esc(doc.name)}"
+        onchange="app.renameDocument('${doc.id}', this.value)"
+        title="Renombrar documento">
     `;
-    area.appendChild(previewOpts);
+    docBox.appendChild(row1);
 
-    const pages = buildPagesForDocument(doc);
-    totalPages += pages.length;
+    // ── Fila 2: controles (tamaño, imágenes por fila) ──
+    const row2 = document.createElement('div');
+    row2.className = 'preview-doc-row-controls';
+    row2.innerHTML = `
+      <select class="preview-size-select" id="docSize_${doc.id}"
+        onchange="app.docSizeChange('${doc.id}', this.value)">
+        ${sizeOptions.map(v =>
+          `<option value="${v}"${v === currentSize ? ' selected' : ''}>${v} pt${v === 70 ? ' (Compacto)' : v === 130 ? ' (Normal)' : v === 200 ? ' (Amplio)' : ''}</option>`
+        ).join('')}
+      </select>
+      <div class="preview-tb-divider"></div>
+      <select class="preview-maxrow-select" id="docMaxRow_${doc.id}"
+        onchange="app.docMaxRowChange('${doc.id}', this.value)">
+        ${[1,2,3,4,5,6,7,8,9].map(v =>
+          `<option value="${v}"${v === currentMaxRow ? ' selected' : ''}>${v} imgs</option>`
+        ).join('')}
+        ${currentMaxRow > 9 ? `<option value="${currentMaxRow}" selected>${currentMaxRow} imgs</option>` : ''}
+        <option value="custom"${currentMaxRow > 9 ? '' : ''}>Personalizado...</option>
+      </select>
+      <div class="preview-tb-divider"></div>
+      <select class="preview-layout-select"
+        onchange="app.setLayoutMode(this.value)">
+        <option value="justified"${LAYOUT_MODE === 'justified' ? ' selected' : ''}>Auto</option>
+        <option value="grid"${LAYOUT_MODE === 'grid' ? ' selected' : ''}>Cuadrícula</option>
+      </select>
+    `;
+    docBox.appendChild(row2);
 
-    pages.forEach((pageItems, pi) => {
-      const pageEl = document.createElement('div');
-      pageEl.className = 'preview-page';
-      pageEl.style.width = PREVIEW_W + 'px';
-      pageEl.style.height = PREVIEW_H + 'px';
+    // ── Fila 3: agregar, editar imágenes, editar documento ──
+    const row3 = document.createElement('div');
+    row3.className = 'preview-doc-row-edit';
 
-      pageItems.forEach(({ item, x, y }) => {
-        const xPos = x * scale;
-        const img = document.createElement('img');
-        img.src = item.img.dataUrl;
-        img.style.cssText = `
-          position: absolute;
-          left: ${xPos.toFixed(1)}px;
-          top: ${(y * scale).toFixed(1)}px;
-          width: ${(item.w * scale).toFixed(1)}px;
-          height: ${(item.h * scale).toFixed(1)}px;
-          object-fit: cover;
-        `;
-        pageEl.appendChild(img);
+    const addImgBtn = document.createElement('button');
+    addImgBtn.className = 'preview-doc-addimg-btn';
+    addImgBtn.title = 'Agregar imágenes';
+    addImgBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Agregar';
+    addImgBtn.addEventListener('click', () => window.app.openFilePicker(doc.id));
+    row3.appendChild(addImgBtn);
 
-        // Caption (item.capH from layout is in PDF pts, scale to preview)
-        const capH = (item.capH != null ? item.capH : CAPTION_H) * scale;
-        const capFont = Math.max(5, capH * 0.65);
-        const caption = document.createElement('div');
-        caption.style.cssText = `
-          position: absolute;
-          left: ${xPos.toFixed(1)}px;
-          top: ${((y + item.h + CAPTION_PAD) * scale).toFixed(1)}px;
-          width: ${(item.w * scale).toFixed(1)}px;
-          height: ${capH.toFixed(1)}px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: ${capFont.toFixed(1)}px;
-          color: #888;
-          font-family: 'Space Mono', monospace;
-          white-space: nowrap;
-          padding: 0 2px;
-        `;
-        caption.textContent = truncateName(item.img.name, Math.floor(item.w * scale / 5));
-        pageEl.appendChild(caption);
+    const editImgBtn = document.createElement('button');
+    editImgBtn.className = 'preview-doc-editimg-btn';
+    editImgBtn.title = 'Editar imágenes';
+    editImgBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M21.19 2.81a2.63 2.63 0 0 0-3.72 0l-1.42 1.42 3.72 3.72 1.42-1.42a2.63 2.63 0 0 0 0-3.72zM4.5 17.09 12.5 9.09l3.72 3.72-8 8H4.5v-3.72z"/></svg> Editar imágenes';
+    editImgBtn.addEventListener('click', () => window.app.toggleDocPanel(doc.id));
+    row3.appendChild(editImgBtn);
+
+    const editBtn = document.createElement('button');
+    editBtn.className = 'preview-doc-edit-btn';
+    editBtn.title = 'Editar documento';
+    editBtn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg> Editar documento';
+    editBtn.addEventListener('click', () => window.app.toggleDocEditPanel(doc.id));
+    row3.appendChild(editBtn);
+    docBox.appendChild(row3);
+
+    area.appendChild(docBox);
+
+    if (doc.images.length > 0) {
+      const pages = buildPagesForDocument(doc);
+      totalPages += pages.length;
+
+      pages.forEach((pageItems, pi) => {
+        const pageEl = document.createElement('div');
+        pageEl.className = 'preview-page';
+        pageEl.style.width = PREVIEW_W + 'px';
+        pageEl.style.height = PREVIEW_H + 'px';
+
+        pageItems.forEach(({ item, x, y }) => {
+          const xPos = x * scale;
+          const img = document.createElement('img');
+          img.src = item.img.dataUrl;
+          img.style.cssText = `
+            position: absolute;
+            left: ${xPos.toFixed(1)}px;
+            top: ${(y * scale).toFixed(1)}px;
+            width: ${(item.w * scale).toFixed(1)}px;
+            height: ${(item.h * scale).toFixed(1)}px;
+            object-fit: cover;
+          `;
+          pageEl.appendChild(img);
+
+          // Caption (item.capH from layout is in PDF pts, scale to preview)
+          const capH = (item.capH != null ? item.capH : CAPTION_H) * scale;
+          const capFont = Math.max(5, capH * 0.65);
+          const caption = document.createElement('div');
+          caption.style.cssText = `
+            position: absolute;
+            left: ${xPos.toFixed(1)}px;
+            top: ${((y + item.h + CAPTION_PAD) * scale).toFixed(1)}px;
+            width: ${(item.w * scale).toFixed(1)}px;
+            height: ${capH.toFixed(1)}px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: ${capFont.toFixed(1)}px;
+            color: #888;
+            font-family: 'Space Mono', monospace;
+            white-space: nowrap;
+            padding: 0 2px;
+          `;
+          caption.textContent = truncateName(item.img.name, Math.floor(item.w * scale / 5));
+          pageEl.appendChild(caption);
+        });
+
+        const num = document.createElement('div');
+        num.className = 'preview-page-num';
+        num.textContent = pi + 1 + ' / ' + pages.length;
+        pageEl.appendChild(num);
+
+        area.appendChild(pageEl);
       });
-
-      const num = document.createElement('div');
-      num.className = 'preview-page-num';
-      num.textContent = pi + 1 + ' / ' + pages.length;
-      pageEl.appendChild(num);
-
-      area.appendChild(pageEl);
-    });
+    }
   }
 
   document.getElementById('statPages').textContent = totalPages;
+
+  // ── Botón "Agregar Documento" al final del preview ──
+  const addBtn = document.createElement('button');
+  addBtn.className = 'add-doc-btn';
+  addBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Agregar Documento';
+  addBtn.onclick = () => window.app.addDocument();
+  area.appendChild(addBtn);
 }
 
 /**
@@ -193,7 +235,7 @@ export function renderSidebar() {
   const addBtn = document.createElement('button');
   addBtn.className = 'add-doc-btn';
   addBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Agregar Documento';
-  addBtn.onclick = () => app.addDocument();
+  addBtn.onclick = () => window.app.addDocument();
   list.parentElement.appendChild(addBtn);
 }
 
