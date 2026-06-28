@@ -18,7 +18,7 @@ export function renderPreview() {
   }
 
   const areaW = area.clientWidth - 48;
-  const PREVIEW_W = Math.min(Math.max(areaW, 300), 560);
+  const PREVIEW_W = Math.min(Math.max(areaW, 300), 720);
   const scale = PREVIEW_W / PDF.w;
   const PREVIEW_H = PDF.h * scale;
 
@@ -201,9 +201,6 @@ export function renderSidebar() {
             onchange="app.renameDocument('${d.id}', this.value)"
             title="Renombrar documento">
           <span class="document-count">${d.images.length}</span>
-          <button class="btn-icon danger" onclick="app.removeDocument('${d.id}')" title="Eliminar documento">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
         </div>
 
         <div class="preset-toggle">
@@ -225,6 +222,22 @@ export function renderSidebar() {
           + AGREGAR IMÁGENES
         </div>
         ` : ''}
+
+        ${(d.customRowH !== null || d.customMaxRow !== null) ? `
+        <div class="doc-edit-reset-section" style="padding:4px 8px 0">
+          <button class="doc-edit-reset-btn" onclick="app.docReset('${d.id}', 'rowH');app.docReset('${d.id}', 'maxRow')">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            Restablecer valores del documento
+          </button>
+        </div>
+        ` : ''}
+
+        <div style="padding:4px 8px 8px">
+          <button class="doc-edit-delete-btn" onclick="app.removeDocument('${d.id}')">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Eliminar Documento
+          </button>
+        </div>
       </div>
     `}).join('');
 
