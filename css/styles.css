@@ -339,6 +339,11 @@ body {
   padding-top: 0;
   border-top: none;
 }
+.preset-group .preset-row label {
+  font-size: 0.786rem;
+  color: var(--muted);
+}
+
 .preset-group-title {
   font-family: 'Space Mono', monospace;
   font-size: 0.714rem;
