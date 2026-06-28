@@ -70,79 +70,104 @@
     <div class="preset-settings" id="presetSettings">
 
       <div class="settings-section">
-        <div class="settings-section-title">Tamaño de imagen</div>
-        <div class="settings-section-desc">Controla el tamaño de las imágenes en el PDF. Valor por defecto personalizable por documento.</div>
-        <div class="preset-row">
-          <label>Compacto</label>
-          <span style="display:flex;align-items:center;gap:6px">
-            <div class="stepper">
-              <button class="stepper-btn" onclick="app.presetStep('S', -5)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-              <span class="stepper-value" id="presetS">70</span>
-              <button class="stepper-btn" onclick="app.presetStep('S', 5)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            </div>
-            <span class="preset-unit">pt</span>
-          </span>
-        </div>
-        <div class="preset-row">
-          <label>Normal</label>
-          <span style="display:flex;align-items:center;gap:6px">
-            <div class="stepper">
-              <button class="stepper-btn" onclick="app.presetStep('M', -5)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-              <span class="stepper-value" id="presetM">130</span>
-              <button class="stepper-btn" onclick="app.presetStep('M', 5)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            </div>
-            <span class="preset-unit">pt</span>
-          </span>
-        </div>
-        <div class="preset-row">
-          <label>Amplio</label>
-          <span style="display:flex;align-items:center;gap:6px">
-            <div class="stepper">
-              <button class="stepper-btn" onclick="app.presetStep('L', -5)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-              <span class="stepper-value" id="presetL">200</span>
-              <button class="stepper-btn" onclick="app.presetStep('L', 5)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            </div>
-            <span class="preset-unit">pt</span>
-          </span>
-        </div>
-      </div>
+        <div class="settings-section-title">Presets</div>
 
-      <div class="settings-section">
-        <div class="settings-section-title">Imágenes por fila</div>
-        <div class="settings-section-desc">Máximo de imágenes permitidas por fila en el PDF. Valor por defecto personalizable por documento.</div>
-        <div class="preset-row">
-          <label>Compacto</label>
-          <span style="display:flex;align-items:center;gap:6px">
-            <div class="stepper">
-              <button class="stepper-btn" onclick="app.maxRowStep('S', -1)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-              <span class="stepper-value" id="maxS">8</span>
-              <button class="stepper-btn" onclick="app.maxRowStep('S', 1)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            </div>
-            <span class="preset-unit">imgs</span>
-          </span>
+        <div class="preset-group">
+          <div class="preset-group-title">Compacto</div>
+          <div class="preset-row">
+            <label>Tamaño de imagen</label>
+            <select class="preset-setting-select" id="presetS" onchange="app.setPresetDirect('S', this.value)">
+              <option value="30">30 pt</option>
+              <option value="50">50 pt</option>
+              <option value="70">70 pt</option>
+              <option value="100">100 pt</option>
+              <option value="130">130 pt</option>
+              <option value="160">160 pt</option>
+              <option value="200">200 pt</option>
+              <option value="250">250 pt</option>
+              <option value="300">300 pt</option>
+            </select>
+          </div>
+          <div class="preset-row">
+            <label>Imágenes por fila</label>
+            <select class="preset-setting-select" id="maxS" onchange="app.setMaxRowDirect('S', this.value)">
+              <option value="1">1 img</option>
+              <option value="2">2 imgs</option>
+              <option value="3">3 imgs</option>
+              <option value="4">4 imgs</option>
+              <option value="5">5 imgs</option>
+              <option value="6">6 imgs</option>
+              <option value="7">7 imgs</option>
+              <option value="8">8 imgs</option>
+              <option value="9">9 imgs</option>
+            </select>
+          </div>
         </div>
-        <div class="preset-row">
-          <label>Normal</label>
-          <span style="display:flex;align-items:center;gap:6px">
-            <div class="stepper">
-              <button class="stepper-btn" onclick="app.maxRowStep('M', -1)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-              <span class="stepper-value" id="maxM">5</span>
-              <button class="stepper-btn" onclick="app.maxRowStep('M', 1)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            </div>
-            <span class="preset-unit">imgs</span>
-          </span>
+
+        <div class="preset-group">
+          <div class="preset-group-title">Normal</div>
+          <div class="preset-row">
+            <label>Tamaño de imagen</label>
+            <select class="preset-setting-select" id="presetM" onchange="app.setPresetDirect('M', this.value)">
+              <option value="30">30 pt</option>
+              <option value="50">50 pt</option>
+              <option value="70">70 pt</option>
+              <option value="100">100 pt</option>
+              <option value="130">130 pt</option>
+              <option value="160">160 pt</option>
+              <option value="200">200 pt</option>
+              <option value="250">250 pt</option>
+              <option value="300">300 pt</option>
+            </select>
+          </div>
+          <div class="preset-row">
+            <label>Imágenes por fila</label>
+            <select class="preset-setting-select" id="maxM" onchange="app.setMaxRowDirect('M', this.value)">
+              <option value="1">1 img</option>
+              <option value="2">2 imgs</option>
+              <option value="3">3 imgs</option>
+              <option value="4">4 imgs</option>
+              <option value="5">5 imgs</option>
+              <option value="6">6 imgs</option>
+              <option value="7">7 imgs</option>
+              <option value="8">8 imgs</option>
+              <option value="9">9 imgs</option>
+            </select>
+          </div>
         </div>
-        <div class="preset-row">
-          <label>Amplio</label>
-          <span style="display:flex;align-items:center;gap:6px">
-            <div class="stepper">
-              <button class="stepper-btn" onclick="app.maxRowStep('L', -1)" aria-label="Disminuir"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-              <span class="stepper-value" id="maxL">3</span>
-              <button class="stepper-btn" onclick="app.maxRowStep('L', 1)" aria-label="Aumentar"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-            </div>
-            <span class="preset-unit">imgs</span>
-          </span>
+
+        <div class="preset-group">
+          <div class="preset-group-title">Amplio</div>
+          <div class="preset-row">
+            <label>Tamaño de imagen</label>
+            <select class="preset-setting-select" id="presetL" onchange="app.setPresetDirect('L', this.value)">
+              <option value="30">30 pt</option>
+              <option value="50">50 pt</option>
+              <option value="70">70 pt</option>
+              <option value="100">100 pt</option>
+              <option value="130">130 pt</option>
+              <option value="160">160 pt</option>
+              <option value="200">200 pt</option>
+              <option value="250">250 pt</option>
+              <option value="300">300 pt</option>
+            </select>
+          </div>
+          <div class="preset-row">
+            <label>Imágenes por fila</label>
+            <select class="preset-setting-select" id="maxL" onchange="app.setMaxRowDirect('L', this.value)">
+              <option value="1">1 img</option>
+              <option value="2">2 imgs</option>
+              <option value="3">3 imgs</option>
+              <option value="4">4 imgs</option>
+              <option value="5">5 imgs</option>
+              <option value="6">6 imgs</option>
+              <option value="7">7 imgs</option>
+              <option value="8">8 imgs</option>
+              <option value="9">9 imgs</option>
+            </select>
+          </div>
         </div>
+
       </div>
 
       <div class="settings-section">

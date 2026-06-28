@@ -329,6 +329,24 @@ body {
   color: var(--text);
   margin-bottom: 2px;
 }
+.preset-group {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.preset-group:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+.preset-group-title {
+  font-family: 'Space Mono', monospace;
+  font-size: 0.714rem;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-bottom: 2px;
+}
 .settings-section-desc {
   font-family: 'Space Mono', monospace;
   font-size: 0.643rem;
@@ -364,6 +382,38 @@ body {
 .doc-edit-panel select.preset-input {
   min-width: 100px;
   width: auto;
+}
+.preset-setting-select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: var(--surface);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 10px 6px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--text);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.714rem;
+  padding: 5px 28px 5px 8px;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s, background-color 0.15s;
+  min-width: 100px;
+}
+.preset-setting-select:hover {
+  border-color: var(--border2);
+  background-color: rgba(255,255,255,0.03);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%23f0a030' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+.preset-setting-select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(240, 160, 48, 0.15);
+}
+.preset-setting-select option {
+  background: #1a1a1a;
+  color: var(--text);
 }
 .preset-unit {
   font-family: 'Space Mono', monospace;

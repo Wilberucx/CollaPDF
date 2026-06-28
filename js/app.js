@@ -33,6 +33,8 @@ window.app = {
   setLayoutMode,
   presetStep,
   maxRowStep,
+  setPresetDirect,
+  setMaxRowDirect,
   setFontScale,
   getDocuments: state.getDocuments,
   toggleImageSelection,
@@ -264,6 +266,20 @@ function maxRowStep(key, delta) {
   const next = Math.max(1, Math.min(20, current + delta));
   config.updateMaxRow(key, next);
   el.textContent = next;
+  renderPreview();
+}
+
+function setPresetDirect(key, val) {
+  const v = parseInt(val, 10);
+  if (isNaN(v) || v < 30 || v > 300) return;
+  config.updatePreset(key, v);
+  renderPreview();
+}
+
+function setMaxRowDirect(key, val) {
+  const v = parseInt(val, 10);
+  if (isNaN(v) || v < 1 || v > 20) return;
+  config.updateMaxRow(key, v);
   renderPreview();
 }
 
@@ -952,9 +968,24 @@ function setupDragAndDrop() {
 function syncConfigUI() {
   for (const key of ['S', 'M', 'L']) {
     const presetEl = document.getElementById('preset' + key);
-    if (presetEl) presetEl.textContent = config.PRESETS[key];
+    if (presetEl && presetEl.tagName === 'SELECT') {
+      const val = String(config.PRESETS[key]);
+      // If the value doesn't match any option, default to the first option
+      if ([...presetEl.options].some(o => o.value === val)) {
+        presetEl.value = val;
+      } else {
+        presetEl.selectedIndex = 0;
+      }
+    }
     const maxEl = document.getElementById('max' + key);
-    if (maxEl) maxEl.textContent = config.MAX_PER_ROW[key];
+    if (maxEl && maxEl.tagName === 'SELECT') {
+      const val = String(config.MAX_PER_ROW[key]);
+      if ([...maxEl.options].some(o => o.value === val)) {
+        maxEl.value = val;
+      } else {
+        maxEl.selectedIndex = 0;
+      }
+    }
   }
 }
 
