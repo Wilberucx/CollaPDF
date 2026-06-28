@@ -445,8 +445,10 @@ body {
 .documents-list {
   display: flex;
   flex-direction: column;
-  padding: 8px;
+  padding: 8px 8px 0;
   gap: 8px;
+  flex: 1;
+  min-height: 0;
 }
 
 .document-card {
@@ -1383,16 +1385,11 @@ body {
     width: 16px !important;
     height: 16px !important;
   }
-
-  /* Add document button (mobile) */
-  .add-doc-btn {
-    display: inline-flex !important;
-  }
 }
 
-/* Add document button (mobile) */
+/* Add document button */
 .add-doc-btn {
-  display: none;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
@@ -1405,7 +1402,7 @@ body {
   padding: 12px 16px;
   border-radius: var(--radius);
   cursor: pointer;
-  margin: 4px 12px 8px;
+  margin: 8px 12px;
   border: 1px solid var(--accent);
   width: calc(100% - 24px);
   text-transform: uppercase;
@@ -1414,6 +1411,9 @@ body {
 .add-doc-btn:hover {
   background: var(--accent);
   color: #0c0c0c;
+}
+.add-doc-btn:hover svg {
+  stroke: #0c0c0c;
 }
 
 /* Loader overlay */
