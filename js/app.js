@@ -28,7 +28,6 @@ window.app = {
   onDragLeave,
   onDrop,
   exportPDF,
-  switchTab,
   toggleSettings,
   setLayoutMode,
   presetStep,
@@ -244,6 +243,7 @@ function toggleSettings() {
   const backdrop = document.getElementById('settingsBackdrop');
   const btn = document.getElementById('settingsBtn');
   const open = el.classList.toggle('open');
+  el.classList.toggle('active', open);
   if (backdrop) backdrop.classList.toggle('open', open);
   btn.classList.toggle('active', open);
 }
@@ -348,20 +348,6 @@ function toggleSidebar() {
   btn.classList.toggle('active', isCollapsed);
 }
 
-// ── MOBILE ──
-function switchTab(tab) {
-  document.querySelectorAll('.mob-tab').forEach(t =>
-    t.classList.toggle('active', t.dataset.tab === tab)
-  );
-  const preview = document.querySelector('.preview-area');
-  const right = document.querySelector('.sidebar-right');
-  
-  preview.classList.toggle('mob-hidden', tab !== 'preview');
-  right.classList.toggle('active', tab === 'settings');
-  
-  if (tab === 'preview') renderPreview();
-}
-
 // ── DOC PANEL (mobile) ──
 function toggleDocPanel(docId) {
   const panel = document.getElementById('docPanel');
@@ -419,9 +405,6 @@ function renderDocPanelContent(doc) {
             onchange="app.renameImage('${doc.id}', '${img.id}', this.value); app.refreshDocPanel('${doc.id}')"
             onclick="event.stopPropagation()"
             title="Renombrar imagen">
-          <button class="btn-icon danger" onclick="app.removeImage('${doc.id}', '${img.id}')" title="Eliminar imagen">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          </button>
           <span class="thumb-row-grip">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
           </span>
@@ -430,17 +413,32 @@ function renderDocPanelContent(doc) {
     });
     html += '</div>';
 
-    // Add images row
-    html += `
-      <div class="thumb-row add-row"
-        onclick="app.openFilePicker('${doc.id}')"
-        title="Agregar imágenes">
-        <div class="add-row-icon">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    // Check if any images are selected in this document
+    const selForDoc = sel.filter(s => s.docId === doc.id);
+    if (selForDoc.length > 0) {
+      // Show delete row instead
+      html += `
+        <div class="thumb-row add-row"
+          onclick="app.deleteSelectedImages()"
+          title="Eliminar seleccionadas">
+          <div class="add-row-icon" style="border-color:var(--danger);color:var(--danger)">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </div>
+          <span class="add-row-label" style="color:var(--danger)">ELIMINAR ${selForDoc.length} SELECCIONADA${selForDoc.length !== 1 ? 'S' : ''}</span>
         </div>
-        <span class="add-row-label">AGREGAR IMÁGENES</span>
-      </div>
-    `;
+      `;
+    } else {
+      html += `
+        <div class="thumb-row add-row"
+          onclick="app.openFilePicker('${doc.id}')"
+          title="Agregar imágenes">
+          <div class="add-row-icon">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <span class="add-row-label">AGREGAR IMÁGENES</span>
+        </div>
+      `;
+    }
   } else {
     // Empty state - show drop zone
     html += `
