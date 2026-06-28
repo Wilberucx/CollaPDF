@@ -214,8 +214,8 @@ body {
   right: 0;
   bottom: 0;
   width: 44vw;
-  min-width: 380px;
-  max-width: 600px;
+  min-width: 420px;
+  max-width: 720px;
   z-index: 200;
   background: var(--surface);
   display: flex;
@@ -1130,8 +1130,8 @@ body {
   bottom: 0;
   left: auto;
   width: 44vw;
-  min-width: 380px;
-  max-width: 600px;
+  min-width: 420px;
+  max-width: 720px;
   z-index: 200;
   background: var(--surface);
   display: flex;
@@ -1875,7 +1875,7 @@ body {
 
 /* Preview context: constrain button width to match preview pages */
 .preview-area .add-doc-btn {
-  max-width: 560px;
+  max-width: 860px;
 }
 
 /* Loader overlay */

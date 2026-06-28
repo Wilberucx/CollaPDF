@@ -18,7 +18,7 @@ export function renderPreview() {
   }
 
   const areaW = area.clientWidth - 48;
-  const PREVIEW_W = Math.min(Math.max(areaW, 300), 720);
+  const PREVIEW_W = Math.min(Math.max(areaW, 300), 860);
   const scale = PREVIEW_W / PDF.w;
   const PREVIEW_H = PDF.h * scale;
 
