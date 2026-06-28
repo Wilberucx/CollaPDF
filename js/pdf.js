@@ -62,9 +62,9 @@ export async function exportPDF() {
 
       // Nombre del PDF
       const baseName = doc.name.replace(/[^a-zA-Z0-9\-_"]/g, '_');
-      const idx = di + 1;
-      const suffix = docsWithImages.length > 1 ? `_${idx}` : '';
-      const filename = `${baseName}${suffix}_${doc.images.length}imgs_${pages.length}pag.pdf`;
+      const isDefaultName = /^Documento_\d+$/.test(baseName);
+      const namePart = isDefaultName ? `CollaPDF${di + 1}` : baseName;
+      const filename = `${namePart}.pdf`;
       pdfDoc.save(filename);
 
       // Pausa entre descargas
