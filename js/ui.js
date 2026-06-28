@@ -1,4 +1,4 @@
-import { CAPTION_H, CAPTION_PAD, PDF, PRESETS, MAX_PER_ROW, LAYOUT_MODE } from './config.js';
+import { CAPTION_H, CAPTION_PAD, PDF, PRESETS, MAX_PER_ROW, LAYOUT_MODE, SHOW_CAPTIONS } from './config.js';
 import { getDocuments, getSelectedImages, toggleImageSelection } from './state.js';
 import { buildPagesForDocument } from './layout.js';
 import { truncateName, esc } from './utils.js';
@@ -93,7 +93,7 @@ export function renderPreview() {
     const addImgBtn = document.createElement('button');
     addImgBtn.className = 'preview-doc-addimg-btn';
     addImgBtn.title = 'Agregar imágenes';
-    addImgBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Agregar';
+    addImgBtn.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Imagen';
     addImgBtn.addEventListener('click', () => window.app.openFilePicker(doc.id));
     row3.appendChild(addImgBtn);
 
@@ -139,26 +139,28 @@ export function renderPreview() {
           pageEl.appendChild(img);
 
           // Caption (item.capH from layout is in PDF pts, scale to preview)
-          const capH = (item.capH != null ? item.capH : CAPTION_H) * scale;
-          const capFont = Math.max(5, capH * 0.65);
-          const caption = document.createElement('div');
-          caption.style.cssText = `
-            position: absolute;
-            left: ${xPos.toFixed(1)}px;
-            top: ${((y + item.h + CAPTION_PAD) * scale).toFixed(1)}px;
-            width: ${(item.w * scale).toFixed(1)}px;
-            height: ${capH.toFixed(1)}px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: ${capFont.toFixed(1)}px;
-            color: #888;
-            font-family: 'Space Mono', monospace;
-            white-space: nowrap;
-            padding: 0 2px;
-          `;
-          caption.textContent = truncateName(item.img.name, Math.floor(item.w * scale / 5));
-          pageEl.appendChild(caption);
+          if (SHOW_CAPTIONS) {
+            const capH = (item.capH != null ? item.capH : CAPTION_H) * scale;
+            const capFont = Math.max(5, capH * 0.65);
+            const caption = document.createElement('div');
+            caption.style.cssText = `
+              position: absolute;
+              left: ${xPos.toFixed(1)}px;
+              top: ${((y + item.h + CAPTION_PAD) * scale).toFixed(1)}px;
+              width: ${(item.w * scale).toFixed(1)}px;
+              height: ${capH.toFixed(1)}px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: ${capFont.toFixed(1)}px;
+              color: #888;
+              font-family: 'Space Mono', monospace;
+              white-space: nowrap;
+              padding: 0 2px;
+            `;
+            caption.textContent = truncateName(item.img.name, Math.floor(item.w * scale / 5));
+            pageEl.appendChild(caption);
+          }
         });
 
         const num = document.createElement('div');

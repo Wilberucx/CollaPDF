@@ -1,4 +1,4 @@
-import { CAPTION_H, CAPTION_PAD, PDF } from './config.js';
+import { CAPTION_H, CAPTION_PAD, PDF, SHOW_CAPTIONS } from './config.js';
 import { getDocuments } from './state.js';
 import { buildPagesForDocument } from './layout.js';
 import { truncateName, showToast } from './utils.js';
@@ -48,13 +48,15 @@ export async function exportPDF() {
           pdfDoc.addImage(item.img.dataUrl, fmt, x, y, item.w, item.h, undefined, 'FAST');
 
           // Caption
-          const capFontSize = Math.max(6, (item.capH || CAPTION_H) * 0.7);
-          pdfDoc.setFontSize(capFontSize);
-          pdfDoc.setTextColor(140, 140, 140);
-          const capText = truncateName(item.img.name, Math.floor(item.w / 4));
-          pdfDoc.text(capText, x + item.w / 2, y + item.h + (CAPTION_PAD + (item.capH || CAPTION_H)) * 0.65, {
-            align: 'center'
-          });
+          if (SHOW_CAPTIONS) {
+            const capFontSize = Math.max(6, (item.capH || CAPTION_H) * 0.7);
+            pdfDoc.setFontSize(capFontSize);
+            pdfDoc.setTextColor(140, 140, 140);
+            const capText = truncateName(item.img.name, Math.floor(item.w / 4));
+            pdfDoc.text(capText, x + item.w / 2, y + item.h + (CAPTION_PAD + (item.capH || CAPTION_H)) * 0.65, {
+              align: 'center'
+            });
+          }
         }
       }
 

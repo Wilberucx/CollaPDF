@@ -36,6 +36,7 @@ window.app = {
   setPresetDirect,
   setMaxRowDirect,
   setFontScale,
+  setShowCaptions,
   getDocuments: state.getDocuments,
   toggleImageSelection,
   deleteSelectedImages,
@@ -317,6 +318,22 @@ function updateFontScaleUI() {
     if (btn) {
       btn.classList.toggle('active', config.FONT_SCALE === s);
     }
+  }
+}
+
+// ── NAMES TOGGLE (captions) ──
+function setShowCaptions(val) {
+  config.setShowCaptions(val);
+  renderPreview();
+  updateCaptionsToggleUI();
+}
+
+function updateCaptionsToggleUI() {
+  const onBtn = document.getElementById('captionsOn');
+  const offBtn = document.getElementById('captionsOff');
+  if (onBtn && offBtn) {
+    onBtn.classList.toggle('active', config.SHOW_CAPTIONS === true);
+    offBtn.classList.toggle('active', config.SHOW_CAPTIONS === false);
   }
 }
 
@@ -1002,6 +1019,7 @@ ui.renderSidebar();
 renderPreview();
 updateStats();
 updateLayoutToggleUI();
+updateCaptionsToggleUI();
 
 // ── RESPONSIVE ──
 window.addEventListener('resize', () => {

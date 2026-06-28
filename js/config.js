@@ -16,7 +16,8 @@ const DEFAULTS = {
   PRESETS: { S: 70, M: 130, L: 200 },
   MAX_PER_ROW: { S: 8, M: 5, L: 3 },
   LAYOUT_MODE: 'justified',
-  FONT_SCALE: 'M'
+  FONT_SCALE: 'M',
+  SHOW_CAPTIONS: true
 };
 
 // Inicializar desde localStorage o defaults
@@ -29,7 +30,8 @@ function loadConfig() {
         PRESETS: { ...DEFAULTS.PRESETS, ...parsed.PRESETS },
         MAX_PER_ROW: { ...DEFAULTS.MAX_PER_ROW, ...parsed.MAX_PER_ROW },
         LAYOUT_MODE: parsed.LAYOUT_MODE || DEFAULTS.LAYOUT_MODE,
-        FONT_SCALE: parsed.FONT_SCALE || DEFAULTS.FONT_SCALE
+        FONT_SCALE: parsed.FONT_SCALE || DEFAULTS.FONT_SCALE,
+        SHOW_CAPTIONS: parsed.SHOW_CAPTIONS !== undefined ? parsed.SHOW_CAPTIONS : DEFAULTS.SHOW_CAPTIONS
       };
     }
   } catch (e) {
@@ -44,7 +46,8 @@ function saveConfig() {
       PRESETS,
       MAX_PER_ROW,
       LAYOUT_MODE,
-      FONT_SCALE
+      FONT_SCALE,
+      SHOW_CAPTIONS
     }));
   } catch (e) {
     console.error('Failed to save config to localStorage:', e);
@@ -56,6 +59,7 @@ export let PRESETS = loaded.PRESETS;
 export let MAX_PER_ROW = loaded.MAX_PER_ROW;
 export let LAYOUT_MODE = loaded.LAYOUT_MODE;
 export let FONT_SCALE = loaded.FONT_SCALE;
+export let SHOW_CAPTIONS = loaded.SHOW_CAPTIONS;
 
 export function updatePreset(key, val) {
   const v = parseInt(val);
@@ -91,4 +95,9 @@ export function setFontScale(scale) {
 
 export function getFontScaleValue() {
   return FONT_SCALE_MAP[FONT_SCALE] || 1.0;
+}
+
+export function setShowCaptions(val) {
+  SHOW_CAPTIONS = !!val;
+  saveConfig();
 }

@@ -966,7 +966,7 @@ body {
   color: var(--accent);
   border: 1px solid var(--accent);
   border-radius: 3px;
-  padding: 4px 10px;
+  padding: 3px 7px;
 }
 .preview-doc-addimg-btn:hover {
   background: var(--accent);
@@ -1732,7 +1732,7 @@ body {
   }
   .preview-doc-addimg-btn {
     font-size: 0.786rem;
-    padding: 6px 12px;
+    padding: 5px 11px;
   }
   .preview-doc-editimg-btn {
     font-size: 0.786rem;
