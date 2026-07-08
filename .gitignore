@@ -1,4 +1,27 @@
-# Build artifacts
+# ── Node / npm ──
+node_modules/
+
+# ── IDE ──
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ── OS ──
+.DS_Store
+Thumbs.db
+
+# ── Build artifacts ──
 dist/
 build/cli/inline.html
 *.exe
+
+# ── Capacitor / Android ──
+# android/ itself contains source files that must be tracked;
+# the android/.gitignore handles generated files inside it.
+
+# ── Local config ──
+.env
+.local
+

@@ -4,10 +4,10 @@
 import * as config from './config.js';
 import * as state from './state.js';
 import * as ui from './ui.js';
-import { exportPDF } from './pdf.js';
+import { exportPDF, downloadPendingPdfs, sharePendingPdfs, clearPendingExports } from './pdf.js';
 import { renderPreview } from './ui.js';
 import { buildPagesForDocument } from './layout.js';
-import { esc } from './utils.js';
+import { esc, showToast } from './utils.js';
 
 // ── Exponer API pública globalmente para los onclick del HTML ──
 window.app = {
@@ -36,6 +36,7 @@ window.app = {
   setMaxRowDirect,
   setFontScale,
   setShowCaptions,
+  showToast,
   getDocuments: state.getDocuments,
   toggleImageSelection,
   deleteSelectedImages,
@@ -47,7 +48,14 @@ window.app = {
   toggleDocEditPanel,
   closeDocEditPanel,
   refreshDocEditPanel,
-  toggleSidebar
+  toggleSidebar,
+  showShareDialog,
+  closeShareDialog,
+  showShareSaving,
+  showShareSuccess,
+  showShareError,
+  shareDialogSave,
+  shareDialogShare
 };
 
 // ── FILE PICKER ──
@@ -82,6 +90,8 @@ async function loadImages(files, docId) {
         img.onerror = () => resolve(null);
         img.src = dataUrl;
       };
+      reader.onerror = () => resolve(null);
+      reader.onabort = () => resolve(null);
       reader.readAsDataURL(file);
     })
   );
@@ -629,6 +639,135 @@ function clearSelection() {
     refreshDocPanel(panel.dataset.docId);
   }
   ui.renderSidebar();
+}
+
+// ── SHARE DIALOG (mobile) ──
+function showShareDialog() {
+  const dialog = document.getElementById('shareDialog');
+  const backdrop = document.getElementById('shareDialogBackdrop');
+  const actions = document.getElementById('shareDialogActions');
+  const saving = document.getElementById('shareDialogSaving');
+  const result = document.getElementById('shareDialogResult');
+  if (dialog && backdrop) {
+    // Reset: show actions, hide others
+    if (actions) actions.style.display = '';
+    if (saving) saving.style.display = 'none';
+    if (result) result.style.display = 'none';
+    dialog.classList.add('open');
+    backdrop.classList.add('open');
+  }
+}
+
+function closeShareDialog() {
+  const dialog = document.getElementById('shareDialog');
+  const backdrop = document.getElementById('shareDialogBackdrop');
+  if (dialog && backdrop) {
+    dialog.classList.remove('open');
+    backdrop.classList.remove('open');
+  }
+}
+
+function showShareSaving() {
+  const actions = document.getElementById('shareDialogActions');
+  const saving = document.getElementById('shareDialogSaving');
+  const result = document.getElementById('shareDialogResult');
+  if (actions) actions.style.display = 'none';
+  if (result) result.style.display = 'none';
+  if (saving) saving.style.display = '';
+}
+
+function showShareSuccess(pathMessage) {
+  const actions = document.getElementById('shareDialogActions');
+  const saving = document.getElementById('shareDialogSaving');
+  const result = document.getElementById('shareDialogResult');
+  const titleEl = document.getElementById('shareDialogResultTitle');
+  const iconWrap = document.getElementById('shareDialogResultIcon');
+  const svgEl = document.getElementById('shareDialogResultSvg');
+  const pathEl = document.getElementById('shareDialogResultPath');
+
+  if (actions) actions.style.display = 'none';
+  if (saving) saving.style.display = 'none';
+  if (result) result.style.display = '';
+
+  if (titleEl) {
+    titleEl.textContent = 'GUARDADO EXITOSO';
+    titleEl.classList.remove('share-dialog-error');
+  }
+  if (iconWrap) {
+    iconWrap.classList.remove('share-dialog-error');
+  }
+  if (svgEl) {
+    svgEl.setAttribute('viewBox', '0 0 24 24');
+    svgEl.innerHTML = '<polyline points="20 6 9 17 4 12"/>';
+  }
+  if (pathEl) {
+    pathEl.textContent = pathMessage || '';
+    pathEl.classList.remove('share-dialog-error');
+  }
+}
+
+function showShareError(errorMessage) {
+  const actions = document.getElementById('shareDialogActions');
+  const saving = document.getElementById('shareDialogSaving');
+  const result = document.getElementById('shareDialogResult');
+  const titleEl = document.getElementById('shareDialogResultTitle');
+  const iconWrap = document.getElementById('shareDialogResultIcon');
+  const svgEl = document.getElementById('shareDialogResultSvg');
+  const pathEl = document.getElementById('shareDialogResultPath');
+
+  if (actions) actions.style.display = 'none';
+  if (saving) saving.style.display = 'none';
+  if (result) result.style.display = '';
+
+  if (titleEl) {
+    titleEl.textContent = 'ERROR AL GUARDAR';
+    titleEl.classList.add('share-dialog-error');
+  }
+  if (iconWrap) {
+    iconWrap.classList.add('share-dialog-error');
+  }
+  if (svgEl) {
+    svgEl.setAttribute('viewBox', '0 0 24 24');
+    svgEl.innerHTML = '<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>';
+  }
+  if (pathEl) {
+    pathEl.textContent = errorMessage || 'Ocurrió un error inesperado.';
+    pathEl.classList.add('share-dialog-error');
+  }
+}
+
+function shareDialogSave() {
+  // Capture filenames before clearing
+  const exports = window.__pendingExports || [];
+  const filenames = exports.map(function(e) { return e.filename; });
+
+  // Show saving state inside dialog
+  showShareSaving();
+
+  // Download in background
+  setTimeout(() => {
+    downloadPendingPdfs();
+    clearPendingExports();
+
+    // Show success (optimistic — browser download has no completion callback)
+    var msg;
+    if (filenames.length === 1) {
+      msg = 'Documents/CollaPDF/' + filenames[0];
+    } else if (filenames.length > 1) {
+      msg = 'Documents/CollaPDF/: ' + filenames.join(', ');
+    } else {
+      msg = 'PDF descargado en el navegador';
+    }
+    showShareSuccess(msg);
+  }, 400);
+}
+
+function shareDialogShare() {
+  closeShareDialog();
+  setTimeout(() => {
+    sharePendingPdfs();
+    clearPendingExports();
+  }, 200);
 }
 
 // ── STATS ──

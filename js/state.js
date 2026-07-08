@@ -147,14 +147,6 @@ export function reorderImages(docId, fromIndex, toIndex) {
   saveState();
 }
 
-/**
- * Reorder documents inside the state array.
- * @param {string} draggedId 
- * @param {string} targetId 
- * @param {'before'|'after'} position 
- */
-// ── SELECTION ──
-
 export function getSelectedImages() { return selectedImages; }
 
 export function toggleImageSelection(docId, imgId) {
@@ -185,6 +177,12 @@ export function deleteSelectedImages() {
   saveState();
 }
 
+/**
+ * Reorder documents inside the state array.
+ * @param {string} draggedId 
+ * @param {string} targetId 
+ * @param {'before'|'after'} position 
+ */
 export function reorderDocuments(draggedId, targetId, position) {
   const draggedIndex = documents.findIndex(d => d.id === draggedId);
   const targetIndex = documents.findIndex(d => d.id === targetId);

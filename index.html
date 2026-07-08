@@ -253,6 +253,68 @@
   </div>
 </div>
 
+<!-- Share Dialog (mobile) -->
+<div class="share-dialog-backdrop" id="shareDialogBackdrop" onclick="app.closeShareDialog()"></div>
+<div class="share-dialog" id="shareDialog">
+  <!-- Initial state: actions -->
+  <div class="share-dialog-inner" id="shareDialogActions">
+    <div class="share-dialog-header">
+      <span class="share-dialog-title">PDF GENERADO</span>
+      <button class="share-dialog-close" onclick="app.closeShareDialog()" title="Cerrar">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="share-dialog-body">
+      <div class="share-dialog-icon">
+        <svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </div>
+      <div class="share-dialog-subtitle">Elegí qué hacer con el PDF</div>
+      <div class="share-dialog-actions">
+        <button class="share-dialog-btn share-dialog-btn-primary" id="shareDialogSaveBtn" onclick="app.shareDialogSave()">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Guardar PDF
+        </button>
+        <button class="share-dialog-btn share-dialog-btn-secondary" id="shareDialogShareBtn" onclick="app.shareDialogShare()">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          Compartir PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saving state: in-progress -->
+  <div class="share-dialog-inner share-dialog-saving" id="shareDialogSaving" style="display:none">
+    <div class="share-dialog-header">
+      <span class="share-dialog-title share-dialog-saving-title">GUARDANDO...</span>
+      <button class="share-dialog-close" onclick="app.closeShareDialog()" title="Cerrar">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="share-dialog-body">
+      <div class="share-dialog-icon share-dialog-saving-icon">
+        <div class="share-spinner"></div>
+      </div>
+      <div class="share-dialog-saving-text">Guardando PDF en el dispositivo...</div>
+    </div>
+  </div>
+
+  <!-- Result state: success or error (dynamic via JS) -->
+  <div class="share-dialog-inner share-dialog-result" id="shareDialogResult" style="display:none">
+    <div class="share-dialog-header">
+      <span class="share-dialog-title share-dialog-result-title" id="shareDialogResultTitle">GUARDADO EXITOSO</span>
+      <button class="share-dialog-close" onclick="app.closeShareDialog()" title="Cerrar">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="share-dialog-body">
+      <div class="share-dialog-icon share-dialog-result-icon" id="shareDialogResultIcon">
+        <svg id="shareDialogResultSvg" viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="share-dialog-result-path" id="shareDialogResultPath">Documents/CollaPDF/documento.pdf</div>
+    </div>
+  </div>
+</div>
+
 <input type="file" id="fileInput" multiple accept="image/*">
 
 <script type="module" src="js/app.js?v=1"></script>

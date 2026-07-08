@@ -3,6 +3,17 @@ import { getDocuments } from './state.js';
 import { buildPagesForDocument } from './layout.js';
 import { truncateName, showToast } from './utils.js';
 
+// ── Pending exports for mobile share dialog ──
+// Stored here so both pdf.js and capacitor.js can access them.
+// The share dialog in app.js reads/writes this.
+let pendingExports = [];
+window.__pendingExports = pendingExports;
+
+function setPendingExports(arr) {
+  pendingExports = arr;
+  window.__pendingExports = arr;
+}
+
 /**
  * Exportar un PDF por documento
  */
@@ -65,14 +76,31 @@ export async function exportPDF() {
       const isDefaultName = /^Documento_\d+$/.test(baseName);
       const namePart = isDefaultName ? `CollaPDF${di + 1}` : baseName;
       const filename = `${namePart}.pdf`;
-      pdfDoc.save(filename);
+
+      // On mobile or Capacitor: collect blob for the share dialog instead of downloading directly
+      const isMobile = window.innerWidth <= 640 || window.__capacitorMode;
+      if (isMobile) {
+        const blob = pdfDoc.output('blob');
+        pendingExports.push({ blob, filename, docName: doc.name });
+      } else {
+        pdfDoc.save(filename);
+      }
 
       // Pausa entre descargas
-      if (di < docsWithImages.length - 1) {
+      if (!isMobile && di < docsWithImages.length - 1) {
         await new Promise(r => setTimeout(r, 200));
       }
     }
-    showToast('PDF generado con éxito.', 'success');
+    // On mobile: show share dialog instead of immediate download
+    if (pendingExports.length > 0) {
+      setPendingExports(pendingExports);
+      showToast('PDF generado con éxito.', 'success');
+      if (window.app && window.app.showShareDialog) {
+        window.app.showShareDialog();
+      }
+    } else {
+      showToast('PDF generado con éxito.', 'success');
+    }
   } catch (err) {
     console.error(err);
     showToast('Error al generar PDF: ' + err.message, 'error');
@@ -83,4 +111,76 @@ export async function exportPDF() {
       exportBtn.textContent = originalText;
     }
   }
+}
+
+/**
+ * Download all pending PDFs (used by the share dialog's "Guardar")
+ */
+export function downloadPendingPdfs() {
+  const exports = window.__pendingExports || [];
+  if (!exports.length) return;
+
+  function downloadOne(index) {
+    if (index >= exports.length) return;
+    const { blob, filename } = exports[index];
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    // Download next after a small delay
+    setTimeout(() => downloadOne(index + 1), 300);
+  }
+
+  downloadOne(0);
+}
+
+/**
+ * Share pending PDFs via Web Share API (used by "Compartir")
+ * Falls back to download if Web Share is not available.
+ */
+export function sharePendingPdfs() {
+  const exports = window.__pendingExports || [];
+  if (!exports.length) return;
+
+  // Try Web Share API
+  if (navigator.share && exports.length === 1) {
+    const { blob, filename } = exports[0];
+    const file = new File([blob], filename, { type: 'application/pdf' });
+    navigator.share({
+      title: filename,
+      files: [file]
+    }).catch(() => {
+      // User cancelled or error – fallback to download
+      downloadPendingPdfs();
+    });
+    return;
+  }
+
+  if (navigator.share && exports.length > 1) {
+    const files = exports.map(({ blob, filename }) =>
+      new File([blob], filename, { type: 'application/pdf' })
+    );
+    navigator.share({
+      title: 'CollaPDF - Documentos',
+      files: files
+    }).catch(() => {
+      downloadPendingPdfs();
+    });
+    return;
+  }
+
+  // Fallback: download instead
+  downloadPendingPdfs();
+}
+
+/**
+ * Clear pending exports
+ */
+export function clearPendingExports() {
+  setPendingExports([]);
 }

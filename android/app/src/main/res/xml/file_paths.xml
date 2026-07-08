@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  FileProvider paths for CollaPDF.
+  Each entry maps a storage location to a content:// URI subdirectory.
+
+  - external-path:    Environment.getExternalStorageDirectory()        (deprecated, pre-API 30)
+  - external-files-path:  Context.getExternalFilesDir()                (API 30+, app-private documents)
+  - files-path:       Context.getFilesDir()                            (internal fallback)
+  - cache-path:       Context.getCacheDir()                            (temporary/cached files)
+-->
+<paths xmlns:android="http://schemas.android.com/apk/res/android">
+    <external-path name="public_storage" path="." />
+    <external-files-path name="documents" path="." />
+    <files-path name="internal_documents" path="." />
+    <cache-path name="cache" path="." />
+</paths>
