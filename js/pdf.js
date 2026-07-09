@@ -13,6 +13,7 @@ function setPendingExports(arr) {
   pendingExports = arr;
   window.__pendingExports = arr;
 }
+window.__setPendingExports = setPendingExports;
 
 /**
  * Exportar un PDF por documento
@@ -71,10 +72,9 @@ export async function exportPDF() {
         }
       }
 
-      // Nombre del PDF
-      const baseName = doc.name.replace(/[^a-zA-Z0-9\-_"]/g, '_');
-      const isDefaultName = /^Documento_\d+$/.test(baseName);
-      const namePart = isDefaultName ? `CollaPDF${di + 1}` : baseName;
+      // Nombre del PDF: usa el nombre del documento sanitizado
+      // (ya viene como CollaPDF# desde addDocument)
+      const namePart = doc.name.replace(/[^a-zA-Z0-9\-_"]/g, '_');
       const filename = `${namePart}.pdf`;
 
       // On mobile or Capacitor: collect blob for the share dialog instead of downloading directly

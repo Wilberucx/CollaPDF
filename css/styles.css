@@ -1784,6 +1784,19 @@ body {
   stroke: #fff;
 }
 
+/* Clear button (when only one document — resets images instead of deleting) */
+.doc-edit-clear-btn {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.doc-edit-clear-btn:hover {
+  background: var(--accent);
+  color: #0c0c0c;
+}
+.doc-edit-clear-btn:hover svg {
+  stroke: #0c0c0c;
+}
+
 .doc-edit-reset-section {
   padding: 8px 12px 0;
 }

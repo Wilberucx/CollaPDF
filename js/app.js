@@ -7,7 +7,7 @@ import * as ui from './ui.js';
 import { exportPDF, downloadPendingPdfs, sharePendingPdfs, clearPendingExports } from './pdf.js';
 import { renderPreview } from './ui.js';
 import { buildPagesForDocument } from './layout.js';
-import { esc, showToast } from './utils.js';
+import { esc, showToast, deleteButtonInnerHtml } from './utils.js';
 
 // ── Exponer API pública globalmente para los onclick del HTML ──
 window.app = {
@@ -588,11 +588,10 @@ function renderDocEditPanelContent(doc) {
     </div>
     ` : ''}
 
-    <!-- Delete button -->
+    <!-- Delete/Clear button (contextual) -->
     <div class="settings-section" style="padding-top:16px">
-      <button class="doc-edit-delete-btn" onclick="app.removeDocument('${doc.id}');app.closeDocEditPanel()">
-        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-        Eliminar Documento
+      <button class="doc-edit-delete-btn ${state.getDocuments().length > 1 ? '' : 'doc-edit-clear-btn'}" onclick="app.removeDocument('${doc.id}');app.closeDocEditPanel()">
+        ${deleteButtonInnerHtml(state.getDocuments().length > 1)}
       </button>
     </div>
   `;

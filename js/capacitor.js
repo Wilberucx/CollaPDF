@@ -68,8 +68,14 @@
       }
 
       // 2) Reset pending exports and set up capacitor-specific dialog buttons
-      //    BEFORE calling the original export (pdf.js will show the dialog)
-      window.__pendingExports = [];
+      //    BEFORE calling the original export (pdf.js will show the dialog).
+      //    Use setPendingExports (if available) to keep module var + window in sync;
+      //    otherwise fall back to direct assignment.
+      if (window.__setPendingExports) {
+        window.__setPendingExports([]);
+      } else {
+        window.__pendingExports = [];
+      }
 
       window.app.shareDialogSave = function() {
         // Show saving state
@@ -79,27 +85,31 @@
 
         // Save in background via FileWriter
         setTimeout(function() {
-          saveToDevice(function(err, savedUris) {
+          saveToDevice(function(err, savedUris, savedFilenames) {
             if (err) {
               // Show error state in dialog
               if (window.app.showShareError) {
                 window.app.showShareError(err);
               }
             } else {
-              // Show success state with real saved filenames
-              var exports = window.__pendingExports || [];
-              var filenames = exports.map(function(e) { return e.filename; });
+              // Show success state with actual saved filenames (may include _1, _2 suffix)
               var msg;
-              if (filenames.length === 1) {
-                msg = 'Documents/CollaPDF/' + filenames[0];
+              if (savedFilenames && savedFilenames.length === 1) {
+                msg = 'Documents/CollaPDF/' + savedFilenames[0];
+              } else if (savedFilenames && savedFilenames.length > 1) {
+                msg = 'Documents/CollaPDF/: ' + savedFilenames.join(', ');
               } else {
-                msg = 'Documents/CollaPDF/: ' + filenames.join(', ');
+                msg = 'PDF guardado exitosamente';
               }
               if (window.app.showShareSuccess) {
                 window.app.showShareSuccess(msg);
               }
             }
-            window.__pendingExports = [];
+            if (window.__setPendingExports) {
+              window.__setPendingExports([]);
+            } else {
+              window.__pendingExports = [];
+            }
           });
         }, 200);
       };
@@ -118,7 +128,11 @@
                 console.warn('[CAP] sharePdfs error:', err);
               });
             }
-            window.__pendingExports = [];
+            if (window.__setPendingExports) {
+              window.__setPendingExports([]);
+            } else {
+              window.__pendingExports = [];
+            }
           });
         }, 200);
       };
@@ -153,6 +167,7 @@
       }
 
       var savedUris = [];
+      var savedFilenames = [];
       var pending = exports.length;
       var hasError = false;
 
@@ -168,9 +183,10 @@
           }).then(function(result) {
             if (hasError) return;
             savedUris.push(result.uri);
+            savedFilenames.push(result.filename || item.filename);
             pending--;
             if (pending === 0) {
-              if (callback) callback(null, savedUris);
+              if (callback) callback(null, savedUris, savedFilenames);
             }
           }).catch(function(err) {
             if (hasError) return;

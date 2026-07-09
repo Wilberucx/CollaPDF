@@ -50,9 +50,10 @@ export function setActiveDocumentId(id) { activeDocumentId = id; }
 
 export function addDocument() {
   dCounter++;
+  // Use sequential numbering for simple, export-consistent naming
   const newDoc = {
     id: 'd' + dCounter,
-    name: 'Documento ' + dCounter,
+    name: 'CollaPDF' + dCounter,
     preset: 'M',
     images: [],
     customRowH: null,
@@ -64,7 +65,15 @@ export function addDocument() {
 }
 
 export function removeDocument(id) {
-  if (documents.length === 1) return; // keep at least one
+  if (documents.length === 1) {
+    // Last document: clear all images instead of deleting
+    var doc = documents.find(function(d) { return d.id === id; });
+    if (doc) {
+      doc.images = [];
+      saveState();
+    }
+    return;
+  }
   documents = documents.filter(d => d.id !== id);
   saveState();
 }
