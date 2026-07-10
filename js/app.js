@@ -36,6 +36,8 @@ window.app = {
   setMaxRowDirect,
   setFontScale,
   setShowCaptions,
+  setSinglePdfExport,
+  getSinglePdfExport: () => config.SINGLE_PDF_EXPORT,
   showToast,
   getDocuments: state.getDocuments,
   toggleImageSelection,
@@ -344,6 +346,21 @@ function updateCaptionsToggleUI() {
   if (onBtn && offBtn) {
     onBtn.classList.toggle('active', config.SHOW_CAPTIONS === true);
     offBtn.classList.toggle('active', config.SHOW_CAPTIONS === false);
+  }
+}
+
+// ── EXPORT MODE TOGGLE (single PDF vs per-document) ──
+function setSinglePdfExport(val) {
+  config.setSinglePdfExport(val);
+  updateExportModeUI();
+}
+
+function updateExportModeUI() {
+  const separateBtn = document.getElementById('exportModeSeparate');
+  const combinedBtn = document.getElementById('exportModeCombined');
+  if (separateBtn && combinedBtn) {
+    separateBtn.classList.toggle('active', config.SINGLE_PDF_EXPORT === false);
+    combinedBtn.classList.toggle('active', config.SINGLE_PDF_EXPORT === true);
   }
 }
 
@@ -1156,6 +1173,7 @@ renderPreview();
 updateStats();
 updateLayoutToggleUI();
 updateCaptionsToggleUI();
+updateExportModeUI();
 
 // ── RESPONSIVE ──
 window.addEventListener('resize', () => {

@@ -171,16 +171,26 @@
       var pending = exports.length;
       var hasError = false;
 
+      // Helper to add a timeout to a promise
+      function withTimeout(promise, ms) {
+        return Promise.race([
+          promise,
+          new Promise(function(_, reject) {
+            setTimeout(function() { reject(new Error('Tiempo de espera agotado (' + ms/1000 + 's)')); }, ms);
+          })
+        ]);
+      }
+
       exports.forEach(function(item) {
         var reader = new FileReader();
         reader.onload = function() {
           if (hasError) return;
           var base64Data = reader.result.split(',')[1];
-          Plugins.FileWriter.writeBinary({
+          withTimeout(Plugins.FileWriter.writeBinary({
             filename: 'CollaPDF/' + item.filename,
             data: base64Data,
             directory: 'documents'
-          }).then(function(result) {
+          }), 15000).then(function(result) {
             if (hasError) return;
             savedUris.push(result.uri);
             savedFilenames.push(result.filename || item.filename);
@@ -191,8 +201,8 @@
           }).catch(function(err) {
             if (hasError) return;
             hasError = true;
-            console.warn('[CAP] FileWriter error:', err);
-            if (callback) callback('Error al escribir archivo: ' + (err.message || err));
+            console.warn('[CAP] FileWriter error/timeout:', err);
+            if (callback) callback('Error al guardar: ' + (err.message || err));
           });
         };
         reader.onerror = function() {

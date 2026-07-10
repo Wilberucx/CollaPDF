@@ -205,6 +205,19 @@
         </div>
       </div>
 
+      <div class="settings-section">
+        <div class="settings-section-title">Exportación</div>
+        <div class="settings-section-desc">Elegí cómo se agrupan los documentos al exportar el PDF.</div>
+        <div class="layout-toggle" id="exportModeToggle">
+          <button class="layout-toggle-btn" id="exportModeSeparate" onclick="app.setSinglePdfExport(false)" title="Un PDF por cada documento">
+            <span>1 PDF por doc</span>
+          </button>
+          <button class="layout-toggle-btn" id="exportModeCombined" onclick="app.setSinglePdfExport(true)" title="Todos los documentos en un solo PDF">
+            <span>PDF combinado</span>
+          </button>
+        </div>
+      </div>
+
     </div>
   </div>
 

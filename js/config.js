@@ -17,7 +17,8 @@ const DEFAULTS = {
   MAX_PER_ROW: { S: 8, M: 5, L: 3 },
   LAYOUT_MODE: 'justified',
   FONT_SCALE: 'M',
-  SHOW_CAPTIONS: true
+  SHOW_CAPTIONS: true,
+  SINGLE_PDF_EXPORT: false
 };
 
 // Inicializar desde localStorage o defaults
@@ -31,7 +32,8 @@ function loadConfig() {
         MAX_PER_ROW: { ...DEFAULTS.MAX_PER_ROW, ...parsed.MAX_PER_ROW },
         LAYOUT_MODE: parsed.LAYOUT_MODE || DEFAULTS.LAYOUT_MODE,
         FONT_SCALE: parsed.FONT_SCALE || DEFAULTS.FONT_SCALE,
-        SHOW_CAPTIONS: parsed.SHOW_CAPTIONS !== undefined ? parsed.SHOW_CAPTIONS : DEFAULTS.SHOW_CAPTIONS
+        SHOW_CAPTIONS: parsed.SHOW_CAPTIONS !== undefined ? parsed.SHOW_CAPTIONS : DEFAULTS.SHOW_CAPTIONS,
+        SINGLE_PDF_EXPORT: parsed.SINGLE_PDF_EXPORT !== undefined ? parsed.SINGLE_PDF_EXPORT : DEFAULTS.SINGLE_PDF_EXPORT
       };
     }
   } catch (e) {
@@ -47,7 +49,8 @@ function saveConfig() {
       MAX_PER_ROW,
       LAYOUT_MODE,
       FONT_SCALE,
-      SHOW_CAPTIONS
+      SHOW_CAPTIONS,
+      SINGLE_PDF_EXPORT
     }));
   } catch (e) {
     console.error('Failed to save config to localStorage:', e);
@@ -60,6 +63,7 @@ export let MAX_PER_ROW = loaded.MAX_PER_ROW;
 export let LAYOUT_MODE = loaded.LAYOUT_MODE;
 export let FONT_SCALE = loaded.FONT_SCALE;
 export let SHOW_CAPTIONS = loaded.SHOW_CAPTIONS;
+export let SINGLE_PDF_EXPORT = loaded.SINGLE_PDF_EXPORT;
 
 export function updatePreset(key, val) {
   const v = parseInt(val);
@@ -99,5 +103,10 @@ export function getFontScaleValue() {
 
 export function setShowCaptions(val) {
   SHOW_CAPTIONS = !!val;
+  saveConfig();
+}
+
+export function setSinglePdfExport(val) {
+  SINGLE_PDF_EXPORT = !!val;
   saveConfig();
 }

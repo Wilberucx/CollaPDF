@@ -33,6 +33,7 @@ var _c_updateMaxRow=updateMaxRow;
 var _c_setLayoutMode=setLayoutMode;
 var _c_setFontScale=setFontScale;
 var _c_setShowCaptions=setShowCaptions;
+var _c_setSinglePdfExport=setSinglePdfExport;
 BRIDGE
 
 # Process app.js: remove imports/exports, replace namespace refs to point to bridges or fallback to global scope
@@ -56,6 +57,7 @@ sed \
   -e 's/config\.setLayoutMode/_c_setLayoutMode/g' \
   -e 's/config\.setFontScale/_c_setFontScale/g' \
   -e 's/config\.setShowCaptions/_c_setShowCaptions/g' \
+  -e 's/config\.setSinglePdfExport/_c_setSinglePdfExport/g' \
   -e 's/state\.//g' \
   -e 's/ui\.//g' \
   -e 's/config\.//g' \

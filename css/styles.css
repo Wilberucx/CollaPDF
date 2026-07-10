@@ -42,7 +42,8 @@ body {
   display: flex;
   align-items: center;
   padding: 0 16px;
-  height: 48px;
+  min-height: 48px;
+  height: auto;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
   gap: 12px;
@@ -51,6 +52,7 @@ body {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   z-index: 10;
+  padding-top: env(safe-area-inset-top, 0);
 }
 .logo {
   font-family: "Archivo Black", sans-serif;

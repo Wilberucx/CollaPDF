@@ -65,6 +65,9 @@ export function addDocument() {
 }
 
 export function removeDocument(id) {
+  // Clean up any selected images belonging to this document
+  selectedImages = selectedImages.filter(s => s.docId !== id);
+
   if (documents.length === 1) {
     // Last document: clear all images instead of deleting
     var doc = documents.find(function(d) { return d.id === id; });
@@ -120,6 +123,9 @@ export function renameDocument(id, name) {
 }
 
 export function removeImage(docId, imgId) {
+  // Clean up any stale selection references
+  selectedImages = selectedImages.filter(s => !(s.docId === docId && s.imgId === imgId));
+
   const d = documents.find(d => d.id === docId);
   if (d) {
     d.images = d.images.filter(i => i.id !== imgId);
