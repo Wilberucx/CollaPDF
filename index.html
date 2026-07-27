@@ -234,9 +234,17 @@
 <div class="doc-panel" id="docPanel">
   <div class="doc-panel-header">
     <span class="doc-panel-title" id="docPanelTitle">Opciones</span>
-    <button class="doc-panel-close" onclick="app.closeDocPanel()" title="Cerrar">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
+    <div class="doc-panel-header-actions" id="docPanelHeaderActions">
+      <button class="doc-panel-action-btn sel-cancel" id="docPanelSelCancel" onclick="app.clearSelection()" style="display:none">Cancelar</button>
+      <button class="doc-panel-action-btn sel-delete" id="docPanelSelDelete" onclick="app.deleteSelectedImages()" style="display:none">Eliminar</button>
+      <button class="doc-panel-action-btn sel-undo" id="docPanelSelUndo" onclick="app.undoLastDelete()" style="display:none" title="Deshacer eliminación">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        Deshacer
+      </button>
+      <button class="doc-panel-close" onclick="app.closeDocPanel()" title="Cerrar">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
   </div>
   <div class="doc-panel-body" id="docPanelBody">
     <!-- Rendered dynamically by toggleDocPanel() -->

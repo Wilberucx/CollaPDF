@@ -42,6 +42,7 @@ window.app = {
   getDocuments: state.getDocuments,
   toggleImageSelection,
   deleteSelectedImages,
+  undoLastDelete,
   clearSelection,
   toggleDocPanel,
   closeDocPanel,
@@ -219,13 +220,10 @@ function renameDocument(id, name) {
   state.renameDocument(id, name);
   updateStats();
   ui.renderSidebar();
-  // Update doc panel title if open for this doc
+  // Update doc panel header if open for this doc (respects selection state)
   const panel = document.getElementById('docPanel');
   if (panel && panel.classList.contains('open') && panel.dataset.docId === id) {
-    const title = document.getElementById('docPanelTitle');
-    const docs = state.getDocuments();
-    const doc = docs.find(d => d.id === id);
-    if (doc) title.textContent = doc.name + ' (' + doc.images.length + ')'; 
+    updateDocPanelHeader();
   }
 }
 
@@ -398,6 +396,9 @@ function toggleDocPanel(docId) {
   // Render doc panel content (mobile list view)
   body.innerHTML = renderDocPanelContent(doc);
 
+  // Update header based on selection state (panel not yet 'open' but we need to call this)
+  updateDocPanelHeader();
+
   panel.classList.add('open');
   backdrop.classList.add('open');
 }
@@ -407,6 +408,43 @@ function closeDocPanel() {
   const backdrop = document.getElementById('docPanelBackdrop');
   panel.classList.remove('open');
   backdrop.classList.remove('open');
+  // Clear undo snapshot when panel closes
+  state.clearUndoSnapshot();
+}
+
+function updateDocPanelHeader() {
+  const panel = document.getElementById('docPanel');
+  if (!panel || !panel.classList.contains('open')) return;
+
+  const docId = panel.dataset.docId;
+  if (!docId) return;
+
+  const title = document.getElementById('docPanelTitle');
+  const cancelBtn = document.getElementById('docPanelSelCancel');
+  const deleteBtn = document.getElementById('docPanelSelDelete');
+  const undoBtn = document.getElementById('docPanelSelUndo');
+  const docs = state.getDocuments();
+  const doc = docs.find(d => d.id === docId);
+
+  const sel = state.getSelectedImages();
+  const selForDoc = sel.filter(s => s.docId === docId);
+
+  // Show undo button if there's an undo snapshot for this doc
+  const hasUndo = state.hasUndoSnapshot() && state.getUndoDocId() === docId;
+  if (undoBtn) {
+    undoBtn.style.display = hasUndo ? '' : 'none';
+  }
+
+  if (selForDoc.length > 0) {
+    title.textContent = selForDoc.length + ' seleccionada' + (selForDoc.length !== 1 ? 's' : '');
+    cancelBtn.style.display = '';
+    deleteBtn.style.display = '';
+    deleteBtn.textContent = 'Eliminar (' + selForDoc.length + ')';
+  } else {
+    title.textContent = doc ? doc.name + ' (' + doc.images.length + ')' : 'Opciones';
+    cancelBtn.style.display = 'none';
+    deleteBtn.style.display = 'none';
+  }
 }
 
 function renderDocPanelContent(doc) {
@@ -430,7 +468,6 @@ function renderDocPanelContent(doc) {
           </div>
           <input class="thumb-row-name" value="${esc(img.name)}"
             onchange="app.renameImage('${doc.id}', '${img.id}', this.value); app.refreshDocPanel('${doc.id}')"
-            onclick="event.stopPropagation()"
             title="Renombrar imagen">
           <span class="thumb-row-grip">
             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
@@ -440,32 +477,17 @@ function renderDocPanelContent(doc) {
     });
     html += '</div>';
 
-    // Check if any images are selected in this document
-    const selForDoc = sel.filter(s => s.docId === doc.id);
-    if (selForDoc.length > 0) {
-      // Show delete row instead
-      html += `
-        <div class="thumb-row add-row"
-          onclick="app.deleteSelectedImages()"
-          title="Eliminar seleccionadas">
-          <div class="add-row-icon" style="border-color:var(--danger);color:var(--danger)">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-          </div>
-          <span class="add-row-label" style="color:var(--danger)">ELIMINAR ${selForDoc.length} SELECCIONADA${selForDoc.length !== 1 ? 'S' : ''}</span>
+    // Always show the "Agregar imágenes" row (delete action moved to header)
+    html += `
+      <div class="thumb-row add-row"
+        onclick="app.openFilePicker('${doc.id}')"
+        title="Agregar imágenes">
+        <div class="add-row-icon">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         </div>
-      `;
-    } else {
-      html += `
-        <div class="thumb-row add-row"
-          onclick="app.openFilePicker('${doc.id}')"
-          title="Agregar imágenes">
-          <div class="add-row-icon">
-            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          </div>
-          <span class="add-row-label">AGREGAR IMÁGENES</span>
-        </div>
-      `;
-    }
+        <span class="add-row-label">AGREGAR IMÁGENES</span>
+      </div>
+    `;
   } else {
     // Empty state - show drop zone
     html += `
@@ -491,6 +513,8 @@ function refreshDocPanel(docId) {
   const doc = docs.find(d => d.id === docId);
   if (!doc) return;
   body.innerHTML = renderDocPanelContent(doc);
+  // Update header based on selection state
+  updateDocPanelHeader();
 }
 
 function refreshOpenDocPanel(docId) {
@@ -633,15 +657,43 @@ function toggleImageSelection(docId, imgId) {
   const panel = document.getElementById('docPanel');
   if (panel && panel.classList.contains('open') && panel.dataset.docId === docId) {
     refreshDocPanel(docId);
+    updateDocPanelHeader();
   }
   ui.renderSidebar();
 }
 
 function deleteSelectedImages() {
-  state.deleteSelectedImages();
+  // Guard: nothing to delete
+  const sel = state.getSelectedImages();
+  if (sel.length === 0) return;
+
+  // Save undo snapshot BEFORE deleting
   const panel = document.getElementById('docPanel');
   if (panel && panel.classList.contains('open')) {
+    state.saveUndoSnapshot(panel.dataset.docId);
+  }
+  state.deleteSelectedImages();
+  if (panel && panel.classList.contains('open')) {
     refreshDocPanel(panel.dataset.docId);
+    updateDocPanelHeader();
+  }
+  ui.renderSidebar();
+  renderPreview();
+  updateStats();
+  // Notify user about undo availability via toast
+  showToast('Imágenes eliminadas. Usá Deshacer para recuperarlas.', 'info', 3000);
+}
+
+function undoLastDelete() {
+  const restored = state.restoreUndoSnapshot();
+  if (restored > 0) {
+    showToast(restored + ' imagen' + (restored !== 1 ? 'es' : '') + ' restaurada' + (restored !== 1 ? 's' : ''), 'success');
+  }
+  const panel = document.getElementById('docPanel');
+  if (panel && panel.classList.contains('open')) {
+    const docId = panel.dataset.docId;
+    refreshDocPanel(docId);
+    updateDocPanelHeader();
   }
   ui.renderSidebar();
   renderPreview();
@@ -653,6 +705,7 @@ function clearSelection() {
   const panel = document.getElementById('docPanel');
   if (panel && panel.classList.contains('open')) {
     refreshDocPanel(panel.dataset.docId);
+    updateDocPanelHeader();
   }
   ui.renderSidebar();
 }
@@ -1075,6 +1128,10 @@ function setupDragAndDrop() {
       });
       panelTouchDraggedRow = null;
     }, { passive: true });
+
+    // ── Selection is handled via inline onclick on thumb-row-img-wrap (renderDocPanelContent)
+    // No delegated listeners needed — avoids double-toggle conflicts.
+    // Drag & drop touch handling still works via .thumb-row-grip above.
   }
 
   // ── Touch drag & drop for mobile list rows ──

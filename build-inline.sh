@@ -28,6 +28,9 @@ var _s_renameDocument=renameDocument;
 var _s_removeImage=removeImage;
 var _s_renameImage=renameImage;
 var _s_reorderImages=reorderImages;
+var _s_toggleImageSelection=toggleImageSelection;
+var _s_deleteSelectedImages=deleteSelectedImages;
+var _s_clearSelection=clearSelection;
 var _c_updatePreset=updatePreset;
 var _c_updateMaxRow=updateMaxRow;
 var _c_setLayoutMode=setLayoutMode;
@@ -52,6 +55,9 @@ sed \
   -e 's/state\.removeImage/_s_removeImage/g' \
   -e 's/state\.renameImage/_s_renameImage/g' \
   -e 's/state\.reorderImages/_s_reorderImages/g' \
+  -e 's/state\.toggleImageSelection/_s_toggleImageSelection/g' \
+  -e 's/state\.deleteSelectedImages/_s_deleteSelectedImages/g' \
+  -e 's/state\.clearSelection/_s_clearSelection/g' \
   -e 's/config\.updatePreset/_c_updatePreset/g' \
   -e 's/config\.updateMaxRow/_c_updateMaxRow/g' \
   -e 's/config\.setLayoutMode/_c_setLayoutMode/g' \

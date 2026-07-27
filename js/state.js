@@ -8,6 +8,9 @@ let activeDocumentId = null;
 // ── Selection state (multi-select on mobile) ──
 let selectedImages = []; // {docId, imgId}[]
 
+// ── Undo snapshot (single level, cleared when doc panel closes) ──
+let undoSnapshot = null; // { docId, images: [...] } | null
+
 // Initialize state from localStorage if available
 try {
   const saved = localStorage.getItem('collapdf_state');
@@ -177,6 +180,41 @@ export function toggleImageSelection(docId, imgId) {
 
 export function clearSelection() {
   selectedImages = [];
+}
+
+export function saveUndoSnapshot(docId) {
+  const doc = documents.find(d => d.id === docId);
+  if (!doc) return;
+  undoSnapshot = {
+    docId,
+    images: doc.images.map(img => ({ ...img })) // deep copy
+  };
+}
+
+export function restoreUndoSnapshot() {
+  if (!undoSnapshot) return 0;
+  const { docId, images } = undoSnapshot;
+  const doc = documents.find(d => d.id === docId);
+  if (!doc) return 0;
+  const restoredCount = images.length - doc.images.length;
+  doc.images = images;
+  // Clear any stale selections for this doc
+  selectedImages = selectedImages.filter(s => s.docId !== docId);
+  undoSnapshot = null;
+  saveState();
+  return restoredCount;
+}
+
+export function hasUndoSnapshot() {
+  return undoSnapshot !== null;
+}
+
+export function getUndoDocId() {
+  return undoSnapshot ? undoSnapshot.docId : null;
+}
+
+export function clearUndoSnapshot() {
+  undoSnapshot = null;
 }
 
 export function deleteSelectedImages() {

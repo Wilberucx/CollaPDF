@@ -1160,11 +1160,79 @@ body {
   padding: 14px 14px 10px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  gap: 8px;
 }
 .doc-panel-title {
   font-family: "Archivo Black", sans-serif;
   font-size: 1rem;
   color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.doc-panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.doc-panel-action-btn {
+  padding: 5px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.714rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.12s;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.doc-panel-action-btn.sel-cancel {
+  background: transparent;
+  color: var(--muted);
+}
+.doc-panel-action-btn.sel-cancel:hover {
+  color: var(--text);
+  border-color: var(--border2);
+  background: var(--surface2);
+}
+.doc-panel-action-btn.sel-delete {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+.doc-panel-action-btn.sel-delete:hover {
+  background: #e06060;
+  border-color: #e06060;
+}
+.doc-panel-action-btn.sel-undo {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: var(--radius);
+  border: 1px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-family: 'Space Mono', monospace;
+  font-size: 0.714rem;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.12s;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.doc-panel-action-btn.sel-undo:hover {
+  background: var(--accent);
+  color: #0c0c0c;
+}
+.doc-panel-action-btn.sel-undo:hover svg {
+  stroke: #0c0c0c;
+}
+.doc-panel-action-btn.sel-undo svg {
+  flex-shrink: 0;
 }
 .doc-panel-close {
   width: 32px;
@@ -1178,6 +1246,7 @@ body {
   align-items: center;
   justify-content: center;
   transition: all 0.12s;
+  flex-shrink: 0;
 }
 .doc-panel-close:hover {
   background: var(--surface2);
@@ -1209,14 +1278,11 @@ body {
   gap: 8px;
   padding: 6px 14px;
   border-bottom: 1px solid var(--border);
-  cursor: grab;
+  cursor: pointer;
   transition: background 0.12s;
 }
 .doc-panel-images .thumb-row:last-child {
   border-bottom: none;
-}
-.doc-panel-images .thumb-row:active {
-  cursor: grabbing;
 }
 .doc-panel-images .thumb-row.selected {
   background: rgba(240, 160, 48, 0.08);
