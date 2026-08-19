@@ -10,16 +10,45 @@ CollaPDF lets you organize images into **documents** and export each one as an i
 - **Grid layout** — fixed columns for uniform spacing
 - **3 size presets** — Compact, Normal, Wide (per document)
 - **Automatic captions** — filename appears below each image in the PDF
-- **One PDF per document** — each document generates its own PDF file
+- **Multi-image selection** — select multiple images to delete at once
+- **Undo (Deshacer)** — restore deleted images with one tap
+- **Touch drag & drop** — reorder images by dragging on mobile
+- **APK Android** — native app for Android devices
+- **One PDF per document or combined** — choose per-document or single PDF export
+- **Font scale** — adjust interface size (S/M/L)
 - **Responsive** — works on desktop and mobile
 
 ## Quick Start
 
-Open `index.html` directly in your browser. No build step required.
+### Browser (no build required)
 
-## CLI / Binarios
+Open `index.html` directly in any browser.
 
-### Quick Install
+### Android APK
+
+Download `app-debug.apk` from the [GitHub Releases](https://github.com/Wilberucx/CollaPDF/releases) page and install it on your device:
+
+```bash
+# Via ADB
+adb install app-debug.apk
+
+# Or transfer the APK to your device and open it
+```
+
+### CLI / Server
+
+```bash
+# Linux / macOS
+chmod +x collapdf-v1.5-<your-platform>
+./collapdf-v1.5-<your-platform>
+
+# Windows
+collapdf-v1.5-windows-x86_64.exe
+```
+
+The server starts on `http://localhost:8080`. Open that URL in your browser.
+
+## Quick Install (CLI)
 
 ```bash
 # Linux / macOS
@@ -29,48 +58,22 @@ curl -fsSL https://raw.githubusercontent.com/Wilberucx/CollaPDF/main/scripts/ins
 irm https://raw.githubusercontent.com/Wilberucx/CollaPDF/main/scripts/install.ps1 | iex
 ```
 
-Install a specific version:
+## Download Options
 
-```bash
-# Linux / macOS
-curl -fsSL https://raw.githubusercontent.com/Wilberucx/CollaPDF/main/scripts/install.sh | sh -s -- --version v1.1.0
-
-# Windows
-irm https://raw.githubusercontent.com/Wilberucx/CollaPDF/main/scripts/install.ps1 | iex -Args @{ Version = "v1.1.0" }
-```
-
-### Manual Download
-
-Download pre-compiled binaries from the [GitHub Releases](https://github.com/Wilberucx/CollaPDF/releases) page.
-
-### Usage
-
-```bash
-# Linux / macOS
-chmod +x collapdf-v1.4-<your-platform>
-./collapdf-v1.4-<your-platform>
-
-# Windows
-collapdf-v1.4-windows-x86_64.exe
-```
-
-The server starts on `http://localhost:8080`. Open that URL in your browser.
-
-### Supported Platforms
-
-| Binary | Platform |
-|--------|----------|
-| `collapdf-v1.4-linux-amd64` | Linux x86_64 |
-| `collapdf-v1.4-linux-arm64` | Linux ARM64 (Termux, Raspberry Pi) |
-| `collapdf-v1.4-darwin-amd64` | macOS Intel |
-| `collapdf-v1.4-darwin-arm64` | macOS Apple Silicon (M1/M2/M3) |
-| `collapdf-v1.4-windows-x86_64.exe` | Windows x86_64 |
+| Asset | Platform |
+|-------|----------|
+| `app-debug.apk` | Android |
+| `collapdf-v1.5-linux-amd64` | Linux x86_64 |
+| `collapdf-v1.5-linux-arm64` | Linux ARM64 (Termux, Raspberry Pi) |
+| `collapdf-v1.5-darwin-amd64` | macOS Intel |
+| `collapdf-v1.5-darwin-arm64` | macOS Apple Silicon (M1/M2/M3) |
+| `collapdf-v1.5-windows-x86_64.exe` | Windows x86_64 |
 
 ### Termux
 
 ```bash
-chmod +x collapdf-v1.4-linux-arm64
-./collapdf-v1.4-linux-arm64
+chmod +x collapdf-v1.5-linux-arm64
+./collapdf-v1.5-linux-arm64
 # Open http://localhost:8080 in Chrome/Firefox on Android
 ```
 
@@ -80,17 +83,27 @@ chmod +x collapdf-v1.4-linux-arm64
 sha256sum -c SHA256SUMS
 ```
 
-### Build from Source
+## Build from Source
 
 ```bash
-# Generate inline HTML
+# 1. Generate inline HTML (+ Capacitor dist/)
 ./build-inline.sh
 
-# Compile all 5 platforms
+# 2. Build Android APK (requires Android SDK)
+cd android && ./gradlew assembleDebug && cd ..
+
+# 3. Compile CLI binaries for all platforms
 ./build.sh
 
-# Create GitHub release draft
+# 4. Create GitHub release draft
 ./release.sh
+```
+
+### Dev workflow
+
+```bash
+# Build + install APK in one command
+./dev.sh
 ```
 
 ## Documentation
@@ -102,3 +115,4 @@ sha256sum -c SHA256SUMS
 - Vanilla JS (ES Modules)
 - [jsPDF](https://github.com/parallax/jsPDF) for PDF generation
 - Google Fonts (Space Mono, Archivo, Archivo Black)
+- [Capacitor](https://capacitorjs.com) — Android APK wrapper
